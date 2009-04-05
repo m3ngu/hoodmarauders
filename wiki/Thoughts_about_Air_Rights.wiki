@@ -6,4 +6,4 @@ It seems we have distinct data about the air rights available to each lot and th
 
 = Proposed Site =
 
-Please see the "hood marauders.kmz" file, a Google Earth "place" file. It's available in Downloads - http://code.google.com/p/hoodmarauders/downloads/list.
+Please see the "hood marauders.kmz" file, a Google Earth "place" file. It's available in Downloads - http://hoodmarauders.googlecode.com/files/Hood%20Marauders.kmz.
