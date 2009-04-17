@@ -26,6 +26,7 @@ using GoblinXNA.UI.Events;
 using GoblinXNA.Device.Capture;
 using GoblinXNA.Device.Vision;
 using GoblinXNA.Device.Vision.Marker;
+using Manhattanville.PieMenu;
 
 namespace Manhattanville
 {
@@ -40,13 +41,39 @@ namespace Manhattanville
         MarkerNode groundMarkerNode;
         List<GeometryNode> buildings;
         TransformNode parentTrans;
+        PieMenu.PieMenu menu;
+        PieMenuNode pieMenuRootNode;
 
         float y_shift = -62;
         float x_shift = -28.0f;
-
+        int centerX, centerY;
         public Manhattanville()
         {
             graphics = new GraphicsDeviceManager(this);
+
+            // Set vertical trace with the back buffer  
+            //graphics.SynchronizeWithVerticalRetrace = false;
+
+            // Use multi-sampling to smooth corners of objects  
+            //graphics.PreferMultiSampling = true;
+
+            // Set the update to run as fast as it can go or  
+            // with a target elapsed time between updates  
+            //IsFixedTimeStep = false;
+
+            // Make the mouse appear  
+            //IsMouseVisible = true;
+            MouseInput.OnlyHandleInsideWindow = false;
+
+            // Set back buffer resolution  
+            //graphics.PreferredBackBufferWidth = 1280;
+            //graphics.PreferredBackBufferHeight = 720;
+
+            // Make full screen  
+            //graphics.ToggleFullScreen(); 
+
+            menu = new PieMenu.PieMenu(this);
+
             Content.RootDirectory = "Content";
         }
 
@@ -87,7 +114,20 @@ namespace Manhattanville
 
             // Show Frames-Per-Second on the screen for debugging
             State.ShowFPS = true;
+            State.ShowNotifications = true;
+            GoblinXNA.UI.Notifier.FadeOutTime = 500;
 
+            // Add a mouse click handler for shooting a box model from the mouse location 
+            MouseInput.MouseMoveEvent += new HandleMouseMove(MouseMoveHandler);
+            KeyboardInput.KeyTypeEvent += new HandleKeyType(KeyTypeHandler);
+            MouseInput.MousePressEvent += new HandleMousePress(MousePressHandler);
+
+            centerX = Window.ClientBounds.Width / 2;
+            centerY = Window.ClientBounds.Height / 2;
+            MouseCenter();
+
+            LoadMenu();
+            
             base.Initialize();
         }
 
@@ -518,6 +558,59 @@ namespace Manhattanville
             file.Close();
         }
 
+        private void LoadMenu()
+        {
+            pieMenuRootNode = new PieMenuNode();
+            PieMenuNode parent, child;
+
+            parent = new PieMenuNode("Node 1", this.Content.Load<Texture2D>("Icons\\paint"), null);
+            pieMenuRootNode.Add(parent);
+
+            child = new PieMenuNode("Node 1.1", this.Content.Load<Texture2D>("Icons\\paint"), new SimpleDelegate(MenuAction));
+            parent.Add(child);
+
+            child = new PieMenuNode("Node 1.2", this.Content.Load<Texture2D>("Icons\\paint"), new SimpleDelegate(MenuAction));
+            parent.Add(child);
+
+            child = new PieMenuNode("Node 1.3", this.Content.Load<Texture2D>("Icons\\paint"), new SimpleDelegate(MenuAction));
+            parent.Add(child);
+
+            parent = new PieMenuNode("Node 2", this.Content.Load<Texture2D>("Icons\\paint"), null);
+            pieMenuRootNode.Add(parent);
+
+            child = new PieMenuNode("Node 2.1", this.Content.Load<Texture2D>("Icons\\paint"), new SimpleDelegate(MenuAction));
+            parent.Add(child);
+
+            child = new PieMenuNode("Node 2.2", this.Content.Load<Texture2D>("Icons\\paint"), new SimpleDelegate(MenuAction));
+            parent.Add(child);
+
+            child = new PieMenuNode("Node 2.3", this.Content.Load<Texture2D>("Icons\\paint"), new SimpleDelegate(MenuAction));
+            parent.Add(child);
+
+            child = new PieMenuNode("Node 2.4", this.Content.Load<Texture2D>("Icons\\paint"), new SimpleDelegate(MenuAction));
+            parent.Add(child);
+
+            child = new PieMenuNode("Node 2.5", this.Content.Load<Texture2D>("Icons\\paint"), new SimpleDelegate(MenuAction));
+            parent.Add(child);
+
+            child = new PieMenuNode("Node 2.6", this.Content.Load<Texture2D>("Icons\\paint"), new SimpleDelegate(MenuAction));
+            parent.Add(child);
+
+            parent = new PieMenuNode("Node 3", this.Content.Load<Texture2D>("Icons\\paint"), null);
+            pieMenuRootNode.Add(parent);
+
+            child = new PieMenuNode("Node 3.1", this.Content.Load<Texture2D>("Icons\\paint"), new SimpleDelegate(MenuAction));
+            parent.Add(child);
+
+            child = new PieMenuNode("Node 3.2", this.Content.Load<Texture2D>("Icons\\paint"), new SimpleDelegate(MenuAction));
+            parent.Add(child);
+
+            parent = new PieMenuNode("Node 4", this.Content.Load<Texture2D>("Icons\\paint"), new SimpleDelegate(MenuAction));
+            pieMenuRootNode.Add(parent);
+
+
+        }
+
         /// <summary>
         /// Allows the game to run logic such as updating the world,
         /// checking for collisions, gathering input, and playing audio.
@@ -525,6 +618,9 @@ namespace Manhattanville
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
+            
+            //UpdateMouse();
+
             base.Update(gameTime);
         }
 
@@ -535,6 +631,68 @@ namespace Manhattanville
         protected override void Draw(GameTime gameTime)
         {
             base.Draw(gameTime);
+        }
+
+        protected void MouseCenter()
+        {
+            Mouse.SetPosition(Window.ClientBounds.Width / 2, Window.ClientBounds.Height / 2);
+        }
+
+        protected void UpdateMouse(Vector2 selectionVector)
+        {
+            //GoblinXNA.UI.Notifier.AddMessage("Mouse Update!");
+
+            menu.HandleInput(selectionVector);
+            MouseCenter();
+
+            //Console.WriteLine("x=" + Mouse.GetState().X + " y=" + Mouse.GetState().Y);
+            //Console.WriteLine("x=" + Window.ClientBounds.Width + " y=" + Window.ClientBounds.Height);
+        }
+
+        private void MouseMoveHandler(Point mouseLocation)
+        {
+            int xDel = mouseLocation.X - centerX;
+            int yDel = mouseLocation.Y - centerY;
+
+            //GoblinXNA.UI.Notifier.AddMessage("x=" + xDel + " y=" + yDel);
+
+            if (new Vector2((float)xDel, (float)yDel).Length() > 100.0f)
+            {
+                UpdateMouse(new Vector2(xDel, yDel));
+            }
+        }
+
+        private void KeyTypeHandler(Keys key, KeyModifier modifier)
+        {
+            if (key == Keys.Q)
+            {
+                this.Exit();
+            }  
+        }
+
+        private void MousePressHandler(int button, Point mouseLocation)
+        {
+            if (button == MouseInput.LeftButton)
+            {
+                //GoblinXNA.UI.Notifier.AddMessage("Left");
+                if (!menu.Visible)
+                {
+                    menu.Show(pieMenuRootNode, new Vector2((float)centerX, (float)centerY));
+                }
+            }
+            else if (button == MouseInput.RightButton)
+            {
+                //GoblinXNA.UI.Notifier.AddMessage("Right");
+
+                menu.Back();
+            }
+        }
+
+        public void MenuAction(Object sender)
+        {
+            PieMenuNode sndr = (PieMenuNode)sender;
+            
+            GoblinXNA.UI.Notifier.AddMessage(sndr.Text + " Selected!");
         }
     }
 }
