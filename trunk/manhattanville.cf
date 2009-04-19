@@ -596,3 +596,133 @@ vtx=8.66,12.93,0 //lower left
 /marker
 
 /coordframe
+
+// coordframe
+// name="pointer1"
+// min_points=4
+//   marker
+//     id=663
+//     //-list of corners cw from top left
+//     vtx=-1.25,0,0 //upper left
+//     vtx=-1.25,2.5,0 //upper right
+//     vtx=1.25,2.5,0 //lower right
+//     vtx=1.25,0,0 //lower left
+//   /marker
+
+//   marker
+//     id=665
+//     //-list of corners cw from top left
+//     vtx=-1.25,12.5,0 //upper left
+//     vtx=-1.25,15,0 //upper right
+//     vtx=1.25,15,0 //lower right
+//     vtx=1.25,12.5,0 //lower left
+//   /marker
+
+//   marker
+//     id=667
+//     //-list of corners cw from top left
+//     vtx=-8.75,5,0 //upper left
+//     vtx=-8.75,10,0 //upper right
+//     vtx=-3.75,10,0 //lower right
+//     vtx=-3.75,5,0 //lower left
+//   /marker
+
+//   marker
+//     id=668
+//     //-list of corners cw from top left
+//     vtx=3.75,5,0 //upper left
+//     vtx=3.75,10,0 //upper right
+//     vtx=8.75,10,0 //lower right
+//     vtx=8.75,5,0 //lower left
+//   /marker
+
+   // marker
+   //  id=669
+     //-list of corners cw from top left
+   //  vtx=-5,17.5,0 //upper left
+   //  vtx=-5,27.5,0 //upper right
+   //  vtx=5,27.5,0 //lower right
+   //  vtx=5,17.5,0 //lower left
+   // /marker
+
+// /coordframe
+
+// coordframe
+// name="pointer2"
+// min_points=4
+//    
+//    marker
+//     id=669
+//     //-list of corners cw from top left
+//     vtx=-10,2.5,0 //upper left
+//     vtx=-10,7.5,0 //upper right
+//     vtx=-5,7.5,0 //lower right
+//     vtx=-5,2.5,0 //lower left
+//   /marker
+
+//   marker
+//     id=668
+//     //-list of corners cw from top left
+//     vtx=-2.5,2.5,0 //upper left
+//     vtx=-2.5,7.5,0 //upper right
+//     vtx=2.5,7.5,0 //lower right
+//     vtx=2.5,2.5,0 //lower left
+//   /marker
+
+//   marker
+//     id=667
+//     //-list of corners cw from top left
+//     vtx=5,2.5,0 //upper left
+//     vtx=5,7.5,0 //upper right
+//     vtx=10,7.5,0 //lower right
+//     vtx=10,2.5,0 //lower left
+//   /marker
+
+// /coordframe
+
+coordframe
+name="pointer3"
+min_points=4
+   
+    marker
+      id=667
+      //-list of corners cw from top left
+      vtx=0,0,0 //upper left
+      vtx=0,10,0 //upper right
+      vtx=10,10,0 //lower right
+      vtx=10,0,0 //lower left
+    /marker
+   
+    marker
+      id=668
+      //-list of corners cw from top left
+      vtx=15,0,0 //upper left
+      vtx=15,10,0 //upper right
+      vtx=25,10,0 //lower right
+      vtx=25,0,0 //lower left
+  /marker
+/coordframe
+
+// coordframe
+// name="pointer4"
+// min_points=4
+   
+//    marker
+//      id=667
+//      //-list of corners cw from top left
+//      vtx=0,0,0 //upper left
+//      vtx=0,8,0 //upper right
+//      vtx=8,8,0 //lower right
+//      vtx=8,0,0 //lower left
+//    /marker
+   
+//    marker
+//      id=668
+//      //-list of corners cw from top left
+//      vtx=12,0,0 //upper left
+//      vtx=12,8,0 //upper right
+//      vtx=20,8,0 //lower right
+//      vtx=20,0,0 //lower left
+//    /marker
+
+// /coordframe
