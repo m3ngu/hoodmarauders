@@ -40,7 +40,7 @@ namespace Manhattanville
 
         Scene scene;
         MarkerNode groundMarkerNode;
-        List<GeometryNode> buildings;
+        List<Building> buildings;
         TransformNode parentTrans;
         PieMenu.PieMenu menu;
         PieMenuNode pieMenuRootNode;
@@ -420,7 +420,7 @@ namespace Manhattanville
                 FileAccess.Read);
             StreamReader sr = new StreamReader(file);
 
-            buildings = new List<GeometryNode>();
+            buildings = new List<Building>();
             ModelLoader loader = new ModelLoader();
 
             float scale = 0.00728f;
@@ -447,7 +447,7 @@ namespace Manhattanville
                     {
                         chunks = s.Split(seps);
 
-                        GeometryNode building = new GeometryNode(chunks[0]);
+                        Building building = new Building(chunks[0]);
                         building.Model = (Model)loader.Load("", "Plain/" + chunks[0]);
                         building.AddToPhysicsEngine = true;
                         building.Physics.Shape = ShapeType.Box;
@@ -492,7 +492,7 @@ namespace Manhattanville
             FileStream file = new FileStream("buildings_detailed.csv", FileMode.Open, FileAccess.Read);
             StreamReader sr = new StreamReader(file);
 
-            buildings = new List<GeometryNode>();
+            buildings = new List<Building>();
             ModelLoader loader = new ModelLoader();
 
             float scale = 0.0073f;
@@ -520,7 +520,7 @@ namespace Manhattanville
                     {
                         chunks = s.Split(seps);
 
-                        GeometryNode building = new GeometryNode(chunks[0]);
+                        Building building = new Building(chunks[0]);
                         building.Model = (Model)loader.Load("", "Detailed/" + chunks[0]);
                         building.AddToPhysicsEngine = true;
                         building.Physics.Shape = ShapeType.Box;
