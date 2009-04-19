@@ -109,9 +109,9 @@ namespace Manhattanville
             CreateTerrain(factor);
 
             // Load plain buildings
-            //LoadPlainBuildings(factor);
+            LoadPlainBuildings(factor);
             // Load detailed buildings
-            LoadDetailedBuildings(factor);
+            //LoadDetailedBuildings(factor);
 
             // Show Frames-Per-Second on the screen for debugging
             State.ShowFPS = true;
@@ -416,7 +416,7 @@ namespace Manhattanville
 
         private void LoadPlainBuildings(float factor)
         {
-            FileStream file = new FileStream("buildings_plain.csv", FileMode.Open,
+            FileStream file = new FileStream("buildings_plain_subset.csv", FileMode.Open,
                 FileAccess.Read);
             StreamReader sr = new StreamReader(file);
 
