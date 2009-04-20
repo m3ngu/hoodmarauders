@@ -43,9 +43,12 @@ namespace Manhattanville
         MarkerNode groundMarkerNode;
         List<Building> buildings;
         MarkerNode toolMarkerNode;
+        Tool tool;
         TransformNode parentTrans;
         PieMenu.PieMenu menu;
         PieMenuNode pieMenuRootNode;
+
+        SpriteFont font;
 
         float y_shift = -62;
         float x_shift = -28.0f;
@@ -130,6 +133,25 @@ namespace Manhattanville
             MouseCenter();
 
             LoadMenu();
+
+            font = Content.Load<SpriteFont>("Fonts//UIFont");
+
+            Material mat = new Material();
+            mat.Specular = Color.White.ToVector4();
+            mat.Diffuse = Color.White.ToVector4();
+            mat.SpecularPower = 10;
+            mat.Texture = Data.txt2Txt(graphics.GraphicsDevice,"Hello World", 100, 20, font);
+
+            //mat.Texture.Save("test.jpg", ImageFileFormat.Jpg);
+
+            TexturedBox tb = new TexturedBox(100, 20, 0.1f);
+            GeometryNode textGeoNode = new GeometryNode("Text");
+            textGeoNode.Model = new Model(tb.Mesh);
+            textGeoNode.Material = mat;
+            TransformNode textTransNode = new TransformNode(new Vector3(20, 20, 0));
+            textTransNode.AddChild(textGeoNode);
+
+            toolMarkerNode.AddChild(textTransNode);
             
             base.Initialize();
         }
@@ -188,7 +210,9 @@ namespace Manhattanville
             toolMarkerNode.Optimize = false;
             toolMarkerNode.MaxDropouts = -1;
 
-            toolMarkerNode.AddChild(new Tool());
+            tool = new Tool();
+            tool.Marker = toolMarkerNode;
+            toolMarkerNode.AddChild(tool);
 
             // Display the camera image in the background
             scene.ShowCameraImage = true;
@@ -622,7 +646,7 @@ namespace Manhattanville
             child = new PieMenuNode("Node 3.2", this.Content.Load<Texture2D>("Icons\\paint"), new SimpleDelegate(MenuAction));
             parent.Add(child);
 
-            parent = new PieMenuNode("Node 4", this.Content.Load<Texture2D>("Icons\\paint"), new SimpleDelegate(MenuAction));
+            parent = new PieMenuNode("Node 4", this.Content.Load<Texture2D>("Icons\\paint"), new SimpleDelegate(getClosestBuilding));
             pieMenuRootNode.Add(parent);
 
 
@@ -684,6 +708,11 @@ namespace Manhattanville
             if (key == Keys.Q)
             {
                 this.Exit();
+            }
+
+            if (key == Keys.S)
+            {
+                Utilities.SaveScreenShot(graphics.GraphicsDevice, "ScreenShot.jpg");
             }  
         }
 
@@ -711,5 +740,38 @@ namespace Manhattanville
             
             GoblinXNA.UI.Notifier.AddMessage(sndr.Text + " Selected!");
         }
+
+        public void getClosestBuilding(Object sender)
+        {
+
+            GoblinXNA.UI.Notifier.AddMessage(tool.Marker.WorldTransformation.Translation.ToString());
+
+            float minDis = float.MaxValue;
+            Building closestBuilding = null;
+
+            foreach (Building b in buildings)
+            {
+                Matrix m = b.WorldTransformation * b.MarkerTransform;
+                float dis = (m.Translation - tool.Marker.WorldTransformation.Translation).Length();
+
+                if (dis < minDis)
+                {
+                    minDis = dis;
+                    closestBuilding = b;
+                }
+
+                System.Console.WriteLine(b.Name + " " + dis);
+
+
+            }
+
+            if (closestBuilding != null)
+            {
+                closestBuilding.Material.Diffuse = Color.Red.ToVector4();
+                GoblinXNA.UI.Notifier.AddMessage(closestBuilding.Name);
+            }
+
+        }
+
     }
 }
