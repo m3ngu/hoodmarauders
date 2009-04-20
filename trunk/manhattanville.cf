@@ -687,19 +687,19 @@ min_points=4
     marker
       id=667
       //-list of corners cw from top left
-      vtx=0,0,0 //upper left
-      vtx=0,10,0 //upper right
-      vtx=10,10,0 //lower right
-      vtx=10,0,0 //lower left
+      vtx=0,-5,0 //upper left
+      vtx=0,5,0 //upper right
+      vtx=10,5,0 //lower right
+      vtx=10,-5,0 //lower left
     /marker
    
     marker
       id=668
       //-list of corners cw from top left
-      vtx=15,0,0 //upper left
-      vtx=15,10,0 //upper right
-      vtx=25,10,0 //lower right
-      vtx=25,0,0 //lower left
+      vtx=15,-5,0 //upper left
+      vtx=15,5,0 //upper right
+      vtx=25,5,0 //lower right
+      vtx=25,-5,0 //lower left
   /marker
 /coordframe
 

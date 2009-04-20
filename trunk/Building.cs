@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
-using System;
-using System.Collections.Generic;
 using System.IO;
 
 using Microsoft.Xna.Framework;
@@ -39,7 +36,7 @@ namespace Manhattanville
         public Building (string name) : base(name)
         {
             this.name = name;
-            System.Console.WriteLine(name);
+            //System.Console.WriteLine(name);
         }
     }
 }
