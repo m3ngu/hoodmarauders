@@ -188,43 +188,10 @@ namespace Manhattanville
             toolMarkerNode.Optimize = false;
             toolMarkerNode.MaxDropouts = -1;
 
-            CreateTool();
+            toolMarkerNode.AddChild(new Tool());
 
             // Display the camera image in the background
             scene.ShowCameraImage = true;
-        }
-
-        private void CreateTool()
-        {
-            Material mat = new Material();
-            mat.Specular = Color.White.ToVector4();
-            mat.Diffuse = Color.Red.ToVector4();
-            mat.SpecularPower = 10;
-
-            GeometryNode toolGeoNode1 = new GeometryNode("Tool1");
-            toolGeoNode1.Model = new Box(5, 5, 0.1f);
-            toolGeoNode1.Material = mat;
-            TransformNode toolTransNode1 = new TransformNode(new Vector3(0, 5, 0));
-            toolTransNode1.AddChild(toolGeoNode1);
-
-            toolMarkerNode.AddChild(toolTransNode1);
-
-            GeometryNode toolGeoNode2 = new GeometryNode("Tool2");
-            toolGeoNode2.Model = new Box(5, 5, 0.1f);
-            toolGeoNode2.Material = mat;
-            TransformNode toolTransNode2 = new TransformNode(new Vector3(7.5f, 5, 0));
-            toolTransNode2.AddChild(toolGeoNode2);
-
-            toolMarkerNode.AddChild(toolTransNode2);
-
-            GeometryNode toolGeoNode3 = new GeometryNode("Tool3");
-            toolGeoNode3.Model = new Box(5, 5, 0.1f);
-            toolGeoNode3.Material = mat;
-            TransformNode toolTransNode3 = new TransformNode(new Vector3(15, 5, 0));
-            toolTransNode3.AddChild(toolGeoNode3);
-
-            toolMarkerNode.AddChild(toolTransNode3);
-
         }
 
         private void CreateTerrain(float factor)
