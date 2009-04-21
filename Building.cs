@@ -33,10 +33,10 @@ namespace Manhattanville
 {
     class Building : GeometryNode
     {
-        public Building (string name) : base(name)
+
+        public Building(string address) : base(address)
         {
-            this.name = name;
-            //System.Console.WriteLine(name);
+            System.Console.WriteLine(name);
         }
     }
 }
