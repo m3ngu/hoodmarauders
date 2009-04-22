@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 
@@ -146,7 +147,13 @@ namespace Manhattanville
             mat.Diffuse = Color.White.ToVector4();
             mat.SpecularPower = 10;
             mat.Texture = Data.txt2Txt(graphics.GraphicsDevice,"Hello World", 100, 20, font);
-            GoblinXNA.UI.Notifier.AddMessage(lots[0].name + "'s air rights: " + lots[0].airRights);
+
+            Hashtable lotInfo = lots[0].getInfoTable();
+            GoblinXNA.UI.Notifier.AddMessage(lots[0].name);
+            foreach (string key in lotInfo.Keys)
+            {
+                GoblinXNA.UI.Notifier.AddMessage(key + ": " + lotInfo[key]);
+            }
 
             //mat.Texture.Save("test.jpg", ImageFileFormat.Jpg);
 
@@ -509,7 +516,7 @@ namespace Manhattanville
                         chunks = s.Split(seps, System.StringSplitOptions.None);
                         //Console.WriteLine("size of chunks: " + chunks.Length);
 
-                        Lot lot = new Lot(chunks[0]);
+                        Lot lot = new Lot(chunks);
                         Building building = new Building(chunks[0]);
                         lot.addBuilding(building);
                         building.Model = (Model)loader.Load("", "Plain/" + chunks[0]);
@@ -517,7 +524,7 @@ namespace Manhattanville
                         building.Physics.Shape = ShapeType.Box;
 
                         lot.readInfo(chunks);
-                        System.Console.WriteLine(lot.floors);
+                        //System.Console.WriteLine(lot.floors);
 
                         lots.Add(lot); 
                         buildings.Add(building);
