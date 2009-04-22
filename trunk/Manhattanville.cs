@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
@@ -41,6 +40,7 @@ namespace Manhattanville
 
         Scene scene;
         MarkerNode groundMarkerNode;
+        List<Lot> lots;
         List<Building> buildings;
         Building selectedBuilding;
         MarkerNode toolMarkerNode;
@@ -146,6 +146,7 @@ namespace Manhattanville
             mat.Diffuse = Color.White.ToVector4();
             mat.SpecularPower = 10;
             mat.Texture = Data.txt2Txt(graphics.GraphicsDevice,"Hello World", 100, 20, font);
+            GoblinXNA.UI.Notifier.AddMessage(lots[0].name + "'s air rights: " + lots[0].airRights);
 
             //mat.Texture.Save("test.jpg", ImageFileFormat.Jpg);
 
@@ -189,6 +190,7 @@ namespace Manhattanville
             DirectShowCapture captureDevice = new DirectShowCapture();
             //captureDevice.InitVideoCapture(0, FrameRate._30Hz, Resolution._640x480, 
             //    ImageFormat.R8G8B8_24, false);
+//            captureDevice.InitVideoCapture(0, -1, FrameRate._30Hz, Resolution._640x480, false);
             captureDevice.InitVideoCapture(
                 Settings.CameraID,
                 -1, FrameRate._30Hz,
@@ -470,7 +472,6 @@ namespace Manhattanville
 
         private void LoadPlainBuildings(float factor)
         {
-
             String filename = "buildings_plain.csv";
             if (Settings.BuildingsSubset)
                 filename = "buildings_plain_subset.csv";
@@ -478,6 +479,7 @@ namespace Manhattanville
             FileStream file = new FileStream(filename, FileMode.Open, FileAccess.Read);
             StreamReader sr = new StreamReader(file);
 
+            lots = new List<Lot>();
             buildings = new List<Building>();
             ModelLoader loader = new ModelLoader();
 
@@ -503,13 +505,21 @@ namespace Manhattanville
 
                     if (s.Length > 0)
                     {
-                        chunks = s.Split(seps);
+                        //chunks = s.Split(seps);
+                        chunks = s.Split(seps, System.StringSplitOptions.None);
+                        //Console.WriteLine("size of chunks: " + chunks.Length);
 
+                        Lot lot = new Lot(chunks[0]);
                         Building building = new Building(chunks[0]);
+                        lot.addBuilding(building);
                         building.Model = (Model)loader.Load("", "Plain/" + chunks[0]);
                         building.AddToPhysicsEngine = true;
                         building.Physics.Shape = ShapeType.Box;
 
+                        lot.readInfo(chunks);
+                        System.Console.WriteLine(lot.floors);
+
+                        lots.Add(lot); 
                         buildings.Add(building);
 
                         zRot = (float)Double.Parse(chunks[1]);
@@ -532,6 +542,7 @@ namespace Manhattanville
                         building.Material = buildingMaterial;
 
                         parentTrans.AddChild(transNode);
+                        lot.transformNode = transNode;
                         transNode.AddChild(building);
                     }
                 }
@@ -551,6 +562,7 @@ namespace Manhattanville
             FileStream file = new FileStream("buildings_detailed.csv", FileMode.Open, FileAccess.Read);
             StreamReader sr = new StreamReader(file);
 
+            lots = new List<Lot>();
             buildings = new List<Building>();
             ModelLoader loader = new ModelLoader();
 
