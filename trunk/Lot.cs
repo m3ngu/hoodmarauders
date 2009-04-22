@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections;
 using System.Linq;
 using System.Text;
 using System.IO;
@@ -33,8 +34,12 @@ namespace Manhattanville
 {
     class Lot
     {
+        /* this is mostly just the model */
         public Building building;
+        
+        /* this is the transformNode that can be manipulated */
         public TransformNode transformNode;
+
         public String name;
         public String knownAs;
         public String realAddress;
@@ -60,39 +65,81 @@ namespace Manhattanville
         public String maxFlrAreaRatio;
         public String floors;
 
-        public Lot(String name)
+        /*mostly for output*/
+        private Hashtable infoTable;
+
+        public Lot(String[] chunks)
         {
-            this.name = name;
+            this.name = chunks[0];
+            readInfo(chunks);
+            infoTable = getInfo();
         }
 
+        /* gets data from buildings_plain_subset.csv. building specific data is loaded into building class
+         * and the rest into this */
         public Boolean readInfo(String[] chunks)
         {
-            knownAs = chunks[5];
-            realAddress = chunks[6];
-            blockAndLot = chunks[7];
-            censusTract = chunks[8];
-            actualLand = chunks[9];
-            actualTotal = chunks[10];
-            stories = chunks[11];
-            residentialUnits = chunks[12];
-            commercialUnits = chunks[13];
-            yearBuilt = chunks[14];
-            buildingClass = chunks[15];
-            toxicSites = chunks[16];
-            salePrice = chunks[17];
-            saleDate = chunks[18];
-            airRights = chunks[19];
-            zoningMapNum = chunks[20];
-            zoningDistrict = chunks[21];
-            lotFrontage = chunks[22];
-            lotDepth = chunks[23];
-            lotArea = chunks[24];
-            bldgGrossArea = chunks[25];
-            maxFlrAreaRatio = chunks[26];
-            floors = chunks[27];
+            this.knownAs = chunks[5];
+            this.realAddress = chunks[6];
+            this.blockAndLot = chunks[7];
+            this.censusTract = chunks[8];
+            this.actualLand = chunks[9];
+            this.actualTotal = chunks[10];
+            this.stories = chunks[11];
+            this.residentialUnits = chunks[12];
+            this.commercialUnits = chunks[13];
+            this.yearBuilt = chunks[14];
+            this.buildingClass = chunks[15];
+            this.toxicSites = chunks[16];
+            this.salePrice = chunks[17];
+            this.saleDate = chunks[18];
+            this.airRights = chunks[19];
+            this.zoningMapNum = chunks[20];
+            this.zoningDistrict = chunks[21];
+            this.lotFrontage = chunks[22];
+            this.lotDepth = chunks[23];
+            this.lotArea = chunks[24];
+            this.bldgGrossArea = chunks[25];
+            this.maxFlrAreaRatio = chunks[26];
+            this.floors = chunks[27];
             return true;
         }
 
+        /* returns hash table of all properties, mostly for output */
+        public Hashtable getInfo()
+        {
+            Hashtable allInfo = new Hashtable();
+            allInfo.Add("Known As",this.knownAs);
+            allInfo.Add("Real Address",this.realAddress);
+            allInfo.Add("Block and Lot",this.blockAndLot);
+            allInfo.Add("Census Tract",this.censusTract);
+            allInfo.Add("Actual Land",this.actualLand);
+            allInfo.Add("Actual Total",this.actualTotal);
+            allInfo.Add("Stories",this.stories);
+            allInfo.Add("Residential Units",this.residentialUnits);
+            allInfo.Add("Commercial Units",this.commercialUnits);
+            allInfo.Add("Year Built", this.yearBuilt);
+            allInfo.Add("Building Class",this.buildingClass);
+            allInfo.Add("Toxic Sites",this.toxicSites);
+            allInfo.Add("Sale Price",this.salePrice);
+            allInfo.Add("Sale Date",this.saleDate);
+            allInfo.Add("Air Rights",this.airRights);
+            allInfo.Add("Zoning Map Number",this.zoningMapNum);
+            allInfo.Add("Zoning District",this.zoningDistrict);
+            allInfo.Add("Lot Frontage",this.lotFrontage);
+            allInfo.Add("Lot Depth",this.lotDepth);
+            allInfo.Add("Lot Area",this.lotArea);
+            allInfo.Add("Building Gross Area",this.bldgGrossArea);
+            allInfo.Add("Max Floor Area Ratio",this.maxFlrAreaRatio);
+            allInfo.Add("Floors",this.floors);
+            return allInfo;
+        }
+
+        public Hashtable getInfoTable()
+        {
+            return infoTable;
+        }
+        
         public Building addBuilding(Building building)
         {
             this.building = building;
