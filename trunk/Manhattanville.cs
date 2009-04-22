@@ -42,12 +42,13 @@ namespace Manhattanville
         Scene scene;
         MarkerNode groundMarkerNode;
         List<Building> buildings;
+        Building selectedBuilding;
         MarkerNode toolMarkerNode;
         Tool tool;
         TransformNode parentTrans;
         PieMenu.PieMenu menu;
         PieMenuNode pieMenuRootNode;
-
+        bool continousMode = false;
         SpriteFont font;
 
         float y_shift = -62;
@@ -93,6 +94,8 @@ namespace Manhattanville
         {
             // Initialize the GoblinXNA framework
             State.InitGoblin(graphics, Content, "manhattanville.xml");
+            
+            Settings.loadFromSettingsFile();
 
             // Initialize the scene graph
             scene = new Scene(this);
@@ -113,15 +116,17 @@ namespace Manhattanville
             // Create 3D terrain on top of the map layout
             CreateTerrain(factor);
 
-            // Load plain buildings
-            LoadPlainBuildings(factor);
-            // Load detailed buildings
-            //LoadDetailedBuildings(factor);
+            // Load buildings
+            if (Settings.BuildingsDetailed)
+                LoadDetailedBuildings(factor);
+            else
+                LoadPlainBuildings(factor);
 
             // Show Frames-Per-Second on the screen for debugging
             State.ShowFPS = true;
-            State.ShowNotifications = true;
-            GoblinXNA.UI.Notifier.FadeOutTime = 500;
+            State.ShowNotifications = Settings.ShowNotifications;
+            GoblinXNA.UI.Notifier.FadeOutTime = Settings.FadeOutTime;
+            GoblinXNA.UI.Notifier.Font = Content.Load<SpriteFont>("Fonts//NotifierSmall");
 
             // Add a mouse click handler for shooting a box model from the mouse location 
             MouseInput.MouseMoveEvent += new HandleMouseMove(MouseMoveHandler);
@@ -152,7 +157,9 @@ namespace Manhattanville
             textTransNode.AddChild(textGeoNode);
 
             toolMarkerNode.AddChild(textTransNode);
-            
+
+            selectedBuilding = null;
+
             base.Initialize();
         }
 
@@ -182,7 +189,11 @@ namespace Manhattanville
             DirectShowCapture captureDevice = new DirectShowCapture();
             //captureDevice.InitVideoCapture(0, FrameRate._30Hz, Resolution._640x480, 
             //    ImageFormat.R8G8B8_24, false);
-            captureDevice.InitVideoCapture(0, -1, FrameRate._30Hz, Resolution._640x480, false);
+            captureDevice.InitVideoCapture(
+                Settings.CameraID,
+                -1, FrameRate._30Hz,
+                Settings.Resolution,
+                false);
 
             // Add this video capture device to the scene so that it can be used for
             // the marker tracker
@@ -191,8 +202,13 @@ namespace Manhattanville
             // Create a optical marker tracker that uses ARTag library
             ARTagTracker tracker = new ARTagTracker();
             // Set the configuration file to look for the marker specifications
-            tracker.InitTracker(638.052f, 633.673f, captureDevice.Width,
-                captureDevice.Height, false, "manhattanville.cf");
+            tracker.InitTracker(
+                Settings.CameraFx,
+                Settings.CameraFy,
+                captureDevice.Width,
+                captureDevice.Height,
+                false,
+                "manhattanville.cf");
 
             scene.MarkerTracker = tracker;
 
@@ -200,15 +216,15 @@ namespace Manhattanville
             groundMarkerNode = new MarkerNode(scene.MarkerTracker, "ground");
             scene.RootNode.AddChild(groundMarkerNode);
 
-            groundMarkerNode.Optimize = false;
-            groundMarkerNode.MaxDropouts = -1;
+            groundMarkerNode.Optimize = Settings.GroundOptimize;
+            groundMarkerNode.MaxDropouts = Settings.GroundMaxDropouts;
 
-            toolMarkerNode = new MarkerNode(scene.MarkerTracker, "pointer3");
+            toolMarkerNode = new MarkerNode(scene.MarkerTracker, Settings.ToolTagName);
             scene.RootNode.AddChild(toolMarkerNode);
 
-            toolMarkerNode.Smoother = new DESSmoother(0.4f, 0.4f);
-            toolMarkerNode.Optimize = false;
-            toolMarkerNode.MaxDropouts = -1;
+            toolMarkerNode.Smoother = new DESSmoother(Settings.ToolSmoother, Settings.ToolSmoother);
+            toolMarkerNode.Optimize = Settings.ToolOptimize;
+            toolMarkerNode.MaxDropouts = Settings.ToolMaxDropouts;
 
             tool = new Tool();
             tool.Marker = toolMarkerNode;
@@ -454,8 +470,12 @@ namespace Manhattanville
 
         private void LoadPlainBuildings(float factor)
         {
-            FileStream file = new FileStream("buildings_plain.csv", FileMode.Open,
-                FileAccess.Read);
+
+            String filename = "buildings_plain.csv";
+            if (Settings.BuildingsSubset)
+                filename = "buildings_plain_subset.csv";
+
+            FileStream file = new FileStream(filename, FileMode.Open, FileAccess.Read);
             StreamReader sr = new StreamReader(file);
 
             buildings = new List<Building>();
@@ -661,6 +681,7 @@ namespace Manhattanville
         {
             
             //UpdateMouse();
+            if (continousMode) getClosestBuilding(null);
 
             base.Update(gameTime);
         }
@@ -713,7 +734,24 @@ namespace Manhattanville
             if (key == Keys.S)
             {
                 Utilities.SaveScreenShot(graphics.GraphicsDevice, "ScreenShot.jpg");
-            }  
+            }
+
+            if (key == Keys.Space)
+            {
+                //MousePressHandler(MouseInput.LeftButton, new Point(centerX, centerY));
+                getClosestBuilding(null);
+            }
+
+            if (key == Keys.Escape)
+            {
+                MousePressHandler(MouseInput.RightButton, new Point(centerX, centerY));
+            }
+
+            if (key == Keys.C)
+            {
+                continousMode = !continousMode;
+                GoblinXNA.UI.Notifier.AddMessage("continousMode=" + continousMode);
+            }
         }
 
         private void MousePressHandler(int button, Point mouseLocation)
@@ -743,32 +781,61 @@ namespace Manhattanville
 
         public void getClosestBuilding(Object sender)
         {
+            if (!tool.Marker.MarkerFound) {
+                if (!continousMode) GoblinXNA.UI.Notifier.AddMessage("Tool not found!");
+                return;
+            }
 
-            GoblinXNA.UI.Notifier.AddMessage(tool.Marker.WorldTransformation.Translation.ToString());
+            //GoblinXNA.UI.Notifier.AddMessage("tool=" + tool.Marker.WorldTransformation.Translation.ToString());
+            //GoblinXNA.UI.Notifier.AddMessage("ground=" + groundMarkerNode.WorldTransformation.Translation.ToString());
 
             float minDis = float.MaxValue;
             Building closestBuilding = null;
 
             foreach (Building b in buildings)
             {
+                //TODO: We should calculate these midpoints at initialization
+                //      and store them in instances of the building class
+                Vector3 modelMidPoint = (b.Model.MinimumBoundingBox.Max + b.Model.MinimumBoundingBox.Min) / 2.0f;
+
+                //float scale = 0.00728f;
+
+                //modelMidPoint = modelMidPoint * scale;
+
                 Matrix m = b.WorldTransformation * b.MarkerTransform;
-                float dis = (m.Translation - tool.Marker.WorldTransformation.Translation).Length();
+
+                float dis = (Vector3.Transform(modelMidPoint, m) - tool.Marker.WorldTransformation.Translation).Length();
 
                 if (dis < minDis)
                 {
                     minDis = dis;
                     closestBuilding = b;
+
+
                 }
 
-                System.Console.WriteLine(b.Name + " " + dis);
-
+                /*
+                GoblinXNA.UI.Notifier.AddMessage(b.Name
+                    + ", marker=" + b.MarkerTransform.Translation.ToString()
+                    + ", modelMidPoint=" + modelMidPoint.ToString()
+                    + ", combined=" + Vector3.Transform(modelMidPoint, m).ToString()
+                    + ", dis=" + dis);
+                */
 
             }
 
             if (closestBuilding != null)
             {
-                closestBuilding.Material.Diffuse = Color.Red.ToVector4();
-                GoblinXNA.UI.Notifier.AddMessage(closestBuilding.Name);
+
+                if (selectedBuilding != null)
+                {
+                    selectedBuilding.Material.Diffuse = Color.White.ToVector4();
+                }
+
+                selectedBuilding = closestBuilding;
+
+                selectedBuilding.Material.Diffuse = Color.Red.ToVector4();
+                if (!continousMode) GoblinXNA.UI.Notifier.AddMessage(selectedBuilding.Name);
             }
 
         }
