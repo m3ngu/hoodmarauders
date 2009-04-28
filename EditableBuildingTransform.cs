@@ -28,52 +28,37 @@ using GoblinXNA.UI.Events;
 using GoblinXNA.Device.Capture;
 using GoblinXNA.Device.Vision;
 using GoblinXNA.Device.Vision.Marker;
-
 namespace Manhattanville
 {
-    class Building : GeometryNode
+    class EditableBuildingTransform : TransformNode
     {
-        Lot lot;
-        TransformNode transformNode;
-        EditableBuildingTransform editBuildingTransform;
 
+        TransformNode originalTransform;
 
-        public Building(string address) : base(address)
+        public EditableBuildingTransform()
         {
-            System.Console.WriteLine(name);
+        }
+
+        public void setOriginalTransform(TransformNode original)
+        {
+            this.originalTransform = original;
+        }
+
+        public void update() {
+        }
+
+        internal void mimic(TransformNode original)
+        {
+            this.originalTransform = original;
+            this.Translation = new Vector3(0, 0, 3);
+            this.Rotation = original.Rotation;
+            this.Scale = original.Scale * new Vector3(3, 3, 3);
         }
 
 
-        public void setLot(Lot lot)
+        internal object getOriginalTransform()
         {
-            this.lot = lot;
+            return originalTransform;
         }
-
-
-        public void setTransformNode(TransformNode transformNode)
-        {
-            this.transformNode = transformNode;
-        }
-
-
-        internal TransformNode getTransformNode()
-        {
-            return transformNode;
-        }
-
-
-        internal void setEditableTransform(EditableBuildingTransform editBuildingTransform)
-        {
-            this.editBuildingTransform = editBuildingTransform;
-        }
-
-
-
-        internal object getEditableTransformNode()
-        {
-            return this.editBuildingTransform;
-        }
-
-
     }
 }
