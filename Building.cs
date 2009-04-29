@@ -33,11 +33,12 @@ namespace Manhattanville
 {
     class Building : GeometryNode
     {
-        public Lot                       Lot                    { get; set; }
-        public TransformNode             TransformNode          { get; set; }
-        public TransformNode EditBuildingTransform  { get; set; }
-        public Vector3                   CenterOfBase           { get; set; }
-        public float                     ModelHeight            { get; set; }
+        public Lot              Lot                    { get; set; }
+        public TransformNode    TransformNode          { get; set; }
+        public TransformNode    EditBuildingTransform  { get; set; }
+        public Vector3          CenterOfBase           { get; set; }
+        public float            ModelHeight            { get; set; }
+        public int              Stories                { get; set; }
 
         public Building(string address) : base(address)
         {

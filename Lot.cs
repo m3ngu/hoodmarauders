@@ -143,6 +143,7 @@ namespace Manhattanville
         public Building addBuilding(Building building)
         {
             this.building = building;
+            building.Stories = int.Parse(this.stories);
             return building;
         }
     }
