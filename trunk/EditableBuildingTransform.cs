@@ -36,6 +36,12 @@ namespace Manhattanville
         TransformNode originalTransform;
 
         public EditableBuildingTransform()
+            : base()
+        {
+        }
+
+        public EditableBuildingTransform(String name, Vector3 translation, Quaternion rotation, Vector3 scaling)
+            : base(name, translation, rotation, scaling)
         {
         }
 

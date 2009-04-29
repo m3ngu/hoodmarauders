@@ -33,47 +33,77 @@ namespace Manhattanville
 {
     class Building : GeometryNode
     {
-        Lot lot;
-        TransformNode transformNode;
-        EditableBuildingTransform editBuildingTransform;
-
+        public Lot                       Lot                    { get; set; }
+        public TransformNode             TransformNode          { get; set; }
+        public TransformNode EditBuildingTransform  { get; set; }
+        public Vector3                   CenterOfBase           { get; set; }
+        public float                     ModelHeight            { get; set; }
 
         public Building(string address) : base(address)
         {
             System.Console.WriteLine(name);
         }
 
-
-        public void setLot(Lot lot)
+        public void calcModelCoordinates()
         {
-            this.lot = lot;
+            //Vector3 minPoint = this.Model.MinimumBoundingBox.Min;
+            //Vector3 maxPoint = this.Model.MinimumBoundingBox.Max;
+
+            List<Vector3> verts = this.Model.Vertices;
+
+            Vector3 minPoint = verts[0];
+            Vector3 maxPoint = verts[0];
+
+            foreach (Vector3 v in verts) {
+                if (v.X > maxPoint.X) maxPoint.X = v.X;
+                if (v.X < minPoint.X) minPoint.X = v.X;
+
+                if (v.Y > maxPoint.Y) maxPoint.Y = v.Y;
+                if (v.Y < minPoint.Y) minPoint.Y = v.Y;
+
+                if (v.Z > maxPoint.Z) maxPoint.Z = v.Z;
+                if (v.Z < minPoint.Z) minPoint.Z = v.Z;
+            }
+
+            ModelHeight = maxPoint.Y - minPoint.Y;
+
+            // Project max point onto the base plane
+            Vector3 maxPointProj = new Vector3(maxPoint.X, minPoint.Y, maxPoint.Z);
+
+            // Find the middle point between the projection-of-max and min
+            CenterOfBase = (maxPointProj + minPoint) / 2.0f;
+
+            //this.Model.ShowBoundingBox = true;
+            /*
+            Log.Write(name
+                + " minPoint: " + minPoint.ToString()
+                + ", maxPoint: " + maxPoint.ToString()
+                + ", maxPointProj: " + maxPointProj.ToString()
+                + ", CenterOfBase: " + CenterOfBase.ToString()
+                + ", ModelHeight:" + ModelHeight + "\n");
+             */
         }
 
-
-        public void setTransformNode(TransformNode transformNode)
+        public Vector3 getBaseWorld()
         {
-            this.transformNode = transformNode;
+            // Combines the marker and within-marker (i.e. World) transformations
+            Matrix m = this.WorldTransformation * this.MarkerTransform;
+
+            // Applies the combined matrix to CenterOfBase to get the true world
+            // location of CenterOfBase
+            return Vector3.Transform(CenterOfBase, m);
         }
 
-
-        internal TransformNode getTransformNode()
+        public Vector3 getBaseOnGround()
         {
-            return transformNode;
+            // Combines the marker and within-marker (i.e. World) transformations
+            Matrix m = Matrix.CreateFromQuaternion(TransformNode.Rotation) *
+                           Matrix.CreateScale(TransformNode.Scale);
+            m.Translation = TransformNode.Translation;
+            
+            // Applies the combined matrix to CenterOfBase to get the true world
+            // location of CenterOfBase
+            return Vector3.Transform(CenterOfBase, m);
         }
-
-
-        internal void setEditableTransform(EditableBuildingTransform editBuildingTransform)
-        {
-            this.editBuildingTransform = editBuildingTransform;
-        }
-
-
-
-        internal object getEditableTransformNode()
-        {
-            return this.editBuildingTransform;
-        }
-
-
     }
 }
