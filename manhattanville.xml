@@ -2,7 +2,7 @@
 <GoblinXNASettings>
   <!--Specifies the file path in which to write out the log file-->
   <!--If not specified, the default path is where the executable is with file name 'log.txt'-->
-  <var name="LogFileName" value="GoblinXNALog.txt" />
+  <var name="LogFileName" value="manhattanville.log" />
   <!--Specifies where the texture resources are stored under 'Content' directory-->
   <!--You don't need to specify this if directly stored under 'Content'-->
   <var name="TextureDirectory" value="Textures" />
@@ -59,6 +59,6 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   -->
   <var name="BuildingsDetailed" value="false" />
-  <var name="BuildingsSubset" value="false" /><!-- This is only in effect when BuildingsDetailed = false-->
+  <var name="BuildingsSubset" value="true" /><!-- This is only in effect when BuildingsDetailed = false-->
   
 </GoblinXNASettings>
