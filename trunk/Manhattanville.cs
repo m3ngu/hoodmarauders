@@ -852,16 +852,15 @@ namespace Manhattanville
             {
                 if ( (selectedBuilding != null) && (selectedEditableBuilding != null) )
                 {
-                    
-                    //float heightRatio = selectedBuilding.
+                    addFloor(1);
+                }
+            }
 
-                    //float heightRatio = selectedBuilding.ModelHeight 
-                    
-                    editableBuildingTransformNode = (EditableBuildingTransform)(selectedBuilding.EditBuildingTransform);
-                    System.Console.WriteLine(editableBuildingTransformNode.Scale);
-                    editableBuildingTransformNode.Scale = editableBuildingTransformNode.Scale + (Vector3.One * 3);
-                    //((TransformNode)editableBuildingTransformNode.getOriginalTransform()).Scale = ((TransformNode)editableBuildingTransformNode.getOriginalTransform()).Scale + new Vector3(1);
-                    //selectedBuilding.getTransformNode().Scale = ((TransformNode)(selectedBuilding.getEditableTransformNode())).Scale / new Vector3(3);
+            if (key == Keys.Down)
+            {
+                if ((selectedBuilding != null) && (selectedEditableBuilding != null))
+                {
+                    addFloor(-1);
                 }
             }
 
@@ -872,7 +871,7 @@ namespace Manhattanville
                 {
                     b = buildings[buildings.IndexOf(selectedBuilding) + 1];
                 }
-                catch (Exception e)
+                catch
                 {
                     b = buildings[0];
                 }
@@ -964,12 +963,55 @@ namespace Manhattanville
 
             selectedBuilding = b;
             selectedEditableBuilding = editableBuildings[selectedBuilding];
+            selectedLot = b.Lot;
 
             selectedBuilding.Material.Diffuse = Color.Red.ToVector4();
             parentTrans.AddChild(selectedBuilding.EditBuildingTransform);
             
             if (!continousMode) GoblinXNA.UI.Notifier.AddMessage(selectedBuilding.Name);
            
+        }
+
+        private void addFloor(int floors)
+        {
+            // TODO: We should probably convert numeric data to numeric variables
+            // at load time
+            int currStories = selectedBuilding.Stories;
+            int newStories = currStories + floors;
+            float heightRatio = 1f;
+
+            if (newStories < 0)
+            {
+                // We probably shouldn't allow negative floors
+                return;
+            }
+
+            editableBuildingTransformNode = (EditableBuildingTransform)(selectedBuilding.EditBuildingTransform);
+            Vector3 scaleVector = editableBuildingTransformNode.Scale;
+
+            if (currStories != 0)
+            {
+                heightRatio = (float)newStories / (float)currStories;
+
+                scaleVector.Z = scaleVector.Z * heightRatio;
+            }
+            else
+            {
+                heightRatio = (float)newStories / float.Parse(selectedBuilding.Lot.stories);
+
+                scaleVector.Z = heightRatio * scale;
+            }
+
+            editableBuildingTransformNode.Scale = scaleVector;
+
+            selectedBuilding.Stories = newStories;
+
+            Log.Write("editableBuildingTransformNode.Scale="
+                + editableBuildingTransformNode.Scale.ToString() + "\n");
+
+            GoblinXNA.UI.Notifier.AddMessage(
+                selectedBuilding.Name + " now has "
+                + selectedBuilding.Stories + " stories.");
         }
 
     }
