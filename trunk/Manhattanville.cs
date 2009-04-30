@@ -719,7 +719,7 @@ namespace Manhattanville
             pieMenuRootNode = new PieMenuNode();
             PieMenuNode parent, child;
 
-            parent = new PieMenuNode("Node 1", this.Content.Load<Texture2D>("Icons\\paint"), null);
+            parent = new PieMenuNode("Node 1", this.Content.Load<Texture2D>("Icons\\merge"), null);
             pieMenuRootNode.Add(parent);
 
             child = new PieMenuNode("Node 1.1", this.Content.Load<Texture2D>("Icons\\paint"), new SimpleDelegate(MenuAction));
@@ -731,7 +731,7 @@ namespace Manhattanville
             child = new PieMenuNode("Node 1.3", this.Content.Load<Texture2D>("Icons\\paint"), new SimpleDelegate(MenuAction));
             parent.Add(child);
 
-            parent = new PieMenuNode("Node 2", this.Content.Load<Texture2D>("Icons\\paint"), null);
+            parent = new PieMenuNode("Node 2", this.Content.Load<Texture2D>("Icons\\height"), null);
             pieMenuRootNode.Add(parent);
 
             child = new PieMenuNode("Node 2.1", this.Content.Load<Texture2D>("Icons\\paint"), new SimpleDelegate(MenuAction));
@@ -752,7 +752,7 @@ namespace Manhattanville
             child = new PieMenuNode("Node 2.6", this.Content.Load<Texture2D>("Icons\\paint"), new SimpleDelegate(MenuAction));
             parent.Add(child);
 
-            parent = new PieMenuNode("Node 3", this.Content.Load<Texture2D>("Icons\\paint"), null);
+            parent = new PieMenuNode("Node 3", this.Content.Load<Texture2D>("Icons\\footprint"), null);
             pieMenuRootNode.Add(parent);
 
             child = new PieMenuNode("Node 3.1", this.Content.Load<Texture2D>("Icons\\paint"), new SimpleDelegate(MenuAction));
@@ -761,7 +761,7 @@ namespace Manhattanville
             child = new PieMenuNode("Node 3.2", this.Content.Load<Texture2D>("Icons\\paint"), new SimpleDelegate(MenuAction));
             parent.Add(child);
 
-            parent = new PieMenuNode("Node 4", this.Content.Load<Texture2D>("Icons\\paint"), new SimpleDelegate(getClosestBuilding));
+            parent = new PieMenuNode("Node 4", this.Content.Load<Texture2D>("Icons\\selectArrow"), new SimpleDelegate(getClosestBuilding));
             pieMenuRootNode.Add(parent);
 
 
