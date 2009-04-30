@@ -96,7 +96,7 @@ namespace Manhattanville.PieMenu
             {
                 Vector2 imagePos = center + scale * radius * new Vector2((float)Math.Cos(currentAngle), -(float)Math.Sin(currentAngle));
 
-                int imageSize = (int)(scale * 30.0f);
+                int imageSize = (int)(scale * 45.0f);
                 Rectangle destinationRect = new Rectangle(
                     (int)imagePos.X - imageSize,
                     (int)imagePos.Y - imageSize,
