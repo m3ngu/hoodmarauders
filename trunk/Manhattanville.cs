@@ -55,7 +55,8 @@ namespace Manhattanville
         MarkerNode toolMarkerNode;
         Tool tool;
         TransformNode parentTrans;
-        EditableBuildingTransform editableBuildingTransformNode;
+        BuildingTransform editableBuildingTransformNode;
+        BuildingTransform realBuildingTransformNode;
         PieMenu.PieMenu menu;
         PieMenuNode pieMenuRootNode;
         bool continousMode = false;
@@ -561,8 +562,9 @@ namespace Manhattanville
                         //Console.WriteLine("size of chunks: " + chunks.Length);
 
                         Lot lot = new Lot(chunks);
-                        Building building = new Building(chunks[0]);
-                        Building editableBuilding = new Building(chunks[0] + "_edit");
+                        Building building = new Building( chunks[0] );
+                        Building editableBuilding = new Building( chunks[0] + "_edit" );
+                        Building realBuilding = new Building( chunks[0] + "_real" );
                         lot.addBuilding(building);
                         building.Lot = lot;
                         building.Model = (Model)loader.Load("", "Plain/" + chunks[0]);
@@ -573,6 +575,11 @@ namespace Manhattanville
                         editableBuilding.AddToPhysicsEngine = true;
                         editableBuilding.Physics.Shape = ShapeType.Box;
 						editableBuilding.Model.OffsetToOrigin = true;
+
+                        realBuilding.Model = (Model)loader.Load("", "Plain/" + chunks[0]);
+                        realBuilding.AddToPhysicsEngine = true;
+                        realBuilding.Physics.Shape = ShapeType.Box;
+                        realBuilding.Model.OffsetToOrigin = true;
 
                         lot.readInfo(chunks);
                         //System.Console.WriteLine(lot.floors);
@@ -587,22 +594,30 @@ namespace Manhattanville
                         y = (float)Double.Parse(chunks[3]);
                         z = (float)Double.Parse(chunks[4]);
 
-                        TransformNode transNode = new TransformNode();
+                        BuildingTransform transNode = new BuildingTransform((1.0f/Settings.EditableScale));
                         transNode.Translation = new Vector3(x, y, z * factor);
                         transNode.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ,
                             (float)(zRot * Math.PI / 180)) * Quaternion.CreateFromAxisAngle(Vector3.UnitX,
                             MathHelper.PiOver2);
                         transNode.Scale = Vector3.One * scale;
 
-                        editableBuildingTransformNode = new EditableBuildingTransform();
-                        //editableBuildingTransformNode.Translation = new Vector3(0, 0, 0);//-12.5f, -15.69f, 0);
-                        //editableBuildingTransformNode.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, 0); ;// Quaternion.CreateFromAxisAngle(Vector3.UnitZ, 119 * MathHelper.Pi / 180);
+                        editableBuildingTransformNode = new BuildingTransform(Settings.EditableScale);
                         editableBuildingTransformNode.Translation = new Vector3(x, y, z * factor);
                         editableBuildingTransformNode.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ,
                             (float)(zRot * Math.PI / 180)) * Quaternion.CreateFromAxisAngle(Vector3.UnitX,
                             MathHelper.PiOver2);
-                        editableBuildingTransformNode.Scale = Vector3.One * scale * new Vector3(3);
+                        editableBuildingTransformNode.Scale = Vector3.One * scale * new Vector3(Settings.EditableScale);
 
+                        realBuildingTransformNode = new BuildingTransform(Settings.RealScale);
+                        realBuildingTransformNode.Translation = new Vector3(x, y, z * factor);
+                        realBuildingTransformNode.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ,
+                            (float)(zRot * Math.PI / 180)) * Quaternion.CreateFromAxisAngle(Vector3.UnitX,
+                            MathHelper.PiOver2);
+                        realBuildingTransformNode.Scale = Vector3.One * scale * new Vector3(Settings.RealScale);
+
+                        editableBuildingTransformNode.addObserver(transNode);
+                        editableBuildingTransformNode.addObserver(realBuildingTransformNode);
+ 
                         Material buildingMaterial = new Material();
                         buildingMaterial.Diffuse = Color.White.ToVector4();
                         buildingMaterial.Specular = Color.White.ToVector4();
@@ -626,6 +641,7 @@ namespace Manhattanville
                         lot.transformNode = transNode;
 
                         transNode.AddChild(building);
+
                         editableBuildingTransformNode.AddChild(editableBuilding);
                     }
                 }
@@ -986,7 +1002,7 @@ namespace Manhattanville
                 return;
             }
 
-            editableBuildingTransformNode = (EditableBuildingTransform)(selectedBuilding.EditBuildingTransform);
+            editableBuildingTransformNode = (BuildingTransform)(selectedBuilding.EditBuildingTransform);
             Vector3 scaleVector = editableBuildingTransformNode.Scale;
 
             if (currStories != 0)
@@ -1003,6 +1019,9 @@ namespace Manhattanville
             }
 
             editableBuildingTransformNode.Scale = scaleVector;
+
+///////////////COLIN
+            editableBuildingTransformNode.broadcast();
 
             selectedBuilding.Stories = newStories;
 

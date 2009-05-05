@@ -35,15 +35,40 @@ namespace Manhattanville
     {
         public Lot              Lot                    { get; set; }
         public TransformNode    TransformNode          { get; set; }
-        public TransformNode    EditBuildingTransform  { get; set; }
+        public BuildingTransform    EditBuildingTransform  { get; set; }
         public Vector3          CenterOfBase           { get; set; }
         public float            ModelHeight            { get; set; }
+        public float            Footprint               { get; set; }
         public int              Stories                { get; set; }
+        //private List<Building> observers;
+        //private float           scaleRatioToEditable;
 
-        public Building(string address) : base(address)
+        public Building(string address)
+            : base(address)
         {
+//            this.scaleRatioToEditable = scaleRatioToEditable;
             System.Console.WriteLine(name);
         }
+
+        //public void addObserver(Building b)
+        //{
+        //    observers.Add( b );
+        //}
+
+        //public void broadcast()
+        //{
+        //    foreach (Building b in observers)
+        //    {
+        //        b.observe(this);
+        //    }
+        //}
+
+        //public void observe(Building b)
+        //{
+        //    this.Footprint = b.Footprint * scaleRatioToEditable;
+        //    this.Stories = b.Stories;
+        //    this.TransformNode.Scale = b.TransformNode.Scale * this.scaleRatioToEditable;
+        //}
 
         public void calcModelCoordinates()
         {

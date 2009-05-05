@@ -30,17 +30,17 @@ using GoblinXNA.Device.Vision;
 using GoblinXNA.Device.Vision.Marker;
 namespace Manhattanville
 {
-    class EditableBuildingTransform : TransformNode
+    class BuildingTransform : TransformNode
     {
 
         TransformNode originalTransform;
 
-        public EditableBuildingTransform()
+        public BuildingTransform()
             : base()
         {
         }
 
-        public EditableBuildingTransform(String name, Vector3 translation, Quaternion rotation, Vector3 scaling)
+        public BuildingTransform(String name, Vector3 translation, Quaternion rotation, Vector3 scaling)
             : base(name, translation, rotation, scaling)
         {
         }
