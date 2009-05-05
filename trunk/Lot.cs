@@ -47,7 +47,7 @@ namespace Manhattanville
         public String censusTract;
         public String actualLand;
         public String actualTotal;
-        public String stories;
+        public int stories;
         public String residentialUnits;
         public String commercialUnits;
         public String yearBuilt;
@@ -55,15 +55,15 @@ namespace Manhattanville
         public String toxicSites;
         public String salePrice;
         public String saleDate;
-        public String airRights;
+        public float airRights;
         public String zoningMapNum;
         public String zoningDistrict;
-        public String lotFrontage;
-        public String lotDepth;
-        public String lotArea;
-        public String bldgGrossArea;
-        public String maxFlrAreaRatio;
-        public String floors;
+        public float lotFrontage;
+        public float lotDepth;
+        public float lotArea;
+        public float bldgGrossArea;
+        public int maxFlrAreaRatio;
+        public int floors;
 
         /*mostly for output*/
         private Hashtable infoTable;
@@ -85,7 +85,7 @@ namespace Manhattanville
             this.censusTract = chunks[8];
             this.actualLand = chunks[9];
             this.actualTotal = chunks[10];
-            this.stories = chunks[11];
+            this.stories = int.Parse(chunks[11]);
             this.residentialUnits = chunks[12];
             this.commercialUnits = chunks[13];
             this.yearBuilt = chunks[14];
@@ -93,15 +93,15 @@ namespace Manhattanville
             this.toxicSites = chunks[16];
             this.salePrice = chunks[17];
             this.saleDate = chunks[18];
-            this.airRights = chunks[19];
+            this.airRights = int.Parse(chunks[19]);
             this.zoningMapNum = chunks[20];
             this.zoningDistrict = chunks[21];
-            this.lotFrontage = chunks[22];
-            this.lotDepth = chunks[23];
-            this.lotArea = chunks[24];
-            this.bldgGrossArea = chunks[25];
-            this.maxFlrAreaRatio = chunks[26];
-            this.floors = chunks[27];
+            this.lotFrontage = float.Parse(chunks[22]);
+            this.lotDepth = float.Parse(chunks[23]);
+            this.lotArea = float.Parse(chunks[24]);
+            this.bldgGrossArea = float.Parse(chunks[25]);
+            this.maxFlrAreaRatio = int.Parse(chunks[26]);
+            this.floors = int.Parse(chunks[27]);
             return true;
         }
 
@@ -143,7 +143,7 @@ namespace Manhattanville
         public Building addBuilding(Building building)
         {
             this.building = building;
-            building.Stories = int.Parse(this.stories);
+            building.Stories = this.stories;
             return building;
         }
     }
