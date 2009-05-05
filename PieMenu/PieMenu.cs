@@ -23,7 +23,7 @@ namespace Manhattanville.PieMenu
         private PieMenuNode    rootNode;
         private PieMenuNode    newMenuNode;
         private int            selectionIndex = -1;
-        private float          radius = 100;
+        private float          radius = 150;
         private Transition     t;
         private Vector2        drawPosition;
         private SimpleDelegate hideDelegate;
@@ -96,12 +96,19 @@ namespace Manhattanville.PieMenu
             {
                 Vector2 imagePos = center + scale * radius * new Vector2((float)Math.Cos(currentAngle), -(float)Math.Sin(currentAngle));
 
-                int imageSize = (int)(scale * 45.0f);
+                //int imageSize = (int)(scale * 45.0f);
+                int imageHeight = (int)(scale * 58.0f);
+                int imageWidth = (int)(scale * 81.0f);
                 Rectangle destinationRect = new Rectangle(
-                    (int)imagePos.X - imageSize,
-                    (int)imagePos.Y - imageSize,
-                    2 * imageSize,
-                    2 * imageSize);
+                    (int)imagePos.X - imageWidth,
+                    (int)imagePos.Y - imageHeight,
+                    2 * imageWidth,
+                    2 * imageHeight);
+                //Rectangle destinationRect = new Rectangle(
+                //    (int)imagePos.X - imageSize,
+                //    (int)imagePos.Y - imageSize,
+                //    2 * imageSize,
+                //    2 * imageSize);
 
                 //GoblinXNA.UI.Notifier.AddMessage(destinationRect.ToString());
 
@@ -114,7 +121,8 @@ namespace Manhattanville.PieMenu
                 {
                     drawColor = Color.Red;
                     GoblinXNA.UI.UI2D.UI2DRenderer.WriteText  (
-                        imagePos + new Vector2(-spriteFont.MeasureString(rootNode.Children[i].Text).X / 2, imageSize), 
+                        imagePos + new Vector2(-spriteFont.MeasureString(rootNode.Children[i].Text).X / 2, imageHeight),
+                        //imagePos + new Vector2(-spriteFont.MeasureString(rootNode.Children[i].Text).X / 2, imageSize),
                         rootNode.Children[i].Text,
                         Color.White,
                         spriteFont,
