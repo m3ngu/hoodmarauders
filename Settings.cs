@@ -31,6 +31,11 @@ namespace Manhattanville
         public static float         ToolSmoother        { get; set; }
         public static String        ToolTagName         { get; set; }
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // Building Scales
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        public static float EditableScale { get; set; }
+        public static float RealScale { get; set; }        
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // Miscellanous
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         public static bool          BuildingsDetailed   { get; set; }
@@ -54,6 +59,9 @@ namespace Manhattanville
             ToolOptimize = bool.Parse(State.GetSettingVariable("ToolOptimize"));
             ToolSmoother = float.Parse(State.GetSettingVariable("ToolSmoother"));
             ToolTagName = State.GetSettingVariable("ToolTagName");
+
+            EditableScale = int.Parse(State.GetSettingVariable("EditableScale"));
+            RealScale = int.Parse(State.GetSettingVariable("RealScale"));
 
             BuildingsDetailed = bool.Parse(State.GetSettingVariable("BuildingsDetailed"));
             BuildingsSubset = bool.Parse(State.GetSettingVariable("BuildingsSubset"));
