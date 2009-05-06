@@ -213,6 +213,9 @@ namespace Manhattanville
             selectedBuilding = null;
             selectedLot = null;
 
+            AppStateMgr.initialize(this, graphics);
+            AppStateMgr.enter(AppState.Browse);
+
             base.Initialize();
         }
 
@@ -735,7 +738,7 @@ namespace Manhattanville
             pieMenuRootNode = new PieMenuNode();
             PieMenuNode parent, child;
 
-            parent = new PieMenuNode("Node 1", this.Content.Load<Texture2D>("Icons\\height"), null);
+            parent = new PieMenuNode("Browse", this.Content.Load<Texture2D>("Icons\\height"), new SimpleDelegate(MenuAction), AppState.Browse);
             pieMenuRootNode.Add(parent);
 
             //child = new PieMenuNode("Node 1.1", this.Content.Load<Texture2D>("Icons\\paint"), new SimpleDelegate(MenuAction));
@@ -747,7 +750,7 @@ namespace Manhattanville
             //child = new PieMenuNode("Node 1.3", this.Content.Load<Texture2D>("Icons\\paint"), new SimpleDelegate(MenuAction));
             //parent.Add(child);
 
-            parent = new PieMenuNode("Node 2", this.Content.Load<Texture2D>("Icons\\cancel"), new SimpleDelegate(MenuAction));
+            parent = new PieMenuNode("Cancel", this.Content.Load<Texture2D>("Icons\\cancel"), new SimpleDelegate(MenuAction));
             pieMenuRootNode.Add(parent);
 
             //child = new PieMenuNode("Node 2.1", this.Content.Load<Texture2D>("Icons\\paint"), new SimpleDelegate(MenuAction));
@@ -768,7 +771,7 @@ namespace Manhattanville
             //child = new PieMenuNode("Node 2.6", this.Content.Load<Texture2D>("Icons\\paint"), new SimpleDelegate(MenuAction));
             //parent.Add(child);
 
-            parent = new PieMenuNode("Node 3", this.Content.Load<Texture2D>("Icons\\footprint"), null);
+            parent = new PieMenuNode("Edit", this.Content.Load<Texture2D>("Icons\\footprint"), new SimpleDelegate(MenuAction), AppState.Edit);
             pieMenuRootNode.Add(parent);
 
             //child = new PieMenuNode("Node 3.1", this.Content.Load<Texture2D>("Icons\\paint"), new SimpleDelegate(MenuAction));
@@ -777,7 +780,7 @@ namespace Manhattanville
             //child = new PieMenuNode("Node 3.2", this.Content.Load<Texture2D>("Icons\\paint"), new SimpleDelegate(MenuAction));
             //parent.Add(child);
 
-            parent = new PieMenuNode("Node 4", this.Content.Load<Texture2D>("Icons\\info"), new SimpleDelegate(MenuAction));
+            parent = new PieMenuNode("Info", this.Content.Load<Texture2D>("Icons\\info"), new SimpleDelegate(MenuAction), AppState.Info);
             pieMenuRootNode.Add(parent);
 
 
@@ -804,6 +807,14 @@ namespace Manhattanville
         protected override void Draw(GameTime gameTime)
         {
             base.Draw(gameTime);
+            
+            if (AppStateMgr.showIcon)
+            {
+                GoblinXNA.UI.UI2D.UI2DRenderer.FillRectangle(
+                    AppStateMgr.iconPlaceHolder,
+                    AppStateMgr.icon(),
+                    Color.White);
+            }
         }
 
         protected void MouseCenter()
@@ -917,6 +928,11 @@ namespace Manhattanville
         public void MenuAction(Object sender)
         {
             PieMenuNode sndr = (PieMenuNode)sender;
+
+            if (!sndr.Text.Equals("Cancel"))
+            {
+                AppStateMgr.enter(sndr.State);
+            }
             
             GoblinXNA.UI.Notifier.AddMessage(sndr.Text + " Selected!");
         }
@@ -1013,7 +1029,7 @@ namespace Manhattanville
             }
             else
             {
-                heightRatio = (float)newStories / float.Parse(selectedBuilding.Lot.stories);
+                heightRatio = (float)newStories / (float)selectedBuilding.Lot.stories;
 
                 scaleVector.Z = heightRatio * scale;
             }

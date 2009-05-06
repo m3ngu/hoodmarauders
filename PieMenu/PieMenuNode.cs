@@ -17,6 +17,7 @@ namespace Manhattanville.PieMenu
         private Texture2D icon;
         private string text;
         private SimpleDelegate onSelect;
+        private AppState state;
         #endregion
 
         #region Constructors
@@ -29,6 +30,13 @@ namespace Manhattanville.PieMenu
             this.text = text;
             this.icon = icon;
             this.onSelect = onSelect;
+        }
+        public PieMenuNode(string text, Texture2D icon, SimpleDelegate onSelect, AppState state)
+        {
+            this.text = text;
+            this.icon = icon;
+            this.onSelect = onSelect;
+            this.state = state;
         }
         #endregion
 
@@ -85,6 +93,11 @@ namespace Manhattanville.PieMenu
             set { onSelect = value; }
         }
 
+        public AppState State
+        {
+            get { return state; }
+            set { state = value; }
+        }
         #endregion
     }
 }
