@@ -59,7 +59,7 @@ namespace Manhattanville
         BuildingTransform realBuildingTransformNode;
         PieMenu.PieMenu menu;
         PieMenuNode pieMenuRootNode;
-        bool continousMode = false;
+        bool continousMode = true;
         SpriteFont font;
 
         float y_shift = -62;
@@ -795,7 +795,10 @@ namespace Manhattanville
         {
             
             //UpdateMouse();
-            if (continousMode) getClosestBuilding(null);
+            if (continousMode
+                && AppStateMgr.inState(AppState.Browse)
+                && !menu.Visible)
+                getClosestBuilding(null);
 
             base.Update(gameTime);
         }

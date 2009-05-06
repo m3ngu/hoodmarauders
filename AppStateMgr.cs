@@ -135,5 +135,10 @@ namespace Manhattanville
         {
             return icons[(int)currentState];
         }
+
+        public static bool inState(AppState s)
+        {
+            return s.Equals(currentState);
+        }
     }
 }
