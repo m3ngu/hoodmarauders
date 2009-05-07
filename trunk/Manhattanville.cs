@@ -57,6 +57,8 @@ namespace Manhattanville
         TransformNode parentTrans;
         BuildingTransform editableBuildingTransformNode;
         BuildingTransform realBuildingTransformNode;
+        AirRightsTransform airRightsTransform;
+
         PieMenu.PieMenu menu;
         PieMenuNode pieMenuRootNode;
         bool continousMode = true;
@@ -618,8 +620,11 @@ namespace Manhattanville
                             MathHelper.PiOver2);
                         realBuildingTransformNode.Scale = Vector3.One * scale * new Vector3(Settings.RealScale);
 
+                        airRightsTransform = new AirRightsTransform();
+
                         editableBuildingTransformNode.addObserver(transNode);
                         editableBuildingTransformNode.addObserver(realBuildingTransformNode);
+                        editableBuildingTransformNode.addObserver(airRightsTransform);
  
                         Material buildingMaterial = new Material();
                         buildingMaterial.Diffuse = Color.White.ToVector4();
