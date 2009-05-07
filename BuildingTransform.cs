@@ -36,6 +36,9 @@ namespace Manhattanville
         //TransformNode originalTransform;
         public float Footprint { get; set; }
         public int Stories { get; set; }
+        //public Vector3 OriginalScale { get; set; }
+        public float MaxXScale { get; set; }
+        public float MaxZScale { get; set; }
         private List<BuildingTransform> observers = new List<BuildingTransform>();
         private float scaleRatioToEditable;
 
@@ -43,6 +46,8 @@ namespace Manhattanville
             : base()
         {
             this.scaleRatioToEditable = multiplierRatio;
+            this.MaxXScale = this.Scale.X;
+            this.MaxZScale = this.Scale.Z;
         }
 
         public BuildingTransform(String name, Vector3 translation, Quaternion rotation, Vector3 scaling, float multiplierRatio)
