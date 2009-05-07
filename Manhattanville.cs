@@ -84,7 +84,7 @@ namespace Manhattanville
 
             // Make the mouse appear  
             //IsMouseVisible = true;
-            MouseInput.OnlyHandleInsideWindow = false;
+            MouseInput.Instance.OnlyHandleInsideWindow = false;
 
             // Set back buffer resolution  
             //graphics.PreferredBackBufferWidth = 1280;
@@ -174,9 +174,9 @@ namespace Manhattanville
             GoblinXNA.UI.Notifier.Font = Content.Load<SpriteFont>("Fonts//NotifierSmall");
 
             // Add a mouse click handler for shooting a box model from the mouse location 
-            MouseInput.MouseMoveEvent += new HandleMouseMove(MouseMoveHandler);
-            KeyboardInput.KeyTypeEvent += new HandleKeyType(KeyTypeHandler);
-            MouseInput.MousePressEvent += new HandleMousePress(MousePressHandler);
+            MouseInput.Instance.MouseMoveEvent += new HandleMouseMove(MouseMoveHandler);
+            KeyboardInput.Instance.KeyTypeEvent += new HandleKeyType(KeyTypeHandler);
+            MouseInput.Instance.MousePressEvent += new HandleMousePress(MousePressHandler);
 
             centerX = Window.ClientBounds.Width / 2;
             centerY = Window.ClientBounds.Height / 2;
@@ -248,9 +248,9 @@ namespace Manhattanville
 //            captureDevice.InitVideoCapture(0, -1, FrameRate._30Hz, Resolution._640x480, false);
             captureDevice.InitVideoCapture(
                 Settings.CameraID,
-                -1, FrameRate._30Hz,
+                FrameRate._30Hz,
                 Settings.Resolution,
-                false);
+                ImageFormat.R8G8B8_24, false);
 
             // Add this video capture device to the scene so that it can be used for
             // the marker tracker
@@ -1039,7 +1039,6 @@ namespace Manhattanville
 
             editableBuildingTransformNode.Scale = scaleVector;
 
-///////////////COLIN
             editableBuildingTransformNode.broadcast();
 
             selectedBuilding.Stories = newStories;
@@ -1052,5 +1051,10 @@ namespace Manhattanville
                 + selectedBuilding.Stories + " stories.");
         }
 
+        private void addToFootprint(BuildingTransform eb)
+        {
+            //if ( (thisXscale < MaxXScale) || (thisZScale < MaxZScale) ) 
+            //  eb.Scale = movement your mouse has made
+        }
     }
 }
