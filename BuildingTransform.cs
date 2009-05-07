@@ -30,7 +30,7 @@ using GoblinXNA.Device.Vision;
 using GoblinXNA.Device.Vision.Marker;
 namespace Manhattanville
 {
-    class BuildingTransform : TransformNode
+    class BuildingTransform : TransformNode, IObservingTransform
     {
 
         //TransformNode originalTransform;
@@ -39,9 +39,12 @@ namespace Manhattanville
         //public Vector3 OriginalScale { get; set; }
         public float MaxXScale { get; set; }
         public float MaxZScale { get; set; }
-        private List<BuildingTransform> observers = new List<BuildingTransform>();
+        private List<IObservingTransform> observers = new List<IObservingTransform>();
         private float scaleRatioToEditable;
 
+
+        public BuildingTransform() : base() {}
+        
         public BuildingTransform(float multiplierRatio)
             : base()
         {
@@ -54,9 +57,11 @@ namespace Manhattanville
             : base(name, translation, rotation, scaling)
         {
             this.scaleRatioToEditable = multiplierRatio;
+            this.MaxXScale = this.Scale.X;
+            this.MaxZScale = this.Scale.Z;
         }
 
-        public void addObserver(BuildingTransform b)
+        public void addObserver(IObservingTransform b)
         {
             observers.Add(b);
         }
@@ -69,7 +74,7 @@ namespace Manhattanville
             }
         }
 
-        public void observe(BuildingTransform b)
+        public virtual void observe(BuildingTransform b)
         {
             this.Footprint = b.Footprint * scaleRatioToEditable;
             this.Stories = b.Stories;
