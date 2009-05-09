@@ -35,8 +35,12 @@ namespace Manhattanville
     {
         private float scaleRatioToEditable;
         private float airRightsSum;
+        //private AirRightsNode airRightsNode;
 
-        public AirRightsTransform() : base() { }
+        public AirRightsTransform() : base() {
+            //airRightsNode = new AirRightsNode("airRights");
+            //this.AddChild(airRightsNode);
+        }
 
         public override void observe(BuildingTransform bt)
         {
@@ -45,7 +49,7 @@ namespace Manhattanville
             foreach (Building b in bt.Children)
             {
                 //airRightsSum += ((Lot)b.Lot).airRights;
-                System.Console.WriteLine("can't seem to access airrights value for this lot.");//AirRightsTransform sum = " + airRightsSum);
+                //System.Console.WriteLine("can't seem to access airrights value for this lot.");//AirRightsTransform sum = " + airRightsSum);
             }
             this.Footprint = bt.Footprint * scaleRatioToEditable;
             this.Stories = bt.Stories;

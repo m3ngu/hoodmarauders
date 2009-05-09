@@ -36,6 +36,7 @@ namespace Manhattanville
         public Lot              Lot                    { get; set; }
         public TransformNode    TransformNode          { get; set; }
         public BuildingTransform    EditBuildingTransform  { get; set; }
+        public AirRightsTransform AirRightsTransformNode { get; set; }
         public Vector3          CenterOfBase           { get; set; }
         public float            ModelHeight            { get; set; }
         public float            Footprint               { get; set; }

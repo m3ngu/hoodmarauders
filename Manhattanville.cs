@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+//using System.Windows.Forms;
 
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
@@ -18,6 +19,7 @@ using Microsoft.Xna.Framework.Storage;
 using GoblinXNA;
 using GoblinXNA.Graphics;
 using GoblinXNA.SceneGraph;
+using SceneGraphDisplay;
 using Model = GoblinXNA.Graphics.Model;
 using GoblinXNA.Graphics.Geometry;
 using GoblinXNA.Device.Generic;
@@ -35,6 +37,8 @@ using GoblinXNA.Device.Util;
 
 namespace Manhattanville
 {
+
+    
     /// <summary>
     /// This is the main type for your game
     /// </summary>
@@ -45,7 +49,7 @@ namespace Manhattanville
         //SGForm fs = null;
         Scene scene;
         MarkerNode groundMarkerNode;
-        Dictionary<Building, Lot> lots;
+        //Dictionary<Building, Lot> lots;
         List<Building> buildings;
         Dictionary<Building, Building> editableBuildings;
         Building selectedBuilding;
@@ -55,9 +59,11 @@ namespace Manhattanville
         MarkerNode toolMarkerNode;
         Tool tool;
         TransformNode parentTrans;
-        BuildingTransform editableBuildingTransformNode;
-        BuildingTransform realBuildingTransformNode;
-        AirRightsTransform airRightsTransform;
+        //AirRightsNode airRightsNode;
+        //AirRightsTransform airRightsTransformNode;
+        AirRightsGraph airRightsGraph;
+        DataRepresentation dataRepresentation;
+        Color color;
 
         PieMenu.PieMenu menu;
         PieMenuNode pieMenuRootNode;
@@ -112,9 +118,9 @@ namespace Manhattanville
         //private void startSceneGraph()
         //{
         //    fs = new SGForm(scene);
-        //    MouseInput.MouseClickEvent += new HandleMouseClick(fs.SG_MouseClickHandler);
+        //    MouseInput.Instance.MouseClickEvent += new HandleMouseClick(fs.SG_MouseClickHandler);
         //    fs.RunTool();
-        //    //fs.Visible = true;
+        //    fs.Visible = true;
         //}
 
         protected override void Initialize()
@@ -169,6 +175,8 @@ namespace Manhattanville
             editTrans.AddChild(editArea);
             groundMarkerNode.AddChild(editTrans);
 
+            //CreateAirRightsGraph();
+
             // Show Frames-Per-Second on the screen for debugging
             State.ShowFPS = true;
             State.ShowNotifications = Settings.ShowNotifications;
@@ -188,11 +196,13 @@ namespace Manhattanville
 
             font = Content.Load<SpriteFont>("Fonts//UIFont");
 
+            color = new Color(255, 255, 0, 50000); 
+
             Material mat = new Material();
             mat.Specular = Color.White.ToVector4();
             mat.Diffuse = Color.White.ToVector4();
             mat.SpecularPower = 10;
-            mat.Texture = Data.txt2Txt(graphics.GraphicsDevice,"Hello World", 100, 20, font);
+            mat.Texture = Data.txt2Txt(graphics.GraphicsDevice,"Hello World", 100, 20, font, color);
 
             //Hashtable lotInfo = lots[0].getInfoTable();
             //GoblinXNA.UI.Notifier.AddMessage(lots[0].name);
@@ -218,8 +228,24 @@ namespace Manhattanville
             AppStateMgr.initialize(this, graphics);
             AppStateMgr.enter(AppState.Browse);
 
+            loadData();
             base.Initialize();
         }
+
+        private void loadData()
+        {
+            dataRepresentation = new DataRepresentation(graphics.GraphicsDevice, font, color);
+            dataRepresentation.Translation = new Vector3(-30, 10, 0);
+            //dataRepresentation.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, rotationAngle);
+            groundMarkerNode.AddChild(dataRepresentation);
+        }
+
+        //private void CreateAirRightsGraph()
+        //{
+        //    throw new NotImplementedException();
+        //    airRightsGraphTransform = new AirRightsGraph();
+
+        //}
 
         private void CreateLights()
         {
@@ -536,7 +562,7 @@ namespace Manhattanville
             FileStream file = new FileStream(filename, FileMode.Open, FileAccess.Read);
             StreamReader sr = new StreamReader(file);
 
-            lots = new Dictionary<Building, Lot>();
+            //lots = new Dictionary<Building, Lot>();
             buildings = new List<Building>();
             editableBuildings = new Dictionary<Building, Building>();
             ModelLoader loader = new ModelLoader();
@@ -551,9 +577,19 @@ namespace Manhattanville
                 // Skip the first line which has column names
                 sr.ReadLine();
 
+                //////// BUILD PARENT TRANSFORMS CONTAINING ALL MAP AND GRAPH NODES, RESPECTIVELY
+
+                //BuildingTransform editableBuildingTransformNode;
+                //BuildingTransform realBuildingTransformNode;
+
                 parentTrans = new TransformNode();
                 parentTrans.Translation = new Vector3(-12.5f, -15.69f, 0);
                 parentTrans.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, 119 * MathHelper.Pi / 180);
+
+                airRightsGraph = new AirRightsGraph();
+                //groundMarkerNode.AddChild(airRightsGraph);
+                parentTrans.AddChild(airRightsGraph);
+
                 groundMarkerNode.AddChild(parentTrans);
 
                 while (!sr.EndOfStream)
@@ -566,22 +602,33 @@ namespace Manhattanville
                         chunks = s.Split(seps, System.StringSplitOptions.None);
                         //Console.WriteLine("size of chunks: " + chunks.Length);
 
+                        /////////////// BUILD BUILDINGS AND GRAPHICAL REPRESENTATION
+                        
+                        String address = chunks[0];
                         Lot lot = new Lot(chunks);
-                        Building building = new Building( chunks[0] );
-                        Building editableBuilding = new Building( chunks[0] + "_edit" );
-                        Building realBuilding = new Building( chunks[0] + "_real" );
+                        Building building = new Building( address );
+                        Building editableBuilding = new Building( address + "_edit" );
+                        Building realBuilding = new Building( address + "_real" );
                         lot.addBuilding(building);
                         building.Lot = lot;
-                        building.Model = (Model)loader.Load("", "Plain/" + chunks[0]);
+                        building.Model = (Model)loader.Load("", "Plain/" + address);
                         building.AddToPhysicsEngine = true;
                         building.Physics.Shape = ShapeType.Box;
 
-                        editableBuilding.Model = (Model)loader.Load("", "Plain/" + chunks[0]);
+                        editableBuilding.Model = (Model)loader.Load("", "Plain/" + address);
                         editableBuilding.AddToPhysicsEngine = true;
                         editableBuilding.Physics.Shape = ShapeType.Box;
 						editableBuilding.Model.OffsetToOrigin = true;
 
-                        realBuilding.Model = (Model)loader.Load("", "Plain/" + chunks[0]);
+                        realBuilding.Model = (Model)loader.Load("", "Plain/" + address);
+                        realBuilding.AddToPhysicsEngine = true;
+                        realBuilding.Physics.Shape = ShapeType.Box;
+                        realBuilding.Model.OffsetToOrigin = true;
+                        
+                        Vector3 lotDimensions = new Vector3(lot.lotFrontage,lot.lotDepth,100);
+                        AirRightsNode airRightsNode = new AirRightsNode(address + "_air_rights", lotDimensions, Settings.GroundToFootRatio);
+
+                        realBuilding.Model = (Model)loader.Load("", "Plain/" + address);
                         realBuilding.AddToPhysicsEngine = true;
                         realBuilding.Physics.Shape = ShapeType.Box;
                         realBuilding.Model.OffsetToOrigin = true;
@@ -589,15 +636,16 @@ namespace Manhattanville
                         lot.readInfo(chunks);
                         //System.Console.WriteLine(lot.floors);
 
-                        lots.Add(building, lot);
+                        //lots.Add(building, lot);
                         buildings.Add(building);
-
                         editableBuildings.Add(building,editableBuilding);
 
                         zRot = (float)Double.Parse(chunks[1]);
                         x = (float)Double.Parse(chunks[2]);
                         y = (float)Double.Parse(chunks[3]);
                         z = (float)Double.Parse(chunks[4]);
+
+                        ///////////// BUILD TRANSFORM NODES
 
                         BuildingTransform transNode = new BuildingTransform((1.0f/Settings.EditableScale));
                         transNode.Translation = new Vector3(x, y, z * factor);
@@ -606,25 +654,25 @@ namespace Manhattanville
                             MathHelper.PiOver2);
                         transNode.Scale = Vector3.One * scale;
 
-                        editableBuildingTransformNode = new BuildingTransform(Settings.EditableScale);
+                        BuildingTransform editableBuildingTransformNode = new BuildingTransform(Settings.EditableScale);
                         editableBuildingTransformNode.Translation = new Vector3(x, y, z * factor);
                         editableBuildingTransformNode.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ,
                             (float)(zRot * Math.PI / 180)) * Quaternion.CreateFromAxisAngle(Vector3.UnitX,
                             MathHelper.PiOver2);
                         editableBuildingTransformNode.Scale = Vector3.One * scale * new Vector3(Settings.EditableScale);
 
-                        realBuildingTransformNode = new BuildingTransform(Settings.RealScale);
+                        BuildingTransform realBuildingTransformNode = new BuildingTransform(Settings.RealScale);
                         realBuildingTransformNode.Translation = new Vector3(x, y, z * factor);
                         realBuildingTransformNode.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ,
                             (float)(zRot * Math.PI / 180)) * Quaternion.CreateFromAxisAngle(Vector3.UnitX,
                             MathHelper.PiOver2);
                         realBuildingTransformNode.Scale = Vector3.One * scale * new Vector3(Settings.RealScale);
 
-                        airRightsTransform = new AirRightsTransform();
-
+                        AirRightsTransform airRightsTransformNode = new AirRightsTransform();
+                        
                         editableBuildingTransformNode.addObserver(transNode);
                         editableBuildingTransformNode.addObserver(realBuildingTransformNode);
-                        editableBuildingTransformNode.addObserver(airRightsTransform);
+                        editableBuildingTransformNode.addObserver(airRightsTransformNode);
  
                         Material buildingMaterial = new Material();
                         buildingMaterial.Diffuse = Color.White.ToVector4();
@@ -643,6 +691,9 @@ namespace Manhattanville
                         building.TransformNode = transNode;
                         building.EditBuildingTransform = editableBuildingTransformNode;
                         editableBuilding.TransformNode = editableBuildingTransformNode;
+                        building.AirRightsTransformNode = airRightsTransformNode;
+
+                        ///////////// ADD CHILDREN TO PARENT NODES, WHICH WERE ALREADY ADDED TO GROUND
 
                         parentTrans.AddChild(transNode);
                         //parentTrans.AddChild(editableBuildingTransformNode);
@@ -651,6 +702,10 @@ namespace Manhattanville
                         transNode.AddChild(building);
 
                         editableBuildingTransformNode.AddChild(editableBuilding);
+
+                        airRightsGraph.AddChild(airRightsTransformNode);
+                        Log.Write(airRightsNode.Name + " airRightsNode was loaded.");
+                        airRightsTransformNode.AddChild(airRightsNode);
                     }
                 }
             }
@@ -664,79 +719,6 @@ namespace Manhattanville
             file.Close();
         }
 
-        //private void LoadDetailedBuildings(float factor)
-        //{
-        //    FileStream file = new FileStream("buildings_detailed.csv", FileMode.Open, FileAccess.Read);
-        //    StreamReader sr = new StreamReader(file);
-
-        //    lots = new List<Lot>();
-        //    buildings = new List<Building>();
-        //    ModelLoader loader = new ModelLoader();
-
-        //    float scale = 0.0073f;
-        //    float zRot, x, y, z;
-        //    String[] chunks;
-        //    char[] seps = { ',' };
-
-        //    String s = "";
-        //    try
-        //    {
-        //        // Skip the first line which has column names
-        //        sr.ReadLine();
-
-        //        parentTrans = new TransformNode();
-        //        parentTrans.Scale = Vector3.One * scale;
-        //        parentTrans.Translation = new Vector3(-33.5f, -54.25f, 0);
-        //        parentTrans.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, MathHelper.PiOver2);
-        //        groundMarkerNode.AddChild(parentTrans);
-
-        //        while (!sr.EndOfStream)
-        //        {
-        //            s = sr.ReadLine();
-
-        //            if (s.Length > 0)
-        //            {
-        //                chunks = s.Split(seps);
-
-        //                Building building = new Building(chunks[0]);
-        //                building.Model = (Model)loader.Load("", "Detailed/" + chunks[0]);
-        //                building.AddToPhysicsEngine = true;
-        //                building.Physics.Shape = ShapeType.Box;
-
-        //                buildings.Add(building);
-
-        //                zRot = (float)Double.Parse(chunks[1]);
-        //                x = (float)Double.Parse(chunks[2]);
-        //                y = (float)Double.Parse(chunks[3]);
-        //                z = (float)Double.Parse(chunks[4]);
-
-        //                TransformNode transNode = new TransformNode();
-        //                transNode.Translation = new Vector3(x, y, z * factor);
-        //                transNode.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ,
-        //                    (float)(zRot * Math.PI / 180)) * Quaternion.CreateFromAxisAngle(Vector3.UnitX,
-        //                    MathHelper.PiOver2);
-
-        //                Material buildingMaterial = new Material();
-        //                buildingMaterial.Diffuse = Color.White.ToVector4();
-        //                buildingMaterial.Specular = Color.White.ToVector4();
-        //                buildingMaterial.SpecularPower = 10;
-
-        //                building.Material = buildingMaterial;
-
-        //                parentTrans.AddChild(transNode);
-        //                transNode.AddChild(building);
-        //            }
-        //        }
-        //    }
-        //    catch (Exception exp)
-        //    {
-        //        Console.WriteLine("buildings.csv has wrong format: " + s);
-        //        Console.WriteLine(exp.Message);
-        //    }
-
-        //    sr.Close();
-        //    file.Close();
-        //}
 
         private void LoadMenu()
         {
@@ -846,44 +828,42 @@ namespace Manhattanville
             int xDel = mouseLocation.X - centerX;
             int yDel = mouseLocation.Y - centerY;
 
-            //GoblinXNA.UI.Notifier.AddMessage("x=" + xDel + " y=" + yDel);
-
             if (new Vector2((float)xDel, (float)yDel).Length() > 100.0f)
             {
                 UpdateMouse(new Vector2(xDel, yDel));
             }
         }
 
-        private void KeyTypeHandler(Keys key, KeyModifier modifier)
+        private void KeyTypeHandler(Microsoft.Xna.Framework.Input.Keys key, KeyModifier modifier)
         {
-            if (key == Keys.Q)
+            if (key == Microsoft.Xna.Framework.Input.Keys.Q)
             {
                 this.Exit();
             }
 
-            if (key == Keys.S)
+            if (key == Microsoft.Xna.Framework.Input.Keys.S)
             {
                 Utilities.SaveScreenShot(graphics.GraphicsDevice, "ScreenShot.jpg");
             }
 
-            if (key == Keys.Space)
+            if (key == Microsoft.Xna.Framework.Input.Keys.Space)
             {
                 //MousePressHandler(MouseInput.LeftButton, new Point(centerX, centerY));
                 getClosestBuilding(null);
             }
 
-            if (key == Keys.Escape)
+            if (key == Microsoft.Xna.Framework.Input.Keys.Escape)
             {
                 MousePressHandler(MouseInput.RightButton, new Point(centerX, centerY));
             }
 
-            if (key == Keys.C)
+            if (key == Microsoft.Xna.Framework.Input.Keys.C)
             {
                 continousMode = !continousMode;
                 GoblinXNA.UI.Notifier.AddMessage("continousMode=" + continousMode);
             }
 
-            if (key == Keys.Up)
+            if (key == Microsoft.Xna.Framework.Input.Keys.Up)
             {
                 if ( (selectedBuilding != null) && (selectedEditableBuilding != null) )
                 {
@@ -891,7 +871,7 @@ namespace Manhattanville
                 }
             }
 
-            if (key == Keys.Down)
+            if (key == Microsoft.Xna.Framework.Input.Keys.Down)
             {
                 if ((selectedBuilding != null) && (selectedEditableBuilding != null))
                 {
@@ -899,7 +879,7 @@ namespace Manhattanville
                 }
             }
 
-            if (key == Keys.Tab)
+            if (key == Microsoft.Xna.Framework.Input.Keys.Tab)
             {
                 Building b;
                 try
@@ -914,6 +894,12 @@ namespace Manhattanville
                 selectBuilding(b);
             }
         }
+
+        //private void loadData()
+        //{
+        //    dataRepresentation = new DataRepresentation(graphics.GraphicsDevice, font, color, selectedBuilding);
+        //    groundMarkerNode.AddChild(dataRepresentation);
+        //}
 
         private void MousePressHandler(int button, Point mouseLocation)
         {
@@ -1009,7 +995,8 @@ namespace Manhattanville
             parentTrans.AddChild(selectedBuilding.EditBuildingTransform);
             
             if (!continousMode) GoblinXNA.UI.Notifier.AddMessage(selectedBuilding.Name);
-           
+
+            dataRepresentation.showData(b);
         }
 
         private void addFloor(int floors)
@@ -1026,8 +1013,9 @@ namespace Manhattanville
                 return;
             }
 
-            editableBuildingTransformNode = (BuildingTransform)(selectedBuilding.EditBuildingTransform);
-            Vector3 scaleVector = editableBuildingTransformNode.Scale;
+            BuildingTransform editBldgTransformNode = new BuildingTransform();
+            editBldgTransformNode = (BuildingTransform)(selectedBuilding.EditBuildingTransform);
+            Vector3 scaleVector = editBldgTransformNode.Scale;
 
             if (currStories != 0)
             {
@@ -1042,14 +1030,14 @@ namespace Manhattanville
                 scaleVector.Z = heightRatio * scale;
             }
 
-            editableBuildingTransformNode.Scale = scaleVector;
+            editBldgTransformNode.Scale = scaleVector;
 
-            editableBuildingTransformNode.broadcast();
+            editBldgTransformNode.broadcast();
 
             selectedBuilding.Stories = newStories;
 
             Log.Write("editableBuildingTransformNode.Scale="
-                + editableBuildingTransformNode.Scale.ToString() + "\n");
+                + editBldgTransformNode.Scale.ToString() + "\n");
 
             GoblinXNA.UI.Notifier.AddMessage(
                 selectedBuilding.Name + " now has "

@@ -25,17 +25,17 @@
   Camera
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   -->
-  <var name="CameraID" value="0" />
+  <var name="CameraID" value="1" />
   <!-- Settings for 640x480 -->
-  <var name="CameraFx" value="638.052" />
+<!--  <var name="CameraFx" value="638.052" />
   <var name="CameraFy" value="633.673" />
   <var name="Resolution" value="_640x480" />
-<!--   -->
+-->
   <!-- Settings for 320x240 -->
-<!--   <var name="CameraFx" value="319.026" />
+  <var name="CameraFx" value="319.026" />
   <var name="CameraFy" value="316.837" />
   <var name="Resolution" value="_320x240" />
--->  <!--
+<!--
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Debug
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -51,7 +51,7 @@
   <var name="GroundMaxDropouts" value="-1" />
   <var name="ToolOptimize" value="false" />
   <var name="ToolMaxDropouts" value="-1" />
-  <var name="ToolSmoother" value="0.4" />
+  <var name="ToolSmoother" value="0.2" />
   <var name="ToolTagName" value="pointer3" />
   <!--
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -60,6 +60,11 @@
   -->
   <var name="EditableScale" value="3" />
   <var name="RealScale" value="20" />
+  <var name="GroundToFootRatio" value=".03f" />
+  <!--0.09f" />-->
+  <var name="GraphX" value="0f" />
+  <var name="GraphY" value="40f" />
+  <var name="GraphZ" value="5f" />
   <!--
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Miscellaneous
