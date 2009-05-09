@@ -49,7 +49,7 @@ namespace Manhattanville
         //SGForm fs = null;
         Scene scene;
         MarkerNode groundMarkerNode;
-        //Dictionary<Building, Lot> lots;
+        Dictionary<Building, Lot> lots;
         List<Building> buildings;
         Dictionary<Building, Building> editableBuildings;
         Building selectedBuilding;
@@ -161,19 +161,34 @@ namespace Manhattanville
 
             // EditArea
             GeometryNode editArea = new GeometryNode("EditArea");
-            editArea.Model = new Model((new TexturedBox(80f,80f,4f)).Mesh);
+            editArea.Model = new Box(80f, 80f, 1f);
 
             Material editMaterial = new Material();
 
-            editMaterial.Diffuse = Color.White.ToVector4();
+            editMaterial.Diffuse = Color.DarkSlateBlue.ToVector4();
             editMaterial.Specular = Color.White.ToVector4();
             editMaterial.SpecularPower = 10;
-            editMaterial.Texture = Content.Load<Texture2D>("Textures//Chessboard_wood");
+            //editMaterial.Texture = Content.Load<Texture2D>("Textures//Chessboard_wood");
             editArea.Material = editMaterial;
 
-            TransformNode editTrans = new TransformNode(new Vector3(0f,40f,3f));
+            TransformNode editTrans = new TransformNode(new Vector3(0f, 40f, 5f));
             editTrans.AddChild(editArea);
             groundMarkerNode.AddChild(editTrans);
+
+            //THE CHESSBOARD IDEA
+            //editArea.Model = new Model((new TexturedBox(80f,80f,4f)).Mesh);
+
+            //Material editMaterial = new Material();
+
+            //editMaterial.Diffuse = Color.White.ToVector4();
+            //editMaterial.Specular = Color.White.ToVector4();
+            //editMaterial.SpecularPower = 10;
+            //editMaterial.Texture = Content.Load<Texture2D>("Textures//Chessboard_wood");
+            //editArea.Material = editMaterial;
+
+            //TransformNode editTrans = new TransformNode(new Vector3(0f,40f,3f));
+            //editTrans.AddChild(editArea);
+            //groundMarkerNode.AddChild(editTrans);
 
             //CreateAirRightsGraph();
 
@@ -203,13 +218,6 @@ namespace Manhattanville
             mat.Diffuse = Color.White.ToVector4();
             mat.SpecularPower = 10;
             mat.Texture = Data.txt2Txt(graphics.GraphicsDevice,"Hello World", 100, 20, font, color);
-
-            //Hashtable lotInfo = lots[0].getInfoTable();
-            //GoblinXNA.UI.Notifier.AddMessage(lots[0].name);
-            //foreach (string key in lotInfo.Keys)
-            //{
-            //    GoblinXNA.UI.Notifier.AddMessage(key + ": " + lotInfo[key]);
-            //}
 
             //mat.Texture.Save("test.jpg", ImageFileFormat.Jpg);
 
@@ -562,7 +570,7 @@ namespace Manhattanville
             FileStream file = new FileStream(filename, FileMode.Open, FileAccess.Read);
             StreamReader sr = new StreamReader(file);
 
-            //lots = new Dictionary<Building, Lot>();
+            lots = new Dictionary<Building, Lot>();
             buildings = new List<Building>();
             editableBuildings = new Dictionary<Building, Building>();
             ModelLoader loader = new ModelLoader();
@@ -587,8 +595,8 @@ namespace Manhattanville
                 parentTrans.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, 119 * MathHelper.Pi / 180);
 
                 airRightsGraph = new AirRightsGraph();
-                //groundMarkerNode.AddChild(airRightsGraph);
-                parentTrans.AddChild(airRightsGraph);
+                groundMarkerNode.AddChild(airRightsGraph);
+                //parentTrans.AddChild(airRightsGraph);
 
                 groundMarkerNode.AddChild(parentTrans);
 
@@ -624,10 +632,11 @@ namespace Manhattanville
                         realBuilding.AddToPhysicsEngine = true;
                         realBuilding.Physics.Shape = ShapeType.Box;
                         realBuilding.Model.OffsetToOrigin = true;
-                        
-                        Vector3 lotDimensions = new Vector3(lot.lotFrontage,lot.lotDepth,100);
-                        AirRightsNode airRightsNode = new AirRightsNode(address + "_air_rights", lotDimensions, Settings.GroundToFootRatio);
 
+                        float surfaceArea = lot.lotFrontage * lot.lotDepth;
+                        Vector3 lotDimensions = new Vector3(lot.lotFrontage,lot.lotDepth, (Math.Abs(lot.airRights)/surfaceArea) );
+                        AirRightsNode airRightsNode = new AirRightsNode(address + "_air_rights", lotDimensions, Settings.GroundToFootRatio);
+                            
                         realBuilding.Model = (Model)loader.Load("", "Plain/" + address);
                         realBuilding.AddToPhysicsEngine = true;
                         realBuilding.Physics.Shape = ShapeType.Box;
@@ -636,7 +645,7 @@ namespace Manhattanville
                         lot.readInfo(chunks);
                         //System.Console.WriteLine(lot.floors);
 
-                        //lots.Add(building, lot);
+                        lots.Add(building, lot);
                         buildings.Add(building);
                         editableBuildings.Add(building,editableBuilding);
 
@@ -701,6 +710,7 @@ namespace Manhattanville
 
                         transNode.AddChild(building);
 
+                        editableBuildingTransformNode.ModelBuilding = building;
                         editableBuildingTransformNode.AddChild(editableBuilding);
 
                         airRightsGraph.AddChild(airRightsTransformNode);

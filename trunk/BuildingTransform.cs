@@ -41,7 +41,7 @@ namespace Manhattanville
         public float MaxZScale { get; set; }
         private List<IObservingTransform> observers = new List<IObservingTransform>();
         private float scaleRatioToEditable;
-
+        public Building ModelBuilding { get; set; }
 
         public BuildingTransform() : base() {}
         
