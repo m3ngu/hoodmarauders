@@ -34,7 +34,12 @@ namespace Manhattanville
         // Building Scales
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         public static float EditableScale { get; set; }
-        public static float RealScale { get; set; }        
+        public static float RealScale { get; set; }
+        public static float GroundToFootRatio { get; set; }
+        public static float GraphX { get; set; }
+        public static float GraphY { get; set; }
+        public static float GraphZ { get; set; }
+
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // Miscellanous
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
