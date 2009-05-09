@@ -94,6 +94,7 @@ namespace Manhattanville
             this.salePrice = chunks[17];
             this.saleDate = chunks[18];
             this.airRights = int.Parse(chunks[19]);
+            System.Console.WriteLine(this.name + " airrights = " + this.airRights);
             this.zoningMapNum = chunks[20];
             this.zoningDistrict = chunks[21];
             this.lotFrontage = float.Parse(chunks[22]);

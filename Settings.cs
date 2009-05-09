@@ -65,8 +65,12 @@ namespace Manhattanville
             ToolSmoother = float.Parse(State.GetSettingVariable("ToolSmoother"));
             ToolTagName = State.GetSettingVariable("ToolTagName");
 
-            EditableScale = int.Parse(State.GetSettingVariable("EditableScale"));
-            RealScale = int.Parse(State.GetSettingVariable("RealScale"));
+            EditableScale = float.Parse(State.GetSettingVariable("EditableScale"));
+            RealScale = float.Parse(State.GetSettingVariable("RealScale"));
+            GroundToFootRatio = float.Parse(State.GetSettingVariable("GroundToFootRatio"));
+            GraphX = float.Parse(State.GetSettingVariable("GraphX"));
+            GraphY = float.Parse(State.GetSettingVariable("GraphY"));
+            GraphZ = float.Parse(State.GetSettingVariable("GraphZ"));
 
             BuildingsDetailed = bool.Parse(State.GetSettingVariable("BuildingsDetailed"));
             BuildingsSubset = bool.Parse(State.GetSettingVariable("BuildingsSubset"));
