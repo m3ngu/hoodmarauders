@@ -25,7 +25,7 @@
   Camera
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   -->
-  <var name="CameraID" value="1" />
+  <var name="CameraID" value="0" />
   <!-- Settings for 640x480 -->
 <!--  <var name="CameraFx" value="638.052" />
   <var name="CameraFy" value="633.673" />
@@ -60,8 +60,7 @@
   -->
   <var name="EditableScale" value="3" />
   <var name="RealScale" value="20" />
-  <var name="GroundToFootRatio" value="0.07" />
-  <!--0.09f" />-->
+  <var name="GroundToFootRatio" value="0.09f" />
   <var name="GraphX" value="0" />
   <var name="GraphY" value="-48" />
   <var name="GraphZ" value="8" />

@@ -37,26 +37,24 @@ namespace Manhattanville
         private float airRightsSum;
 
         public AirRightsTransform() : base() {
+            //this.Rotation = new Quaternion(MathHelper.ToRadians(90), 0, 0, 1);
+            this.Rotation = Quaternion.CreateFromAxisAngle(new Vector3(1,0,0),(float)MathHelper.ToRadians(90));
+            //Console.WriteLine("airrights column = "+this.Rotation.ToString());
         }
 
         public override void observe(BuildingTransform bt)
         {
-            //System.Console.WriteLine("for " + bt.ToString()+" with child of type "+bt.Children[0].GetType());
-
-            //foreach (Building b in bt.Children)
-            //{
-            //System.Console.WriteLine("bt.ModelBuilding.Lot.airRights = " + bt.ModelBuilding.Lot.airRights);
             if (bt.ModelBuilding.Lot.airRights < 0)
-                {
+            {
                     //((AirRightsNode)this.Children[0]).Material.Diffuse = new Vector4(255, 0, 0, .5f);
                 //    ((Building)bt.Children[0]).Material.Diffuse = new Vector4(255, 0, 0, .5f);
-                }
+            }
                 //airRightsSum += ((Lot)b.Lot).airRights;
                 //System.Console.WriteLine("can't seem to access airrights value for this lot.");//AirRightsTransform sum = " + airRightsSum);
             //}
-            this.Footprint = bt.Footprint * scaleRatioToEditable;
-            this.Stories = bt.Stories;
-            this.Scale = bt.Scale * this.scaleRatioToEditable;// new Vector3(this.Scale.X, b.Scale.Y * this.scaleRatioToEditable, this.Scale.Z);//.Y * this.scaleRatioToEditable;
+            //this.Footprint = bt.Footprint * scaleRatioToEditable;
+            //this.Stories = bt.Stories;
+            //this.Scale = bt.Scale * this.scaleRatioToEditable;// new Vector3(this.Scale.X, b.Scale.Y * this.scaleRatioToEditable, this.Scale.Z);//.Y * this.scaleRatioToEditable;
         }
     }
 
