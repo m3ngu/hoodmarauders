@@ -42,13 +42,15 @@ namespace Manhattanville
             Lot lot = modelBuilding.Lot;
             float surfaceArea = lot.lotFrontage * lot.lotDepth;
             //Console.WriteLine("lot.lotFrontage * lot.lotDepth = " + lot.lotFrontage + " * " + lot.lotDepth + " = " + surfaceArea);
+            Console.WriteLine("airRights=" + lot.airRights);
             float height = (Math.Abs(lot.airRights) / surfaceArea);
-            //Console.WriteLine("height = Math.Abs(lot.airRights) / surfaceArea = " + height);
+            Console.WriteLine("height = Math.Abs(lot.airRights) / surfaceArea = " + height);
             Vector3 realSize = new Vector3(lot.lotFrontage, lot.lotDepth, height);
-
-            Vector3 adjustedSize = realSize * groundToFootRatio;
-            //System.Console.WriteLine(realSize.X + " " + realSize.Y + " " + realSize.Z + " ratio:" + groundToFootRatio);
-            this.Model = new Box(adjustedSize);
+            System.Console.WriteLine(realSize.X + "X" + " " + realSize.Y + "Y " + realSize.Z + "Z realSize, gToFratio:" + groundToFootRatio);
+            Vector3 adjustedSize = new Vector3(realSize.X * groundToFootRatio, realSize.Y * groundToFootRatio, realSize.Z);
+            System.Console.WriteLine(adjustedSize.X + "X" + " " + adjustedSize.Y + "Y " + adjustedSize.Z + "Z adjustedSize");
+            //this.Model = new Cylinder((float)Math.Sqrt(surfaceArea), (float)Math.Sqrt(surfaceArea), height, 3);
+            this.Model = new Cylinder(3, 3, height, 20);
 
             Material airRightsMaterial = new Material();
             if (lot.airRights < 0) {
