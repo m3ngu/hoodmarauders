@@ -76,7 +76,6 @@ namespace Manhattanville
 
         bool showHandles = false;
         List<Handle> handles = new List<Handle>(Enum.GetNames(typeof(Handle.Location)).Length);
-        Material handleMaterial;
         Handle selectedHandle;
 
         float y_shift = -62;
@@ -1063,14 +1062,17 @@ namespace Manhattanville
                 i++;
 
                 /*
-                            GoblinXNA.UI.Notifier.AddMessage(b.Name
-                                + ", marker=" + b.MarkerTransform.Translation.ToString()
-                                + ", modelMidPoint=" + modelMidPoint.ToString()
-                                + ", combined=" + Vector3.Transform(modelMidPoint, m).ToString()
-                                + ", dis=" + dis);
-                            */
+                Log.Write(h.Name
+                    + ", h.GeoNode.WorldTransformation=" + h.GeoNode.WorldTransformation.Translation.ToString()
+                    + ", h.GeoNode.MarkerTransform=" + h.GeoNode.MarkerTransform.Translation.ToString()
+                    + ", t.Translation=" + t.Translation.ToString()
+                    + ", marker.WorldTransformation=" + tool.Marker.WorldTransformation.Translation.ToString()
+                    + ", dis=" + dis);
+                */          
 
             }
+
+            //Log.Write("closestHandle.Name=" + closestHandle.Name);
 
             if (closestHandle != null)
             {
@@ -1083,30 +1085,15 @@ namespace Manhattanville
         {
             if (selectedHandle != null)
             {
-                selectedHandle.GeoNode.Material.Diffuse = Color.White.ToVector4();
-                //if (selectedEditableBuilding != null)
-                //{
-                //parentTransEditable.RemoveChild(selectedBuilding.EditBuildingTransform);
-                //}
-                //selectedBuilding.setEditableTransform(null);
+                selectedHandle.GeoNode.Material.Diffuse = Color.DarkBlue.ToVector4();
             }
 
             selectedHandle = h;
-            //selectedEditableBuilding = editableBuildings[selectedBuilding];
-            //selectedLot = b.Lot;
 
-            selectedHandle.GeoNode.Material.Diffuse = Color.Red.ToVector4();
-            //parentTransEditable.AddChild(selectedBuilding.EditBuildingTransform);
-
-            //handles[(int)Handle.Location.Top].Translation = b.CenterOfCeil;
-            //handles[(int)Handle.Location.BottomSW].Translation = b.MinPoint;
-            //handles[(int)Handle.Location.BottomSE].Translation = new Vector3(b.MaxPoint.X, b.MinPoint.Y, b.MinPoint.Z);
-            //handles[(int)Handle.Location.BottomNE].Translation = new Vector3(b.MaxPoint.X, b.MaxPoint.Y, b.MinPoint.Z);
-            //handles[(int)Handle.Location.BottomNW].Translation = new Vector3(b.MinPoint.X, b.MaxPoint.Y, b.MinPoint.Z);
+            selectedHandle.GeoNode.Material.Diffuse = Color.Green.ToVector4();
 
             if (!continousMode) GoblinXNA.UI.Notifier.AddMessage(selectedHandle.Name);
 
-            //dataRepresentation.showData(b);
         }
 
         private void selectBuilding(Building b)
@@ -1193,13 +1180,14 @@ namespace Manhattanville
 
         public void initializeHandles()
         {
-            handleMaterial = new Material();
-            handleMaterial.Specular = Color.White.ToVector4();
-            handleMaterial.Diffuse = Color.DarkBlue.ToVector4();
-            handleMaterial.SpecularPower = 10;
-
+            
             foreach (Handle.Location locationItem in Enum.GetValues(typeof(Handle.Location)))
             {
+                Material handleMaterial = new Material();
+                handleMaterial.Specular = Color.White.ToVector4();
+                handleMaterial.Diffuse = Color.DarkBlue.ToVector4();
+                handleMaterial.SpecularPower = 10;
+
                 Handle h = new Handle("Handle" + (int)locationItem, handleMaterial);
                 handles.Add(h);
                 handleTrans.AddChild(h);
@@ -1208,7 +1196,13 @@ namespace Manhattanville
 
             foreach (Building b in buildings)
             {
+                Material handleMaterial = new Material();
+                handleMaterial.Specular = Color.White.ToVector4();
+                handleMaterial.Diffuse = Color.DarkBlue.ToVector4();
+                handleMaterial.SpecularPower = 10;
+
                 Handle h = new Handle("Handle" + b.Name, handleMaterial);
+
                 h.Translation = b.CenterOfCeilWithoutOffset;// +new Vector3(-3.326081f, 19.7829f, 0f);
                 groundMarkerNode.AddChild(h);
                 GoblinXNA.UI.Notifier.AddMessage(b.CenterOfBaseWithoutOffset.ToString());
