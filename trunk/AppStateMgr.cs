@@ -74,18 +74,19 @@ namespace Manhattanville
                 case AppState.Browse:
                     /* ----------BROWSE---------*/
                     showIcon = false;
-                    
+                    app.enableHandles(false);
+
                     break;
                 case AppState.Edit:
                     /* -----------EDIT----------*/
                     showIcon = true;
-
+                    app.enableHandles(true);
                    
                     break;
                 case AppState.Info:
                     /* -----------INFO----------*/
                     showIcon = true;
-
+                    app.enableHandles(false);
                     
                     break;
             }
