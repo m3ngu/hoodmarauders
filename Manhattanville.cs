@@ -1191,7 +1191,7 @@ namespace Manhattanville
                 Handle h = new Handle("Handle" + (int)locationItem, handleMaterial);
                 handles.Add(h);
                 handleTrans.AddChild(h);
-                //h.Translation = Vector3.Up * (float)locationItem;
+                h.Enabled = showHandles;
             }
 
             foreach (Building b in buildings)
@@ -1208,6 +1208,16 @@ namespace Manhattanville
                 GoblinXNA.UI.Notifier.AddMessage(b.CenterOfBaseWithoutOffset.ToString());
             }
 
+        }
+
+        public void enableHandles(bool show)
+        {
+            showHandles = show;
+            foreach (Handle h in handles)
+            {
+                h.Enabled = showHandles;
+            }
+            
         }
     }
 }
