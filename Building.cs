@@ -38,6 +38,9 @@ namespace Manhattanville
         public BuildingTransform    EditBuildingTransform  { get; set; }
         public AirRightsTransform AirRightsTransformNode { get; set; }
         public Vector3          CenterOfBase           { get; set; }
+        public Vector3 CenterOfCeil { get; set; }
+        public Vector3 MinPoint { get; set; }
+        public Vector3 MaxPoint { get; set; }
         public float            ModelHeight            { get; set; }
         public float            Footprint               { get; set; }
         public int              Stories                { get; set; }
@@ -78,37 +81,63 @@ namespace Manhattanville
 
             List<Vector3> verts = this.Model.Vertices;
 
-            Vector3 minPoint = verts[0];
-            Vector3 maxPoint = verts[0];
+            Vector3 minPoint, maxPoint, transformedPoint;
+            Matrix worldTransformation, finalRotation, allT;
+            worldTransformation = finalRotation = allT = Matrix.Identity;
 
-            foreach (Vector3 v in verts) {
-                if (v.X > maxPoint.X) maxPoint.X = v.X;
-                if (v.X < minPoint.X) minPoint.X = v.X;
+            worldTransformation = 
+            Matrix.CreateFromQuaternion(this.TransformNode.Rotation)  // This flips the Y and Z axes
+                * Matrix.CreateScale(this.TransformNode.Scale);   // This scaled the model from 1000s to 10s of pixels
+            
+            worldTransformation.Translation = this.TransformNode.Translation;  // This is the small adjustment in the Z direction
 
-                if (v.Y > maxPoint.Y) maxPoint.Y = v.Y;
-                if (v.Y < minPoint.Y) minPoint.Y = v.Y;
+            finalRotation = Matrix.CreateFromQuaternion(
+                Quaternion.CreateFromAxisAngle(Vector3.UnitZ, 119 * MathHelper.Pi / 180));  // This rotates around the Z axis
 
-                if (v.Z > maxPoint.Z) maxPoint.Z = v.Z;
-                if (v.Z < minPoint.Z) minPoint.Z = v.Z;
+            allT = Matrix.Multiply(this.Model.OffsetTransform, worldTransformation);
+            allT = Matrix.Multiply(allT, finalRotation);
+
+            minPoint = maxPoint = Vector3.Transform(verts[0], allT);
+
+            foreach (Vector3 v in verts)
+            {
+                transformedPoint = Vector3.Transform(v, allT);
+
+                if (transformedPoint.X > maxPoint.X) maxPoint.X = transformedPoint.X;
+                if (transformedPoint.X < minPoint.X) minPoint.X = transformedPoint.X;
+
+                if (transformedPoint.Y > maxPoint.Y) maxPoint.Y = transformedPoint.Y;
+                if (transformedPoint.Y < minPoint.Y) minPoint.Y = transformedPoint.Y;
+
+                if (transformedPoint.Z > maxPoint.Z) maxPoint.Z = transformedPoint.Z;
+                if (transformedPoint.Z < minPoint.Z) minPoint.Z = transformedPoint.Z;
             }
 
-            ModelHeight = maxPoint.Y - minPoint.Y;
+            MinPoint = minPoint;
+            MaxPoint = maxPoint;
+
+            ModelHeight = maxPoint.Z - minPoint.Z;
 
             // Project max point onto the base plane
-            Vector3 maxPointProj = new Vector3(maxPoint.X, minPoint.Y, maxPoint.Z);
+            Vector3 maxPointProjDown = new Vector3(maxPoint.X, maxPoint.Y, minPoint.Z);
+            Vector3 minPointProjUp = new Vector3(minPoint.X, minPoint.Y, maxPoint.Z);
 
             // Find the middle point between the projection-of-max and min
-            CenterOfBase = (maxPointProj + minPoint) / 2.0f;
+            CenterOfBase = ((maxPointProjDown - minPoint) / 2.0f) + minPoint;
+            CenterOfCeil = ((maxPoint - minPointProjUp) / 2.0f) + minPointProjUp;
 
             //this.Model.ShowBoundingBox = true;
+            
             /*
             Log.Write(name
                 + " minPoint: " + minPoint.ToString()
                 + ", maxPoint: " + maxPoint.ToString()
-                + ", maxPointProj: " + maxPointProj.ToString()
+                + ", maxPointProjDown: " + maxPointProjDown.ToString()
+                + ", minPointProjUp: " + minPointProjUp.ToString()
                 + ", CenterOfBase: " + CenterOfBase.ToString()
-                + ", ModelHeight:" + ModelHeight + "\n");
-             */
+                + ", CenterOfCeil: " + CenterOfCeil.ToString()
+                + ", ModelHeight:" + ModelHeight);
+            */
         }
 
         public Vector3 getBaseWorld()

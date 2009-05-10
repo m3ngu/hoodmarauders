@@ -60,7 +60,7 @@ namespace Manhattanville
         Lot selectedLot;
         MarkerNode toolMarkerNode;
         Tool tool;
-        TransformNode parentTrans;
+        TransformNode parentTrans, parentTransEditable, handleTrans;
         //AirRightsNode airRightsNode;
         //AirRightsTransform airRightsTransformNode;
         AirRightsGraph airRightsGraph;
@@ -73,6 +73,10 @@ namespace Manhattanville
         SpriteFont font;
 
         iWearTracker iTracker;
+
+        bool showHandles = false;
+        List<Handle> handles = new List<Handle>(Enum.GetNames(typeof(Handle.Location)).Length);
+        Material handleMaterial;
 
         float y_shift = -62;
         float x_shift = -28.0f;
@@ -157,10 +161,11 @@ namespace Manhattanville
             //else
                 LoadPlainBuildings(factor);
 
+            initializeHandles();
+
             foreach (Building b in buildings)
             {
                 b.calcModelCoordinates();
-                b.EditBuildingTransform.Translation += new Vector3(40f, -40f, (b.ModelHeight * scale) / 2f + 4f);
             }
 
             // EditArea
@@ -614,11 +619,22 @@ namespace Manhattanville
                 parentTrans.Translation = new Vector3(-12.5f, -15.69f, 0);
                 parentTrans.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, 119 * MathHelper.Pi / 180);
 
+                parentTransEditable = new TransformNode();
+                parentTransEditable.Translation = new Vector3(0f, 40f, 5f);
+                parentTransEditable.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, 119 * MathHelper.Pi / 180);
+                parentTransEditable.Scale = new Vector3(Settings.EditableScale);
+
+                handleTrans = new TransformNode();
+                handleTrans.Translation = new Vector3(0f, 40f, 5f);
+                handleTrans.Scale = new Vector3(Settings.EditableScale);
+
                 airRightsGraph = new AirRightsGraph();
                 groundMarkerNode.AddChild(airRightsGraph);
                 //parentTrans.AddChild(airRightsGraph);
 
                 groundMarkerNode.AddChild(parentTrans);
+                groundMarkerNode.AddChild(parentTransEditable);
+                groundMarkerNode.AddChild(handleTrans);
 
                 while (!sr.EndOfStream)
                 {
@@ -688,7 +704,7 @@ namespace Manhattanville
                         editableBuildingTransformNode.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ,
                             (float)(zRot * Math.PI / 180)) * Quaternion.CreateFromAxisAngle(Vector3.UnitX,
                             MathHelper.PiOver2);
-                        editableBuildingTransformNode.Scale = Vector3.One * scale * new Vector3(Settings.EditableScale);
+                        editableBuildingTransformNode.Scale = Vector3.One * scale;
 
                         BuildingTransform realBuildingTransformNode = new BuildingTransform(Settings.RealScale);
                         realBuildingTransformNode.Translation = new Vector3(x, y, z * factor);
@@ -702,7 +718,7 @@ namespace Manhattanville
                         editableBuildingTransformNode.addObserver(transNode);
                         editableBuildingTransformNode.addObserver(realBuildingTransformNode);
                         editableBuildingTransformNode.addObserver(airRightsTransformNode);
- 
+
                         Material buildingMaterial = new Material();
                         buildingMaterial.Diffuse = Color.White.ToVector4();
                         buildingMaterial.Specular = Color.White.ToVector4();
@@ -753,7 +769,7 @@ namespace Manhattanville
         private void LoadMenu()
         {
             pieMenuRootNode = new PieMenuNode();
-            PieMenuNode parent, child;
+            PieMenuNode parent; //child;
 
             parent = new PieMenuNode("Browse", this.Content.Load<Texture2D>("Icons\\height"), new SimpleDelegate(MenuAction), AppState.Browse);
             pieMenuRootNode.Add(parent);
@@ -1012,7 +1028,7 @@ namespace Manhattanville
                 selectedBuilding.Material.Diffuse = Color.White.ToVector4();
                 //if (selectedEditableBuilding != null)
                 //{
-                parentTrans.RemoveChild(selectedBuilding.EditBuildingTransform);
+                parentTransEditable.RemoveChild(selectedBuilding.EditBuildingTransform);
                 //}
                 //selectedBuilding.setEditableTransform(null);
             }
@@ -1022,8 +1038,14 @@ namespace Manhattanville
             selectedLot = b.Lot;
 
             selectedBuilding.Material.Diffuse = Color.Red.ToVector4();
-            parentTrans.AddChild(selectedBuilding.EditBuildingTransform);
-            
+            parentTransEditable.AddChild(selectedBuilding.EditBuildingTransform);
+
+            handles[(int)Handle.Location.Top].Translation = b.CenterOfCeil;
+            handles[(int)Handle.Location.BottomSW].Translation = b.MinPoint;
+            handles[(int)Handle.Location.BottomSE].Translation = new Vector3(b.MaxPoint.X, b.MinPoint.Y, b.MinPoint.Z);
+            handles[(int)Handle.Location.BottomNE].Translation = new Vector3(b.MaxPoint.X, b.MaxPoint.Y, b.MinPoint.Z);
+            handles[(int)Handle.Location.BottomNW].Translation = new Vector3(b.MinPoint.X, b.MaxPoint.Y, b.MinPoint.Z);
+
             if (!continousMode) GoblinXNA.UI.Notifier.AddMessage(selectedBuilding.Name);
 
             dataRepresentation.showData(b);
@@ -1078,6 +1100,24 @@ namespace Manhattanville
         {
             //if ( (thisXscale < MaxXScale) || (thisZScale < MaxZScale) ) 
             //  eb.Scale = movement your mouse has made
+        }
+
+
+        public void initializeHandles()
+        {
+            handleMaterial = new Material();
+            handleMaterial.Specular = Color.White.ToVector4();
+            handleMaterial.Diffuse = Color.DarkBlue.ToVector4();
+            handleMaterial.SpecularPower = 10;
+
+            foreach (Handle.Location locationItem in Enum.GetValues(typeof(Handle.Location)))
+            {
+                Handle h = new Handle("Handle" + (int)locationItem, handleMaterial);
+                handles.Add(h);
+                handleTrans.AddChild(h);
+                //h.Translation = Vector3.Up * (float)locationItem;
+            }
+
         }
     }
 }

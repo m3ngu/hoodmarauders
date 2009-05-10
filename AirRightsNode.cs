@@ -33,7 +33,7 @@ namespace Manhattanville
 {
     class AirRightsNode : GeometryNode
     {
-        public String Name { get; set; }
+        //override public String Name { get; set; }
 
         public AirRightsNode(String name, Vector3 realSize, float groundToFootRatio)
             : base(name)
