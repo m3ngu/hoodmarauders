@@ -642,9 +642,10 @@ namespace Manhattanville
 
                     if (s.Length > 0)
                     {
+                        //System.Console.WriteLine(s);
                         //chunks = s.Split(seps);
                         chunks = s.Split(seps, System.StringSplitOptions.None);
-                        //Console.WriteLine("size of chunks: " + chunks.Length);
+                        //Console.WriteLine("chunks" + chunks.Length);
 
                         /////////////// BUILD BUILDINGS AND GRAPHICAL REPRESENTATION
                         
@@ -669,9 +670,7 @@ namespace Manhattanville
                         realBuilding.Physics.Shape = ShapeType.Box;
                         realBuilding.Model.OffsetToOrigin = true;
 
-                        float surfaceArea = lot.lotFrontage * lot.lotDepth;
-                        Vector3 lotDimensions = new Vector3(lot.lotFrontage,lot.lotDepth, (Math.Abs(lot.airRights)/surfaceArea) );
-                        AirRightsNode airRightsNode = new AirRightsNode(address + "_air_rights", lotDimensions, Settings.GroundToFootRatio);
+                        AirRightsNode airRightsNode = new AirRightsNode(address + "_air_rights", Settings.GroundToFootRatio, building);
                             
                         realBuilding.Model = (Model)loader.Load("", "Plain/" + address);
                         realBuilding.AddToPhysicsEngine = true;
@@ -689,6 +688,9 @@ namespace Manhattanville
                         x = (float)Double.Parse(chunks[2]);
                         y = (float)Double.Parse(chunks[3]);
                         z = (float)Double.Parse(chunks[4]);
+
+                        float graphNodeXOffset = (float)Double.Parse(chunks[29]);
+                        float graphNodeYOffset = (float)Double.Parse(chunks[30]);
 
                         ///////////// BUILD TRANSFORM NODES
 
@@ -714,6 +716,8 @@ namespace Manhattanville
                         realBuildingTransformNode.Scale = Vector3.One * scale * new Vector3(Settings.RealScale);
 
                         AirRightsTransform airRightsTransformNode = new AirRightsTransform();
+                        //Console.WriteLine("graphNodeXOffset = " + graphNodeXOffset);
+                        airRightsTransformNode.Translation = new Vector3(graphNodeXOffset, graphNodeYOffset, 0);
                         
                         editableBuildingTransformNode.addObserver(transNode);
                         editableBuildingTransformNode.addObserver(realBuildingTransformNode);
@@ -750,7 +754,7 @@ namespace Manhattanville
                         editableBuildingTransformNode.AddChild(editableBuilding);
 
                         airRightsGraph.AddChild(airRightsTransformNode);
-                        Log.Write(airRightsNode.Name + " airRightsNode was loaded.");
+                        //Log.Write(airRightsNode.Name + " airRightsNode was loaded.");
                         airRightsTransformNode.AddChild(airRightsNode);
                     }
                 }
@@ -1048,7 +1052,7 @@ namespace Manhattanville
 
             if (!continousMode) GoblinXNA.UI.Notifier.AddMessage(selectedBuilding.Name);
 
-            dataRepresentation.showData(b);
+            //dataRepresentation.showData(b);
         }
 
         private void addFloor(int floors)

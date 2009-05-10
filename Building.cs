@@ -51,7 +51,7 @@ namespace Manhattanville
             : base(address)
         {
 //            this.scaleRatioToEditable = scaleRatioToEditable;
-            System.Console.WriteLine(name);
+//            System.Console.WriteLine(name);
         }
 
         //public void addObserver(Building b)
