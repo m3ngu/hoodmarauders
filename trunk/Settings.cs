@@ -39,7 +39,7 @@ namespace Manhattanville
         public static float GraphX { get; set; }
         public static float GraphY { get; set; }
         public static float GraphZ { get; set; }
-
+        public static float AdditionalAirRights { get; set; }
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // Miscellanous
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -71,6 +71,7 @@ namespace Manhattanville
             GraphX = float.Parse(State.GetSettingVariable("GraphX"));
             GraphY = float.Parse(State.GetSettingVariable("GraphY"));
             GraphZ = float.Parse(State.GetSettingVariable("GraphZ"));
+            AdditionalAirRights = float.Parse(State.GetSettingVariable("AdditionalAirRights"));
 
             BuildingsDetailed = bool.Parse(State.GetSettingVariable("BuildingsDetailed"));
             BuildingsSubset = bool.Parse(State.GetSettingVariable("BuildingsSubset"));

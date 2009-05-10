@@ -45,10 +45,10 @@ namespace Manhattanville
 
             //foreach (Building b in bt.Children)
             //{
-            System.Console.WriteLine("bt.ModelBuilding.Lot.airRights = " + bt.ModelBuilding.Lot.airRights);
+            //System.Console.WriteLine("bt.ModelBuilding.Lot.airRights = " + bt.ModelBuilding.Lot.airRights);
             if (bt.ModelBuilding.Lot.airRights < 0)
                 {
-                    ((AirRightsNode)this.Children[0]).Material.Diffuse = new Vector4(255, 0, 0, .5f);
+                    //((AirRightsNode)this.Children[0]).Material.Diffuse = new Vector4(255, 0, 0, .5f);
                 //    ((Building)bt.Children[0]).Material.Diffuse = new Vector4(255, 0, 0, .5f);
                 }
                 //airRightsSum += ((Lot)b.Lot).airRights;
