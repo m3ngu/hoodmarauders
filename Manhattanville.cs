@@ -34,6 +34,8 @@ using GoblinXNA.Device.Vision;
 using GoblinXNA.Device.Vision.Marker;
 using Manhattanville.PieMenu;
 using GoblinXNA.Device.Util;
+using GoblinXNA.Device.iWear;
+using GoblinXNA.Device;
 
 namespace Manhattanville
 {
@@ -58,7 +60,7 @@ namespace Manhattanville
         Lot selectedLot;
         MarkerNode toolMarkerNode;
         Tool tool;
-        TransformNode parentTrans;
+        TransformNode parentTrans, parentTransEditable, handleTrans;
         //AirRightsNode airRightsNode;
         //AirRightsTransform airRightsTransformNode;
         AirRightsGraph airRightsGraph;
@@ -69,6 +71,13 @@ namespace Manhattanville
         PieMenuNode pieMenuRootNode;
         bool continousMode = true;
         SpriteFont font;
+
+        iWearTracker iTracker;
+
+        bool showHandles = false;
+        List<Handle> handles = new List<Handle>(Enum.GetNames(typeof(Handle.Location)).Length);
+        Material handleMaterial;
+        Handle selectedHandle;
 
         float y_shift = -62;
         float x_shift = -28.0f;
@@ -156,8 +165,9 @@ namespace Manhattanville
             foreach (Building b in buildings)
             {
                 b.calcModelCoordinates();
-                b.EditBuildingTransform.Translation += new Vector3(40f, -40f, (b.ModelHeight * scale) / 2f + 4f);
             }
+
+            initializeHandles();
 
             // EditArea
             GeometryNode editArea = new GeometryNode("EditArea");
@@ -212,7 +222,7 @@ namespace Manhattanville
             font = Content.Load<SpriteFont>("Fonts//UIFont");
 
             color = new Color(255, 255, 0, 50000); 
-
+            /*
             Material mat = new Material();
             mat.Specular = Color.White.ToVector4();
             mat.Diffuse = Color.White.ToVector4();
@@ -229,7 +239,7 @@ namespace Manhattanville
             textTransNode.AddChild(textGeoNode);
 
             toolMarkerNode.AddChild(textTransNode);
-
+            */
             selectedBuilding = null;
             selectedLot = null;
 
@@ -325,6 +335,22 @@ namespace Manhattanville
 
             // Display the camera image in the background
             scene.ShowCameraImage = true;
+        }
+
+        private void SetupIWear()
+        {
+            // Get an instance of iWearTracker
+            iTracker = iWearTracker.Instance;
+            // We need to initialize it before adding it to the InputMapper class
+            iTracker.Initialize();
+            // If not stereo, then we need to set the iWear VR920 to mono mode (by default, it's
+            // stereo mode if stereo is available)
+            //if (!stereoMode)
+            //    iTracker.EnableStereo = false;
+            // Add this iWearTracker to the InputMapper class for automatic update and disposal
+            InputMapper.Instance.Add6DOFInputDevice(iTracker);
+            // Re-enumerate all of the input devices so that the newly added device can be found
+            InputMapper.Instance.Reenumerate();
         }
 
         private void CreateTerrain(float factor)
@@ -594,11 +620,22 @@ namespace Manhattanville
                 parentTrans.Translation = new Vector3(-12.5f, -15.69f, 0);
                 parentTrans.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, 119 * MathHelper.Pi / 180);
 
+                parentTransEditable = new TransformNode();
+                parentTransEditable.Translation = new Vector3(0f, 40f, 5f);
+                parentTransEditable.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, 119 * MathHelper.Pi / 180);
+                parentTransEditable.Scale = new Vector3(Settings.EditableScale);
+
+                handleTrans = new TransformNode();
+                handleTrans.Translation = new Vector3(0f, 40f, 5f);
+                handleTrans.Scale = new Vector3(Settings.EditableScale);
+
                 airRightsGraph = new AirRightsGraph();
                 groundMarkerNode.AddChild(airRightsGraph);
                 //parentTrans.AddChild(airRightsGraph);
 
                 groundMarkerNode.AddChild(parentTrans);
+                groundMarkerNode.AddChild(parentTransEditable);
+                groundMarkerNode.AddChild(handleTrans);
 
                 while (!sr.EndOfStream)
                 {
@@ -606,10 +643,9 @@ namespace Manhattanville
 
                     if (s.Length > 0)
                     {
-                        //System.Console.WriteLine(s);
                         //chunks = s.Split(seps);
                         chunks = s.Split(seps, System.StringSplitOptions.None);
-                        //Console.WriteLine("chunks" + chunks.Length);
+                        //Console.WriteLine("size of chunks: " + chunks.Length);
 
                         /////////////// BUILD BUILDINGS AND GRAPHICAL REPRESENTATION
                         
@@ -670,7 +706,7 @@ namespace Manhattanville
                         editableBuildingTransformNode.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ,
                             (float)(zRot * Math.PI / 180)) * Quaternion.CreateFromAxisAngle(Vector3.UnitX,
                             MathHelper.PiOver2);
-                        editableBuildingTransformNode.Scale = Vector3.One * scale * new Vector3(Settings.EditableScale);
+                        editableBuildingTransformNode.Scale = Vector3.One * scale;
 
                         BuildingTransform realBuildingTransformNode = new BuildingTransform(Settings.RealScale);
                         realBuildingTransformNode.Translation = new Vector3(x, y, z * factor);
@@ -685,7 +721,7 @@ namespace Manhattanville
                         editableBuildingTransformNode.addObserver(transNode);
                         editableBuildingTransformNode.addObserver(realBuildingTransformNode);
                         editableBuildingTransformNode.addObserver(airRightsTransformNode);
- 
+
                         Material buildingMaterial = new Material();
                         buildingMaterial.Diffuse = Color.White.ToVector4();
                         buildingMaterial.Specular = Color.White.ToVector4();
@@ -736,7 +772,7 @@ namespace Manhattanville
         private void LoadMenu()
         {
             pieMenuRootNode = new PieMenuNode();
-            PieMenuNode parent, child;
+            PieMenuNode parent; //child;
 
             parent = new PieMenuNode("Browse", this.Content.Load<Texture2D>("Icons\\height"), new SimpleDelegate(MenuAction), AppState.Browse);
             pieMenuRootNode.Add(parent);
@@ -800,6 +836,12 @@ namespace Manhattanville
                 && !menu.Visible)
                 getClosestBuilding(null);
 
+            //UpdateMouse();
+            if (continousMode
+                && AppStateMgr.inState(AppState.Edit)
+                && !menu.Visible)
+                getClosestHandle(null);
+
             base.Update(gameTime);
         }
 
@@ -862,7 +904,10 @@ namespace Manhattanville
             if (key == Microsoft.Xna.Framework.Input.Keys.Space)
             {
                 //MousePressHandler(MouseInput.LeftButton, new Point(centerX, centerY));
-                getClosestBuilding(null);
+                if (AppStateMgr.inState(AppState.Browse))
+                    getClosestBuilding(null);
+                else if (AppStateMgr.inState(AppState.Edit))
+                    getClosestHandle(null);
             }
 
             if (key == Microsoft.Xna.Framework.Input.Keys.Escape)
@@ -988,6 +1033,82 @@ namespace Manhattanville
 
         }
 
+        public void getClosestHandle(Object sender)
+        {
+            if (!tool.Marker.MarkerFound)
+            {
+                if (!continousMode) GoblinXNA.UI.Notifier.AddMessage("Tool not found!");
+                return;
+            }
+
+            //GoblinXNA.UI.Notifier.AddMessage("tool=" + tool.Marker.WorldTransformation.Translation.ToString());
+            //GoblinXNA.UI.Notifier.AddMessage("ground=" + groundMarkerNode.WorldTransformation.Translation.ToString());
+
+            float minDis = float.MaxValue;
+            Handle closestHandle = null;
+
+            int i = 0;
+            foreach (Handle h in handles)
+            {
+                Matrix t = h.GeoNode.WorldTransformation * h.GeoNode.MarkerTransform;
+                float dis = (t.Translation - tool.Marker.WorldTransformation.Translation).Length();
+
+                if (dis < minDis)
+                {
+                    minDis = dis;
+                    closestHandle = h;
+                    closestIndex = i;
+                }
+
+                i++;
+
+                /*
+                            GoblinXNA.UI.Notifier.AddMessage(b.Name
+                                + ", marker=" + b.MarkerTransform.Translation.ToString()
+                                + ", modelMidPoint=" + modelMidPoint.ToString()
+                                + ", combined=" + Vector3.Transform(modelMidPoint, m).ToString()
+                                + ", dis=" + dis);
+                            */
+
+            }
+
+            if (closestHandle != null)
+            {
+                selectHandle(closestHandle);
+            }
+
+        }
+
+        private void selectHandle(Handle h)
+        {
+            if (selectedHandle != null)
+            {
+                selectedHandle.GeoNode.Material.Diffuse = Color.White.ToVector4();
+                //if (selectedEditableBuilding != null)
+                //{
+                //parentTransEditable.RemoveChild(selectedBuilding.EditBuildingTransform);
+                //}
+                //selectedBuilding.setEditableTransform(null);
+            }
+
+            selectedHandle = h;
+            //selectedEditableBuilding = editableBuildings[selectedBuilding];
+            //selectedLot = b.Lot;
+
+            selectedHandle.GeoNode.Material.Diffuse = Color.Red.ToVector4();
+            //parentTransEditable.AddChild(selectedBuilding.EditBuildingTransform);
+
+            //handles[(int)Handle.Location.Top].Translation = b.CenterOfCeil;
+            //handles[(int)Handle.Location.BottomSW].Translation = b.MinPoint;
+            //handles[(int)Handle.Location.BottomSE].Translation = new Vector3(b.MaxPoint.X, b.MinPoint.Y, b.MinPoint.Z);
+            //handles[(int)Handle.Location.BottomNE].Translation = new Vector3(b.MaxPoint.X, b.MaxPoint.Y, b.MinPoint.Z);
+            //handles[(int)Handle.Location.BottomNW].Translation = new Vector3(b.MinPoint.X, b.MaxPoint.Y, b.MinPoint.Z);
+
+            if (!continousMode) GoblinXNA.UI.Notifier.AddMessage(selectedHandle.Name);
+
+            //dataRepresentation.showData(b);
+        }
+
         private void selectBuilding(Building b)
         {
             if (selectedBuilding != null)
@@ -995,7 +1116,7 @@ namespace Manhattanville
                 selectedBuilding.Material.Diffuse = Color.White.ToVector4();
                 //if (selectedEditableBuilding != null)
                 //{
-                parentTrans.RemoveChild(selectedBuilding.EditBuildingTransform);
+                parentTransEditable.RemoveChild(selectedBuilding.EditBuildingTransform);
                 //}
                 //selectedBuilding.setEditableTransform(null);
             }
@@ -1005,8 +1126,14 @@ namespace Manhattanville
             selectedLot = b.Lot;
 
             selectedBuilding.Material.Diffuse = Color.Red.ToVector4();
-            parentTrans.AddChild(selectedBuilding.EditBuildingTransform);
-            
+            parentTransEditable.AddChild(selectedBuilding.EditBuildingTransform);
+
+            handles[(int)Handle.Location.Top].Translation = b.CenterOfCeilWithOffset;
+            handles[(int)Handle.Location.BottomSW].Translation = b.MinPointWithOffset;
+            handles[(int)Handle.Location.BottomSE].Translation = new Vector3(b.MaxPointWithOffset.X, b.MinPointWithOffset.Y, b.MinPointWithOffset.Z);
+            handles[(int)Handle.Location.BottomNE].Translation = new Vector3(b.MaxPointWithOffset.X, b.MaxPointWithOffset.Y, b.MinPointWithOffset.Z);
+            handles[(int)Handle.Location.BottomNW].Translation = new Vector3(b.MinPointWithOffset.X, b.MaxPointWithOffset.Y, b.MinPointWithOffset.Z);
+
             if (!continousMode) GoblinXNA.UI.Notifier.AddMessage(selectedBuilding.Name);
 
             dataRepresentation.showData(b);
@@ -1061,6 +1188,32 @@ namespace Manhattanville
         {
             //if ( (thisXscale < MaxXScale) || (thisZScale < MaxZScale) ) 
             //  eb.Scale = movement your mouse has made
+        }
+
+
+        public void initializeHandles()
+        {
+            handleMaterial = new Material();
+            handleMaterial.Specular = Color.White.ToVector4();
+            handleMaterial.Diffuse = Color.DarkBlue.ToVector4();
+            handleMaterial.SpecularPower = 10;
+
+            foreach (Handle.Location locationItem in Enum.GetValues(typeof(Handle.Location)))
+            {
+                Handle h = new Handle("Handle" + (int)locationItem, handleMaterial);
+                handles.Add(h);
+                handleTrans.AddChild(h);
+                //h.Translation = Vector3.Up * (float)locationItem;
+            }
+
+            foreach (Building b in buildings)
+            {
+                Handle h = new Handle("Handle" + b.Name, handleMaterial);
+                h.Translation = b.CenterOfCeilWithoutOffset;// +new Vector3(-3.326081f, 19.7829f, 0f);
+                groundMarkerNode.AddChild(h);
+                GoblinXNA.UI.Notifier.AddMessage(b.CenterOfBaseWithoutOffset.ToString());
+            }
+
         }
     }
 }
