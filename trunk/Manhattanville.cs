@@ -34,6 +34,8 @@ using GoblinXNA.Device.Vision;
 using GoblinXNA.Device.Vision.Marker;
 using Manhattanville.PieMenu;
 using GoblinXNA.Device.Util;
+using GoblinXNA.Device.iWear;
+using GoblinXNA.Device;
 
 namespace Manhattanville
 {
@@ -69,6 +71,8 @@ namespace Manhattanville
         PieMenuNode pieMenuRootNode;
         bool continousMode = true;
         SpriteFont font;
+
+        iWearTracker iTracker;
 
         float y_shift = -62;
         float x_shift = -28.0f;
@@ -212,7 +216,7 @@ namespace Manhattanville
             font = Content.Load<SpriteFont>("Fonts//UIFont");
 
             color = new Color(255, 255, 0, 50000); 
-
+            /*
             Material mat = new Material();
             mat.Specular = Color.White.ToVector4();
             mat.Diffuse = Color.White.ToVector4();
@@ -229,7 +233,7 @@ namespace Manhattanville
             textTransNode.AddChild(textGeoNode);
 
             toolMarkerNode.AddChild(textTransNode);
-
+            */
             selectedBuilding = null;
             selectedLot = null;
 
@@ -325,6 +329,22 @@ namespace Manhattanville
 
             // Display the camera image in the background
             scene.ShowCameraImage = true;
+        }
+
+        private void SetupIWear()
+        {
+            // Get an instance of iWearTracker
+            iTracker = iWearTracker.Instance;
+            // We need to initialize it before adding it to the InputMapper class
+            iTracker.Initialize();
+            // If not stereo, then we need to set the iWear VR920 to mono mode (by default, it's
+            // stereo mode if stereo is available)
+            //if (!stereoMode)
+            //    iTracker.EnableStereo = false;
+            // Add this iWearTracker to the InputMapper class for automatic update and disposal
+            InputMapper.Instance.Add6DOFInputDevice(iTracker);
+            // Re-enumerate all of the input devices so that the newly added device can be found
+            InputMapper.Instance.Reenumerate();
         }
 
         private void CreateTerrain(float factor)
