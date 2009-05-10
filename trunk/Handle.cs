@@ -10,6 +10,9 @@ namespace Manhattanville
 {
     class Handle : TransformNode
     {
+
+        public GeometryNode GeoNode { get; set; }
+
         public enum Location : int
         {
             Top = 0,
@@ -21,10 +24,10 @@ namespace Manhattanville
 
         public Handle(String name, Material mat) : base(name) {
 
-            GeometryNode gn = new GeometryNode(/*name+"gn"*/);
-            gn.Model = new Sphere(1.0f, 10, 10);
-            gn.Physics.Shape = GoblinXNA.Physics.ShapeType.Sphere;
-            gn.Material = mat;
+            GeoNode = new GeometryNode(/*name+"gn"*/);
+            GeoNode.Model = new Sphere(1.0f, 10, 10);
+            GeoNode.Physics.Shape = GoblinXNA.Physics.ShapeType.Sphere;
+            GeoNode.Material = mat;
 
             //this.Physics.Pickable = true;
             //gn.Physics.Interactable = true;
@@ -32,10 +35,10 @@ namespace Manhattanville
             //gn.Model.CastShadows = false;
             //gn.Model.ReceiveShadows = false;
 
-            gn.AddToPhysicsEngine = true;
-            this.AddChild(gn);
+            GeoNode.AddToPhysicsEngine = true;
+            this.AddChild(GeoNode);
 
-            gn.Enabled = true;
+            GeoNode.Enabled = true;
 
         }
     }
