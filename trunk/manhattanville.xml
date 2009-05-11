@@ -43,7 +43,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   -->
   <var name="ShowNotifications" value="true" />
-  <var name="FadeOutTime" value="1000" />
+  <var name="FadeOutTime" value="3000" />
   <!--
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Markers

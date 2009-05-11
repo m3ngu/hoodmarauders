@@ -82,6 +82,16 @@ namespace Manhattanville
         internal float scale = 0.00728f;
 
         int centerX, centerY;
+        SoundEffect hum;
+        String humName = "hum";
+        SoundEffect pop;
+        String popName = "pop";
+        //SoundEffect whooshup;
+        //String whooshupName = "whooshup";
+        //SoundEffect whooshdown;
+        //String whooshdownName = "whooshdown";
+
+
         public Manhattanville()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -111,6 +121,12 @@ namespace Manhattanville
 
             Content.RootDirectory = "Content";
             //startSceneGraph();
+
+            ContentManager contentManager = new ContentManager(this.Services, @"Content\Sounds\");
+            hum = contentManager.Load<SoundEffect>(humName);
+            pop = contentManager.Load<SoundEffect>(popName);
+            //whooshup = contentManager.Load<SoundEffect>(whooshupName);
+            //whooshdown = contentManager.Load<SoundEffect>(whooshdownName);
         }
 
         /// <summary>
@@ -878,6 +894,7 @@ namespace Manhattanville
                 if ( (buildingSelected()) && (selectedEditableBuilding != null) )
                 {
                     ModificationManager.addFloor(1);
+                    pop.Play();
                 }
             }
 
@@ -886,6 +903,7 @@ namespace Manhattanville
                 if ((buildingSelected()) && (selectedEditableBuilding != null))
                 {
                     ModificationManager.addFloor(-1);
+                    pop.Play();
                 }
             }
 
@@ -918,13 +936,14 @@ namespace Manhattanville
                 //GoblinXNA.UI.Notifier.AddMessage("Left");
                 if (!menu.Visible)
                 {
+                    //whooshup.Play();
                     menu.Show(AppStateMgr.currentMenu(), new Vector2((float)centerX, (float)centerY));
                 }
             }
             else if (button == MouseInput.RightButton)
             {
                 //GoblinXNA.UI.Notifier.AddMessage("Right");
-
+                //whooshdown.Play();
                 menu.Back();
             }
         }
@@ -1049,11 +1068,16 @@ namespace Manhattanville
                 //selectedBuilding.setEditableTransform(null);
             }
 
+            if (selectedBuilding != b)
+            {
+                hum.Play();
+            }
+            
             selectedBuilding = b;
             selectedEditableBuilding = editableBuildings[selectedBuilding];
             selectedLot = b.Lot;
 
-            selectedBuilding.Material.Diffuse = Color.Gray.ToVector4();
+            selectedBuilding.Material.Diffuse = Color.DarkSlateGray.ToVector4();
             parentTransEditable.AddChild(selectedBuilding.EditBuildingTransform);
 
             handles[(int)Handle.Location.Top].Translation = b.CenterOfCeilWithOffset;

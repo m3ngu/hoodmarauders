@@ -45,7 +45,7 @@ namespace Manhattanville
             this.Footprint = this.initialModelFootprint;
             this.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitX, MathHelper.ToRadians(90));
             //this.Rotation = new Quaternion(MathHelper.ToRadians(90), 0, 0, 1);
-            this.Rotation = Quaternion.CreateFromAxisAngle(new Vector3(1,0,0),(float)MathHelper.ToRadians(90));
+            //this.Rotation = Quaternion.CreateFromAxisAngle(new Vector3(1,0,0),(float)MathHelper.ToRadians(90));
             //Console.WriteLine("airrights column = "+this.Rotation.ToString());
 
             redmat = new Material();
