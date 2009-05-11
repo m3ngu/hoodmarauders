@@ -36,6 +36,8 @@ namespace Manhattanville
         private float scaleRatioToEditable;
         private float airRightsSum;
         private float initialModelFootprint;
+        private Material greenmat;
+        private Material redmat;
 
         public AirRightsTransform( Building b ) : base() {
             this.ModelBuilding = b;
@@ -45,6 +47,16 @@ namespace Manhattanville
             //this.Rotation = new Quaternion(MathHelper.ToRadians(90), 0, 0, 1);
             this.Rotation = Quaternion.CreateFromAxisAngle(new Vector3(1,0,0),(float)MathHelper.ToRadians(90));
             //Console.WriteLine("airrights column = "+this.Rotation.ToString());
+
+            redmat = new Material();
+            redmat.Diffuse = new Vector4(.5f * 255, .5f * 0, .5f * 0, 0.5f);
+            redmat.Specular = Color.White.ToVector4(); //new Vector4(.5f * 255, .5f * 0, .5f * 0, 1f);
+            redmat.SpecularPower = 3f;
+
+            greenmat = new Material();
+            greenmat.Diffuse = new Vector4(.5f * 0, .5f * 255, .5f * 0, 0.5f);
+            greenmat.Specular = Color.White.ToVector4(); //new Vector4(.5f * 255, .5f * 0, .5f * 0, 1f);
+            greenmat.SpecularPower = 3f;
         }
 
         public override void observe(BuildingTransform bt)
@@ -54,17 +66,25 @@ namespace Manhattanville
             float newFootprint = bt.ModelBuilding.Lot.footprint;
             float oldFootprint = bt.ModelBuilding.Lot.previousFootprint;
 
-            float newHeight = (newAirRights) / newFootprint; //Math.Abs
-            float oldHeight = (oldAirRights) / oldFootprint;
+            Console.WriteLine("air rights now " + newAirRights);
 
-            float heightScale = newHeight / oldHeight; // = something like 1.1 or .9
+            //float newHeight = (newAirRights) / newFootprint; //Math.Abs
+            //float oldHeight = (oldAirRights) / oldFootprint;
 
-            float radius = (float)Math.Sqrt(bt.ModelBuilding.Lot.footprint) * Settings.GroundToFootRatio * Settings.AirAdjustment;
-            if(newAirRights > 0) 
-                if (heightScale != 0) 
-                    this.Scale /= new Vector3(1f, 1f, heightScale);
-            else 
-                this.Scale *= new Vector3(1f, 1f, heightScale);
+            //float heightScale = newHeight / oldHeight; // = something like 1.1 or .9
+
+            //float radius = (float)Math.Sqrt(bt.ModelBuilding.Lot.footprint) * Settings.GroundToFootRatio * Settings.AirAdjustment;
+
+            float airRightsRatio = newAirRights / (20000 + Settings.AirAdjustment);
+            float heightRatio = Math.Abs(airRightsRatio);
+
+            this.Scale = new Vector3(this.Scale.X, this.Scale.Y, heightRatio);
+            
+            //if(newAirRights > 0) 
+            //    if (heightScale != 0) 
+            //        this.Scale /= new Vector3(1f, 1f, heightScale);
+            //else 
+            //    this.Scale *= new Vector3(1f, 1f, heightScale);
 
             bt.ModelBuilding.Lot.previousAirRights = newAirRights;
             bt.ModelBuilding.Lot.previousFootprint = newFootprint;
@@ -73,14 +93,14 @@ namespace Manhattanville
             //foreach (Building b in bt.Children)
             //{
             //System.Console.WriteLine("bt.ModelBuilding.Lot.airRights = " + bt.ModelBuilding.Lot.airRights);
-//            if (bt.ModelBuilding.Lot.airRights < 0)
-//            {
-            //    ((AirRightsNode)this.Children[0]).Material.Diffuse = new Vector4(255, 0, 0, .5f);
-            //}
-            //else
-            //{
-            //    ((AirRightsNode)this.Children[0]).Material.Diffuse = new Vector4(0, 255, 0, .5f);
-//            }
+            if (newAirRights < 0)
+            {
+                ((AirRightsNode)this.Children[0]).Material = redmat;
+            }
+            else
+            {
+                ((AirRightsNode)this.Children[0]).Material = greenmat;
+            }
                 //airRightsSum += ((Lot)b.Lot).airRights;
                 //System.Console.WriteLine("can't seem to access airrights value for this lot.");//AirRightsTransform sum = " + airRightsSum);
             //}
