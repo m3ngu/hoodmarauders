@@ -50,16 +50,24 @@ namespace Manhattanville
         public override void observe(BuildingTransform bt)
         {
             float newAirRights = bt.ModelBuilding.Lot.airRights;
-            float newHeight = Math.Abs(newAirRights) / bt.ModelBuilding.Lot.footprint;
-            //this.initialModelFootprint = this.Footprint;
-            //float percentChange = this.ModelBuilding.Footprint / this.initialModelFootprint;
-            //float scaleX = this.Scale.X * percentChange;
-            //float scaleY = this.Scale.Y * percentChange;
-            //this.Scale = new Vector3(scaleX,scaleY,1);
-            float heightScale = (newHeight * Settings.GroundToFootRatio) / this.Scale.Y; // = something like 1.1
-            float radius = (float)Math.Sqrt(bt.ModelBuilding.Lot.footprint) * Settings.GroundToFootRatio * Settings.AirAdjustment;
-            //this.Scale = new Vector3(radius, radius, heightScale);
+            float oldAirRights = bt.ModelBuilding.Lot.previousAirRights;
+            float newFootprint = bt.ModelBuilding.Lot.footprint;
+            float oldFootprint = bt.ModelBuilding.Lot.previousFootprint;
 
+            float newHeight = (newAirRights) / newFootprint; //Math.Abs
+            float oldHeight = (oldAirRights) / oldFootprint;
+
+            float heightScale = newHeight / oldHeight; // = something like 1.1 or .9
+
+            float radius = (float)Math.Sqrt(bt.ModelBuilding.Lot.footprint) * Settings.GroundToFootRatio * Settings.AirAdjustment;
+            if(newAirRights > 0) 
+                if (heightScale != 0) 
+                    this.Scale /= new Vector3(1f, 1f, heightScale);
+            else 
+                this.Scale *= new Vector3(1f, 1f, heightScale);
+
+            bt.ModelBuilding.Lot.previousAirRights = newAirRights;
+            bt.ModelBuilding.Lot.previousFootprint = newFootprint;
             //System.Console.WriteLine("for " + bt.ToString()+" with child of type "+bt.Children[0].GetType());
 
             //foreach (Building b in bt.Children)
