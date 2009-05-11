@@ -6,6 +6,7 @@ using GoblinXNA.Helpers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
+using Manhattanville.PieMenu;
 
 namespace Manhattanville
 {
@@ -32,6 +33,9 @@ namespace Manhattanville
         public static Rectangle iconPlaceHolder;
         private static List<Texture2D> icons;
         public static bool showIcon = false;
+        private static List<PieMenuNode> menus;
+        public static bool handlesEnabled = false;
+        public static bool continousMode = true;
 
         public static void initialize(Manhattanville m, GraphicsDeviceManager g)
         {
@@ -50,6 +54,8 @@ namespace Manhattanville
                 iconHeight);
 
             Log.Write("statusIconPlaceHolder: " + iconPlaceHolder.ToString() + "\n");
+
+            LoadMenu();
         }
 
         /*****************************************************************/
@@ -74,19 +80,22 @@ namespace Manhattanville
                 case AppState.Browse:
                     /* ----------BROWSE---------*/
                     showIcon = false;
-                    app.enableHandles(false);
+                    handlesEnabled = false;
+                    app.toggleHandles();
 
                     break;
                 case AppState.Edit:
                     /* -----------EDIT----------*/
                     showIcon = true;
-                    app.enableHandles(true);
+                    handlesEnabled = true;
+                    app.toggleHandles();
                    
                     break;
                 case AppState.Info:
                     /* -----------INFO----------*/
                     showIcon = true;
-                    app.enableHandles(false);
+                    handlesEnabled = false;
+                    app.toggleHandles();
                     
                     break;
             }
@@ -140,6 +149,112 @@ namespace Manhattanville
         public static bool inState(AppState s)
         {
             return s.Equals(currentState);
+        }
+
+        private static void LoadMenu()
+        {
+            menus = new List<PieMenuNode>(Enum.GetNames(typeof(AppState)).Length);
+
+            /*********************************************************************/
+            int i = (int)AppState.Browse;
+            /*********************************************************************/
+            menus.Add(new PieMenuNode());
+
+            menus[i].Add(new PieMenuNode());  // Placeholder
+
+            menus[i].Add(new PieMenuNode("Edit",
+               app.Content.Load<Texture2D>("Icons\\footprint"),
+               new SimpleDelegate(MenuAction),
+               AppState.Edit));
+
+            menus[i].Add(new PieMenuNode("Cancel",
+                app.Content.Load<Texture2D>("Icons\\cancel"),
+                null));
+
+            menus[i].Add(new PieMenuNode("Info",
+                app.Content.Load<Texture2D>("Icons\\info"),
+                new SimpleDelegate(MenuAction),
+                AppState.Info));
+            
+            /*********************************************************************/
+            i = (int)AppState.Edit;
+            /*********************************************************************/
+            menus.Add(new PieMenuNode());
+
+            menus[i].Add(new PieMenuNode("Grab",
+                app.Content.Load<Texture2D>("Icons\\footprint"),
+                null));
+
+            menus[i].Add(new PieMenuNode("Accept",
+                app.Content.Load<Texture2D>("Icons\\height"),
+                new SimpleDelegate(MenuAction),
+                AppState.Browse));
+
+            menus[i].Add(new PieMenuNode("Cancel",
+                app.Content.Load<Texture2D>("Icons\\cancel"),
+                null));
+
+            menus[i].Add(new PieMenuNode("Reject",
+                app.Content.Load<Texture2D>("Icons\\info"),
+                new SimpleDelegate(MenuAction),
+                AppState.Browse));
+            /*********************************************************************/
+            i = (int)AppState.Info;
+            /*********************************************************************/
+            menus.Add(new PieMenuNode());
+
+            menus[i].Add(new PieMenuNode());  // Empty placeholder
+
+            menus[i].Add(new PieMenuNode("Edit",
+                app.Content.Load<Texture2D>("Icons\\footprint"),
+                new SimpleDelegate(MenuAction),
+                AppState.Edit));
+
+            menus[i].Add(new PieMenuNode("Cancel",
+                app.Content.Load<Texture2D>("Icons\\cancel"),
+                null));
+
+            menus[i].Add(new PieMenuNode("Browse",
+                app.Content.Load<Texture2D>("Icons\\height"),
+                new SimpleDelegate(MenuAction),
+                AppState.Browse));
+
+        }
+
+        public static void MenuAction(Object sender)
+        {
+            PieMenuNode sndr = (PieMenuNode)sender;
+
+            GoblinXNA.UI.Notifier.AddMessage(sndr.Text + " Selected!");
+
+            if (sndr.Text.Equals("Grab"))
+            {
+                //TODO: Grab / ungrab
+            }
+            else if (sndr.Text.Equals("Accept"))
+            {
+                //TODO: Accept
+                enter(AppState.Browse);
+            }
+            else if (sndr.Text.Equals("Reject"))
+            {
+                //TODO: Reject
+                enter(AppState.Browse);
+            }
+            else if ((sndr.State == AppState.Edit) && (!app.buildingSelected()))
+            {
+                GoblinXNA.UI.Notifier.AddMessage("ERROR: Please select a building before selecting the edit menu!");
+            }
+            else
+            {
+                enter(sndr.State);
+            }
+            
+        }
+
+        public static PieMenuNode currentMenu()
+        {
+            return menus[(int)currentState];
         }
     }
 }

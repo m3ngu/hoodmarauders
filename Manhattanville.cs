@@ -68,13 +68,11 @@ namespace Manhattanville
         Color color;
 
         PieMenu.PieMenu menu;
-        PieMenuNode pieMenuRootNode;
-        bool continousMode = true;
+        
         SpriteFont font;
 
         iWearTracker iTracker;
 
-        bool showHandles = false;
         List<Handle> handles = new List<Handle>(Enum.GetNames(typeof(Handle.Location)).Length);
         Handle selectedHandle;
 
@@ -215,8 +213,6 @@ namespace Manhattanville
             centerX = Window.ClientBounds.Width / 2;
             centerY = Window.ClientBounds.Height / 2;
             MouseCenter();
-
-            LoadMenu();
 
             font = Content.Load<SpriteFont>("Fonts//UIFont");
 
@@ -767,60 +763,6 @@ namespace Manhattanville
             file.Close();
         }
 
-
-        private void LoadMenu()
-        {
-            pieMenuRootNode = new PieMenuNode();
-            PieMenuNode parent; //child;
-
-            parent = new PieMenuNode("Browse", this.Content.Load<Texture2D>("Icons\\height"), new SimpleDelegate(MenuAction), AppState.Browse);
-            pieMenuRootNode.Add(parent);
-
-            //child = new PieMenuNode("Node 1.1", this.Content.Load<Texture2D>("Icons\\paint"), new SimpleDelegate(MenuAction));
-            //parent.Add(child);
-
-            //child = new PieMenuNode("Node 1.2", this.Content.Load<Texture2D>("Icons\\paint"), new SimpleDelegate(MenuAction));
-            //parent.Add(child);
-
-            //child = new PieMenuNode("Node 1.3", this.Content.Load<Texture2D>("Icons\\paint"), new SimpleDelegate(MenuAction));
-            //parent.Add(child);
-
-            parent = new PieMenuNode("Cancel", this.Content.Load<Texture2D>("Icons\\cancel"), new SimpleDelegate(MenuAction));
-            pieMenuRootNode.Add(parent);
-
-            //child = new PieMenuNode("Node 2.1", this.Content.Load<Texture2D>("Icons\\paint"), new SimpleDelegate(MenuAction));
-            //parent.Add(child);
-
-            //child = new PieMenuNode("Node 2.2", this.Content.Load<Texture2D>("Icons\\paint"), new SimpleDelegate(MenuAction));
-            //parent.Add(child);
-
-            //child = new PieMenuNode("Node 2.3", this.Content.Load<Texture2D>("Icons\\paint"), new SimpleDelegate(MenuAction));
-            //parent.Add(child);
-
-            //child = new PieMenuNode("Node 2.4", this.Content.Load<Texture2D>("Icons\\paint"), new SimpleDelegate(MenuAction));
-            //parent.Add(child);
-
-            //child = new PieMenuNode("Node 2.5", this.Content.Load<Texture2D>("Icons\\paint"), new SimpleDelegate(MenuAction));
-            //parent.Add(child);
-
-            //child = new PieMenuNode("Node 2.6", this.Content.Load<Texture2D>("Icons\\paint"), new SimpleDelegate(MenuAction));
-            //parent.Add(child);
-
-            parent = new PieMenuNode("Edit", this.Content.Load<Texture2D>("Icons\\footprint"), new SimpleDelegate(MenuAction), AppState.Edit);
-            pieMenuRootNode.Add(parent);
-
-            //child = new PieMenuNode("Node 3.1", this.Content.Load<Texture2D>("Icons\\paint"), new SimpleDelegate(MenuAction));
-            //parent.Add(child);
-
-            //child = new PieMenuNode("Node 3.2", this.Content.Load<Texture2D>("Icons\\paint"), new SimpleDelegate(MenuAction));
-            //parent.Add(child);
-
-            parent = new PieMenuNode("Info", this.Content.Load<Texture2D>("Icons\\info"), new SimpleDelegate(MenuAction), AppState.Info);
-            pieMenuRootNode.Add(parent);
-
-
-        }
-
         /// <summary>
         /// Allows the game to run logic such as updating the world,
         /// checking for collisions, gathering input, and playing audio.
@@ -830,13 +772,13 @@ namespace Manhattanville
         {
             
             //UpdateMouse();
-            if (continousMode
+            if (AppStateMgr.continousMode
                 && AppStateMgr.inState(AppState.Browse)
                 && !menu.Visible)
                 getClosestBuilding(null);
 
             //UpdateMouse();
-            if (continousMode
+            if (AppStateMgr.continousMode
                 && AppStateMgr.inState(AppState.Edit)
                 && !menu.Visible)
                 getClosestHandle(null);
@@ -916,13 +858,13 @@ namespace Manhattanville
 
             if (key == Microsoft.Xna.Framework.Input.Keys.C)
             {
-                continousMode = !continousMode;
-                GoblinXNA.UI.Notifier.AddMessage("continousMode=" + continousMode);
+                AppStateMgr.continousMode = !AppStateMgr.continousMode;
+                GoblinXNA.UI.Notifier.AddMessage("continousMode=" + AppStateMgr.continousMode);
             }
 
             if (key == Microsoft.Xna.Framework.Input.Keys.Up)
             {
-                if ( (selectedBuilding != null) && (selectedEditableBuilding != null) )
+                if ( (buildingSelected()) && (selectedEditableBuilding != null) )
                 {
                     addFloor(1);
                 }
@@ -930,7 +872,7 @@ namespace Manhattanville
 
             if (key == Microsoft.Xna.Framework.Input.Keys.Down)
             {
-                if ((selectedBuilding != null) && (selectedEditableBuilding != null))
+                if ((buildingSelected()) && (selectedEditableBuilding != null))
                 {
                     addFloor(-1);
                 }
@@ -965,7 +907,7 @@ namespace Manhattanville
                 //GoblinXNA.UI.Notifier.AddMessage("Left");
                 if (!menu.Visible)
                 {
-                    menu.Show(pieMenuRootNode, new Vector2((float)centerX, (float)centerY));
+                    menu.Show(AppStateMgr.currentMenu(), new Vector2((float)centerX, (float)centerY));
                 }
             }
             else if (button == MouseInput.RightButton)
@@ -976,22 +918,10 @@ namespace Manhattanville
             }
         }
 
-        public void MenuAction(Object sender)
-        {
-            PieMenuNode sndr = (PieMenuNode)sender;
-
-            if (!sndr.Text.Equals("Cancel"))
-            {
-                AppStateMgr.enter(sndr.State);
-            }
-            
-            GoblinXNA.UI.Notifier.AddMessage(sndr.Text + " Selected!");
-        }
-
         public void getClosestBuilding(Object sender)
         {
             if (!tool.Marker.MarkerFound) {
-                if (!continousMode) GoblinXNA.UI.Notifier.AddMessage("Tool not found!");
+                if (!AppStateMgr.continousMode) GoblinXNA.UI.Notifier.AddMessage("Tool not found!");
                 return;
             }
 
@@ -1036,7 +966,7 @@ namespace Manhattanville
         {
             if (!tool.Marker.MarkerFound)
             {
-                if (!continousMode) GoblinXNA.UI.Notifier.AddMessage("Tool not found!");
+                if (!AppStateMgr.continousMode) GoblinXNA.UI.Notifier.AddMessage("Tool not found!");
                 return;
             }
 
@@ -1092,13 +1022,13 @@ namespace Manhattanville
 
             selectedHandle.GeoNode.Material.Diffuse = Color.Green.ToVector4();
 
-            if (!continousMode) GoblinXNA.UI.Notifier.AddMessage(selectedHandle.Name);
+            if (!AppStateMgr.continousMode) GoblinXNA.UI.Notifier.AddMessage(selectedHandle.Name);
 
         }
 
         private void selectBuilding(Building b)
         {
-            if (selectedBuilding != null)
+            if (buildingSelected())
             {
                 selectedBuilding.Material.Diffuse = Color.White.ToVector4();
                 //if (selectedEditableBuilding != null)
@@ -1121,7 +1051,7 @@ namespace Manhattanville
             handles[(int)Handle.Location.BottomNE].Translation = new Vector3(b.MaxPointWithOffset.X, b.MaxPointWithOffset.Y, b.MinPointWithOffset.Z);
             handles[(int)Handle.Location.BottomNW].Translation = new Vector3(b.MinPointWithOffset.X, b.MaxPointWithOffset.Y, b.MinPointWithOffset.Z);
 
-            if (!continousMode) GoblinXNA.UI.Notifier.AddMessage(selectedBuilding.Name);
+            if (!AppStateMgr.continousMode) GoblinXNA.UI.Notifier.AddMessage(selectedBuilding.Name);
 
             dataRepresentation.showData(b);
         }
@@ -1191,7 +1121,7 @@ namespace Manhattanville
                 Handle h = new Handle("Handle" + (int)locationItem, handleMaterial);
                 handles.Add(h);
                 handleTrans.AddChild(h);
-                h.Enabled = showHandles;
+                h.Enabled = AppStateMgr.handlesEnabled;
             }
 
             foreach (Building b in buildings)
@@ -1210,14 +1140,18 @@ namespace Manhattanville
 
         }
 
-        public void enableHandles(bool show)
+        public void toggleHandles()
         {
-            showHandles = show;
             foreach (Handle h in handles)
             {
-                h.Enabled = showHandles;
+                h.Enabled = AppStateMgr.handlesEnabled;
             }
             
+        }
+
+        public bool buildingSelected()
+        {
+            return (selectedBuilding != null);
         }
     }
 }
