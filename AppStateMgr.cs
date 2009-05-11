@@ -230,13 +230,13 @@ namespace Manhattanville
 
             if (sndr.Text.Equals("Grab"))
             {
-                processGrab();
+                ModificationManager.grabHandle();
                 handleGrabbed = true;
                 sndr.Text = "Release";
             }
             else if (sndr.Text.Equals("Release"))
             {
-                processRelease(); 
+                ModificationManager.releaseHandle(); 
                 handleGrabbed = false;
                 sndr.Text = "Grab";
             }
@@ -264,16 +264,6 @@ namespace Manhattanville
         public static PieMenuNode currentMenu()
         {
             return menus[(int)currentState];
-        }
-
-        static void processGrab()
-        {
-            GoblinXNA.UI.Notifier.AddMessage("Grabbing " + app.selectedHandle.Name);
-        }
-
-        static void processRelease()
-        {
-            GoblinXNA.UI.Notifier.AddMessage("Releasing " + app.selectedHandle.Name);
         }
 
     }

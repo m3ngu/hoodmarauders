@@ -12,6 +12,7 @@ namespace Manhattanville
     {
 
         public GeometryNode GeoNode { get; set; }
+        public Location Loc { get; set; }
 
         public enum Location : int
         {
@@ -22,7 +23,11 @@ namespace Manhattanville
             BottomSW = 4
         }
 
-        public Handle(String name, Material mat) : base(name) {
+        public Handle(Location loc, String name, Material mat)
+            : base(name)
+        {
+
+            Loc = loc;
 
             GeoNode = new GeometryNode(/*name+"gn"*/);
             GeoNode.Model = new Sphere(1.0f, 10, 10);

@@ -42,6 +42,10 @@ namespace Manhattanville
         public static float GraphZ { get; set; }
         public static float AdditionalAirRights { get; set; }
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // Interaction Params
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        public static float WandMovementThreshold { get; set; }
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // Miscellanous
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         public static bool          BuildingsDetailed   { get; set; }
@@ -74,6 +78,8 @@ namespace Manhattanville
             GraphY = float.Parse(State.GetSettingVariable("GraphY"));
             GraphZ = float.Parse(State.GetSettingVariable("GraphZ"));
             AdditionalAirRights = float.Parse(State.GetSettingVariable("AdditionalAirRights"));
+
+            WandMovementThreshold = float.Parse(State.GetSettingVariable("WandMovementThreshold"));
 
             BuildingsDetailed = bool.Parse(State.GetSettingVariable("BuildingsDetailed"));
             BuildingsSubset = bool.Parse(State.GetSettingVariable("BuildingsSubset"));

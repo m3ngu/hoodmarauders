@@ -79,7 +79,7 @@ namespace Manhattanville
         float y_shift = -62;
         float x_shift = -28.0f;
         float factor = 135.0f / 1353;
-        float scale = 0.00728f;
+        internal float scale = 0.00728f;
 
         int centerX, centerY;
         public Manhattanville()
@@ -240,6 +240,8 @@ namespace Manhattanville
 
             AppStateMgr.initialize(this, graphics);
             AppStateMgr.enter(AppState.Browse);
+
+            ModificationManager.initialize(this, graphics);
 
             loadData();
             base.Initialize();
@@ -787,8 +789,12 @@ namespace Manhattanville
             //UpdateMouse();
             if (AppStateMgr.continousMode
                 && AppStateMgr.inState(AppState.Edit)
-                && !menu.Visible)
+                && !menu.Visible
+                && !AppStateMgr.handleGrabbed)
                 getClosestHandle(null);
+
+            if (AppStateMgr.handleGrabbed)
+                ModificationManager.processWandMovement();
 
             base.Update(gameTime);
         }
@@ -873,7 +879,7 @@ namespace Manhattanville
             {
                 if ( (buildingSelected()) && (selectedEditableBuilding != null) )
                 {
-                    addFloor(1);
+                    ModificationManager.addFloor(1);
                 }
             }
 
@@ -881,7 +887,7 @@ namespace Manhattanville
             {
                 if ((buildingSelected()) && (selectedEditableBuilding != null))
                 {
-                    addFloor(-1);
+                    ModificationManager.addFloor(-1);
                 }
             }
 
@@ -1063,49 +1069,6 @@ namespace Manhattanville
             dataRepresentation.showData(b);
         }
 
-        private void addFloor(int floors)
-        {
-            // TODO: We should probably convert numeric data to numeric variables
-            // at load time
-            selectedBuilding.Lot.airRights += (floors * selectedBuilding.Lot.footprint);
-
-            int currStories = selectedBuilding.Stories;
-            int newStories = currStories + floors;
-            float heightRatio = 1f;
-
-            if (newStories < 0)
-            {
-                // We probably shouldn't allow negative floors
-                return;
-            }
-
-            Vector3 scaleVector = selectedBuilding.EditBuildingTransform.Scale;
-
-            if (currStories != 0)
-            {
-                heightRatio = (float)newStories / (float)currStories;
-
-                scaleVector.Z = scaleVector.Z * heightRatio;
-            }
-            else
-            {
-                heightRatio = (float)newStories / (float)selectedBuilding.Lot.stories;
-
-                scaleVector.Z = heightRatio * scale;
-            }
-
-            selectedBuilding.EditBuildingTransform.Scale = scaleVector;
-            selectedBuilding.EditBuildingTransform.broadcast();
-            selectedBuilding.Stories = newStories;
-
-            Log.Write("editableBuildingTransformNode.Scale="
-                + selectedBuilding.EditBuildingTransform.Scale.ToString() + "\n");
-
-            GoblinXNA.UI.Notifier.AddMessage(
-                selectedBuilding.Name + " now has "
-                + selectedBuilding.Stories + " stories.");
-        }
-
         private void addToFootprint(BuildingTransform eb)
         {
             //if ( (thisXscale < MaxXScale) || (thisZScale < MaxZScale) ) 
@@ -1123,7 +1086,7 @@ namespace Manhattanville
                 handleMaterial.Diffuse = Color.DarkBlue.ToVector4();
                 handleMaterial.SpecularPower = 10;
 
-                Handle h = new Handle("Handle" + (int)locationItem, handleMaterial);
+                Handle h = new Handle(locationItem, "Handle" + (int)locationItem, handleMaterial);
                 handles.Add(h);
                 handleTrans.AddChild(h);
                 h.Enabled = AppStateMgr.handlesEnabled;
@@ -1136,7 +1099,7 @@ namespace Manhattanville
                 handleMaterial.Diffuse = Color.DarkBlue.ToVector4();
                 handleMaterial.SpecularPower = 10;
 
-                Handle h = new Handle("Handle" + b.Name, handleMaterial);
+                Handle h = new Handle(Handle.Location.Top, "Handle" + b.Name, handleMaterial);
 
                 h.Translation = b.CenterOfCeilWithoutOffset;// +new Vector3(-3.326081f, 19.7829f, 0f);
                 groundMarkerNode.AddChild(h);
@@ -1157,6 +1120,11 @@ namespace Manhattanville
         public bool buildingSelected()
         {
             return (selectedBuilding != null);
+        }
+
+        internal Vector3 getWandLocation()
+        {
+            return toolMarkerNode.WorldTransformation.Translation;
         }
     }
 }
