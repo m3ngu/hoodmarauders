@@ -66,8 +66,6 @@ namespace Manhattanville
             float newFootprint = bt.ModelBuilding.Lot.footprint;
             float oldFootprint = bt.ModelBuilding.Lot.previousFootprint;
 
-            Console.WriteLine("air rights now " + newAirRights);
-
             //float newHeight = (newAirRights) / newFootprint; //Math.Abs
             //float oldHeight = (oldAirRights) / oldFootprint;
 

@@ -171,11 +171,9 @@ namespace Manhattanville
             editArea.Model = new Box(80f, 80f, 1f);
 
             Material editMaterial = new Material();
-
-            editMaterial.Diffuse = Color.DarkSlateBlue.ToVector4();
+            editMaterial.Diffuse = Color.DarkSlateBlue.ToVector4();//new Vector4(72, 61, 139, 1f);//
             editMaterial.Specular = Color.White.ToVector4();
-            editMaterial.SpecularPower = 10;
-            //editMaterial.Texture = Content.Load<Texture2D>("Textures//Chessboard_wood");
+            editMaterial.SpecularPower = 3f;
             editArea.Material = editMaterial;
 
             TransformNode editTrans = new TransformNode(new Vector3(0f, 40f, 5f));
@@ -670,10 +668,10 @@ namespace Manhattanville
 
                         AirRightsNode airRightsNode = new AirRightsNode(address + "_air_rights", building);
                             
-                        realBuilding.Model = (Model)loader.Load("", "Plain/" + address);
-                        realBuilding.AddToPhysicsEngine = true;
-                        realBuilding.Physics.Shape = ShapeType.Box;
-                        realBuilding.Model.OffsetToOrigin = true;
+                        //realBuilding.Model = (Model)loader.Load("", "Plain/" + address);
+                        //realBuilding.AddToPhysicsEngine = true;
+                        //realBuilding.Physics.Shape = ShapeType.Box;
+                        //realBuilding.Model.OffsetToOrigin = true;
 
                         lots.Add(building, lot);
                         buildings.Add(building);
@@ -727,7 +725,7 @@ namespace Manhattanville
                         building.Material = buildingMaterial;
 
                         Material editableBuildingMaterial = new Material();
-                        editableBuildingMaterial.Diffuse = new Vector4(153,153,153,.5f);
+                        editableBuildingMaterial.Diffuse = new Vector4(153,153,153,.7f);
                         editableBuildingMaterial.Specular = Color.White.ToVector4();
                         editableBuildingMaterial.SpecularPower = 3f;
 
