@@ -67,7 +67,7 @@ namespace Manhattanville
         {
             // TODO: We should probably convert numeric data to numeric variables
             // at load time
-            app.selectedBuilding.Lot.airRights += (floors * app.selectedBuilding.Lot.footprint);
+            app.selectedBuilding.Lot.airRights -= (floors * app.selectedBuilding.Lot.footprint);
 
             int currStories = app.selectedBuilding.Stories;
             int newStories = currStories + floors;
