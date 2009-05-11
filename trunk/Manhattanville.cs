@@ -645,6 +645,7 @@ namespace Manhattanville
                         /////////////// BUILD BUILDINGS AND GRAPHICAL REPRESENTATION
                         
                         String address = chunks[0];
+                        Console.WriteLine(address);
                         Lot lot = new Lot(chunks);
                         Building building = new Building( address );
                         Building editableBuilding = new Building( address + "_edit" );
@@ -665,15 +666,12 @@ namespace Manhattanville
                         realBuilding.Physics.Shape = ShapeType.Box;
                         realBuilding.Model.OffsetToOrigin = true;
 
-                        AirRightsNode airRightsNode = new AirRightsNode(address + "_air_rights", Settings.GroundToFootRatio, building);
+                        AirRightsNode airRightsNode = new AirRightsNode(address + "_air_rights", building);
                             
                         realBuilding.Model = (Model)loader.Load("", "Plain/" + address);
                         realBuilding.AddToPhysicsEngine = true;
                         realBuilding.Physics.Shape = ShapeType.Box;
                         realBuilding.Model.OffsetToOrigin = true;
-
-                        lot.readInfo(chunks);
-                        //System.Console.WriteLine(lot.floors);
 
                         lots.Add(building, lot);
                         buildings.Add(building);
@@ -684,34 +682,36 @@ namespace Manhattanville
                         y = (float)Double.Parse(chunks[3]);
                         z = (float)Double.Parse(chunks[4]);
 
-                        float graphNodeXOffset = (float)Double.Parse(chunks[28]);
-                        float graphNodeYOffset = (float)Double.Parse(chunks[29]);
+                        float graphNodeXOffset = (float)Double.Parse(chunks[29]);
+                        float graphNodeYOffset = (float)Double.Parse(chunks[30]);
+                        //Console.WriteLine(" graphNodeXOffset = " + graphNodeXOffset);
+                        //Console.WriteLine(" graphNodeYOffset = " + graphNodeYOffset);
 
                         ///////////// BUILD TRANSFORM NODES
 
-                        BuildingTransform transNode = new BuildingTransform((1.0f/Settings.EditableScale));
+                        BuildingTransform transNode = new BuildingTransform(building,(1.0f/Settings.EditableScale));
                         transNode.Translation = new Vector3(x, y, z * factor);
                         transNode.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ,
                             (float)(zRot * Math.PI / 180)) * Quaternion.CreateFromAxisAngle(Vector3.UnitX,
                             MathHelper.PiOver2);
                         transNode.Scale = Vector3.One * scale;
 
-                        BuildingTransform editableBuildingTransformNode = new BuildingTransform(Settings.EditableScale);
+                        BuildingTransform editableBuildingTransformNode = new BuildingTransform(building, Settings.EditableScale);
                         editableBuildingTransformNode.Translation = new Vector3(x, y, z * factor);
                         editableBuildingTransformNode.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ,
                             (float)(zRot * Math.PI / 180)) * Quaternion.CreateFromAxisAngle(Vector3.UnitX,
                             MathHelper.PiOver2);
                         editableBuildingTransformNode.Scale = Vector3.One * scale;
 
-                        BuildingTransform realBuildingTransformNode = new BuildingTransform(Settings.RealScale);
+                        BuildingTransform realBuildingTransformNode = new BuildingTransform(building, Settings.RealScale);
                         realBuildingTransformNode.Translation = new Vector3(x, y, z * factor);
                         realBuildingTransformNode.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ,
                             (float)(zRot * Math.PI / 180)) * Quaternion.CreateFromAxisAngle(Vector3.UnitX,
                             MathHelper.PiOver2);
                         realBuildingTransformNode.Scale = Vector3.One * scale * new Vector3(Settings.RealScale);
 
-                        AirRightsTransform airRightsTransformNode = new AirRightsTransform();
-                        airRightsTransformNode.Translation += new Vector3(0,0,0);//graphNodeXOffset, graphNodeYOffset, 0);
+                        AirRightsTransform airRightsTransformNode = new AirRightsTransform(building);
+                        airRightsTransformNode.Translation = new Vector3(graphNodeXOffset, graphNodeYOffset, 0);
                         
                         editableBuildingTransformNode.addObserver(transNode);
                         editableBuildingTransformNode.addObserver(realBuildingTransformNode);
@@ -720,16 +720,23 @@ namespace Manhattanville
                         Material buildingMaterial = new Material();
                         buildingMaterial.Diffuse = Color.White.ToVector4();
                         buildingMaterial.Specular = Color.White.ToVector4();
-                        buildingMaterial.SpecularPower = 10;
+                        buildingMaterial.SpecularPower = 3f;
 
                         building.Material = buildingMaterial;
 
                         Material editableBuildingMaterial = new Material();
-                        editableBuildingMaterial.Diffuse = Color.Red.ToVector4();
+                        editableBuildingMaterial.Diffuse = new Vector4(153,153,153,.5f);
                         editableBuildingMaterial.Specular = Color.White.ToVector4();
-                        editableBuildingMaterial.SpecularPower = 10;
+                        editableBuildingMaterial.SpecularPower = 3f;
 
                         editableBuilding.Material = editableBuildingMaterial;
+
+                        Material realBuildingMaterial = new Material();
+                        realBuildingMaterial.Diffuse = new Vector4(153, 153, 153, 1);
+                        realBuildingMaterial.Specular = Color.White.ToVector4();
+                        realBuildingMaterial.SpecularPower = 3f;
+
+                        realBuilding.Material = editableBuildingMaterial;
 
                         building.TransformNode = transNode;
                         building.EditBuildingTransform = editableBuildingTransformNode;
@@ -1042,7 +1049,7 @@ namespace Manhattanville
             selectedEditableBuilding = editableBuildings[selectedBuilding];
             selectedLot = b.Lot;
 
-            selectedBuilding.Material.Diffuse = Color.Red.ToVector4();
+            selectedBuilding.Material.Diffuse = Color.Gray.ToVector4();
             parentTransEditable.AddChild(selectedBuilding.EditBuildingTransform);
 
             handles[(int)Handle.Location.Top].Translation = b.CenterOfCeilWithOffset;
@@ -1060,6 +1067,8 @@ namespace Manhattanville
         {
             // TODO: We should probably convert numeric data to numeric variables
             // at load time
+            selectedBuilding.Lot.airRights = selectedBuilding.Lot.airRights + (floors * selectedBuilding.Lot.footprint);
+
             int currStories = selectedBuilding.Stories;
             int newStories = currStories + floors;
             float heightRatio = 1f;

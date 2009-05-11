@@ -64,15 +64,16 @@ namespace Manhattanville
         public float bldgGrossArea;
         public int maxFlrAreaRatio;
         public int floors;
+        public float footprint;
 
         /*mostly for output*/
-        private Hashtable infoTable;
+        //private Hashtable infoTable;
 
         public Lot(String[] chunks)
         {
             this.name = chunks[0];
             readInfo(chunks);
-            infoTable = getInfo();
+            //infoTable = getInfo();
         }
 
         /* gets data from buildings_plain_subset.csv. building specific data is loaded into building class
@@ -102,6 +103,7 @@ namespace Manhattanville
             this.bldgGrossArea = float.Parse(chunks[25]);
             this.maxFlrAreaRatio = int.Parse(chunks[26]);
             this.floors = int.Parse(chunks[27]);
+            this.footprint = int.Parse(chunks[28]);
             return true;
         }
 
@@ -132,18 +134,20 @@ namespace Manhattanville
             allInfo.Add("Building Gross Area",this.bldgGrossArea);
             allInfo.Add("Max Floor Area Ratio",this.maxFlrAreaRatio);
             allInfo.Add("Floors",this.floors);
+            allInfo.Add("Footprint", this.footprint);
             return allInfo;
         }
 
-        public Hashtable getInfoTable()
-        {
-            return infoTable;
-        }
+        //public Hashtable getInfoTable()
+        //{
+        //    return infoTable;
+        //}
         
         public Building addBuilding(Building building)
         {
             this.building = building;
             building.Stories = this.stories;
+            building.Footprint = this.footprint;
             return building;
         }
     }

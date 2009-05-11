@@ -38,19 +38,21 @@ namespace Manhattanville
         public int Stories { get; set; }
         //public Vector3 OriginalScale { get; set; }
         public float MaxXScale { get; set; }
-        public float MaxZScale { get; set; }
+        public float MaxYScale { get; set; }
         private List<IObservingTransform> observers = new List<IObservingTransform>();
         private float scaleRatioToEditable;
         public Building ModelBuilding { get; set; }
 
-        public BuildingTransform() : base() {}
+        public BuildingTransform() : base() {
+        }
         
-        public BuildingTransform(float multiplierRatio)
+        public BuildingTransform(Building modelbuilding, float multiplierRatio)
             : base()
         {
+            this.ModelBuilding = modelbuilding;
             this.scaleRatioToEditable = multiplierRatio;
             this.MaxXScale = this.Scale.X;
-            this.MaxZScale = this.Scale.Z;
+            this.MaxYScale = this.Scale.Y;
         }
 
         public BuildingTransform(String name, Vector3 translation, Quaternion rotation, Vector3 scaling, float multiplierRatio)
@@ -58,7 +60,7 @@ namespace Manhattanville
         {
             this.scaleRatioToEditable = multiplierRatio;
             this.MaxXScale = this.Scale.X;
-            this.MaxZScale = this.Scale.Z;
+            this.MaxYScale = this.Scale.Y;
         }
 
         public void addObserver(IObservingTransform b)
@@ -68,39 +70,18 @@ namespace Manhattanville
 
         public void broadcast()
         {
-            foreach (BuildingTransform b in observers)
+            foreach (BuildingTransform bt in observers)
             {
-                b.observe(this);
+                bt.observe(this);
             }
         }
 
-        public virtual void observe(BuildingTransform b)
+        public virtual void observe(BuildingTransform bt)
         {
-            this.Footprint = b.Footprint * scaleRatioToEditable;
-            this.Stories = b.Stories;
-            this.Scale = b.Scale * this.scaleRatioToEditable;// new Vector3(this.Scale.X, b.Scale.Y * this.scaleRatioToEditable, this.Scale.Z);//.Y * this.scaleRatioToEditable;
+            //what does this footprint do?
+            this.Footprint = bt.Footprint * this.scaleRatioToEditable;
+            this.Stories = bt.Stories;
+            this.Scale = bt.Scale * this.scaleRatioToEditable;// new Vector3(this.Scale.X, b.Scale.Y * this.scaleRatioToEditable, this.Scale.Z);//.Y * this.scaleRatioToEditable;
         }
-
-        //public void setOriginalTransform(TransformNode original)
-        //{
-        //    this.originalTransform = original;
-        //}
-
-        public void update() {
-        }
-
-        //internal void mimic(TransformNode original)
-        //{
-        //    this.originalTransform = original;
-        //    this.Translation = new Vector3(0, 0, 3);
-        //    this.Rotation = original.Rotation;
-        //    this.Scale = original.Scale * new Vector3(3, 3, 3);
-        //}
-
-
-        //internal object getOriginalTransform()
-        //{
-        //    return originalTransform;
-        //}
     }
 }

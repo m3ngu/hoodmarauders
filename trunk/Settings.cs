@@ -35,6 +35,7 @@ namespace Manhattanville
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         public static float EditableScale { get; set; }
         public static float RealScale { get; set; }
+        public static float AirAdjustment { get; set; }
         public static float GroundToFootRatio { get; set; }
         public static float GraphX { get; set; }
         public static float GraphY { get; set; }
@@ -67,6 +68,7 @@ namespace Manhattanville
 
             EditableScale = float.Parse(State.GetSettingVariable("EditableScale"));
             RealScale = float.Parse(State.GetSettingVariable("RealScale"));
+            AirAdjustment = float.Parse(State.GetSettingVariable("AirAdjustment"));
             GroundToFootRatio = float.Parse(State.GetSettingVariable("GroundToFootRatio"));
             GraphX = float.Parse(State.GetSettingVariable("GraphX"));
             GraphY = float.Parse(State.GetSettingVariable("GraphY"));

@@ -56,29 +56,7 @@ namespace Manhattanville
         public Building(string address)
             : base(address)
         {
-//            this.scaleRatioToEditable = scaleRatioToEditable;
-//            System.Console.WriteLine(name);
         }
-
-        //public void addObserver(Building b)
-        //{
-        //    observers.Add( b );
-        //}
-
-        //public void broadcast()
-        //{
-        //    foreach (Building b in observers)
-        //    {
-        //        b.observe(this);
-        //    }
-        //}
-
-        //public void observe(Building b)
-        //{
-        //    this.Footprint = b.Footprint * scaleRatioToEditable;
-        //    this.Stories = b.Stories;
-        //    this.TransformNode.Scale = b.TransformNode.Scale * this.scaleRatioToEditable;
-        //}
 
         public void calcModelCoordinatesHelper(
             bool withOffset,
