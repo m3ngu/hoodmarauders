@@ -44,8 +44,8 @@ namespace Manhattanville
             graphics = g;
 
             icons = new List<Texture2D>(Enum.GetNames(typeof(AppState)).Length);
-            icons.Insert((int)AppState.Browse, app.Content.Load<Texture2D>("Icons\\height"));
-            icons.Insert((int)AppState.Edit, app.Content.Load<Texture2D>("Icons\\footprint"));
+            icons.Insert((int)AppState.Browse, app.Content.Load<Texture2D>("Icons\\browse"));
+            icons.Insert((int)AppState.Edit, app.Content.Load<Texture2D>("Icons\\edit"));
             icons.Insert((int)AppState.Info, app.Content.Load<Texture2D>("Icons\\info"));
 
             iconPlaceHolder = new Rectangle(
@@ -164,7 +164,7 @@ namespace Manhattanville
             menus[i].Add(new PieMenuNode());  // Placeholder
 
             menus[i].Add(new PieMenuNode("Edit",
-               app.Content.Load<Texture2D>("Icons\\footprint"),
+               app.Content.Load<Texture2D>("Icons\\edit"),
                new SimpleDelegate(MenuAction),
                AppState.Edit));
 
@@ -183,11 +183,11 @@ namespace Manhattanville
             menus.Add(new PieMenuNode());
 
             menus[i].Add(new PieMenuNode("Grab",
-                app.Content.Load<Texture2D>("Icons\\footprint"),
+                app.Content.Load<Texture2D>("Icons\\grab"),
                 new SimpleDelegate(MenuAction)));
 
             menus[i].Add(new PieMenuNode("Accept",
-                app.Content.Load<Texture2D>("Icons\\height"),
+                app.Content.Load<Texture2D>("Icons\\accept"),
                 new SimpleDelegate(MenuAction),
                 AppState.Browse));
 
@@ -196,7 +196,7 @@ namespace Manhattanville
                 null));
 
             menus[i].Add(new PieMenuNode("Reject",
-                app.Content.Load<Texture2D>("Icons\\info"),
+                app.Content.Load<Texture2D>("Icons\\reject"),
                 new SimpleDelegate(MenuAction),
                 AppState.Browse));
             /*********************************************************************/
@@ -207,7 +207,7 @@ namespace Manhattanville
             menus[i].Add(new PieMenuNode());  // Empty placeholder
 
             menus[i].Add(new PieMenuNode("Edit",
-                app.Content.Load<Texture2D>("Icons\\footprint"),
+                app.Content.Load<Texture2D>("Icons\\edit"),
                 new SimpleDelegate(MenuAction),
                 AppState.Edit));
 
@@ -216,7 +216,7 @@ namespace Manhattanville
                 null));
 
             menus[i].Add(new PieMenuNode("Browse",
-                app.Content.Load<Texture2D>("Icons\\height"),
+                app.Content.Load<Texture2D>("Icons\\browse"),
                 new SimpleDelegate(MenuAction),
                 AppState.Browse));
 

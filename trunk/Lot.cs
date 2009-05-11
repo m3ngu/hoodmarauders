@@ -66,6 +66,9 @@ namespace Manhattanville
         public int floors;
         public float footprint;
 
+        public float previousAirRights;
+        public float previousFootprint;
+
         /*mostly for output*/
         //private Hashtable infoTable;
 
@@ -73,6 +76,8 @@ namespace Manhattanville
         {
             this.name = chunks[0];
             readInfo(chunks);
+            this.previousAirRights = this.airRights;
+            this.previousFootprint = this.footprint;
             //infoTable = getInfo();
         }
 
