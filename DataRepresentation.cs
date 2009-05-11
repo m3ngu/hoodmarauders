@@ -122,15 +122,22 @@ namespace Manhattanville
             this.spriteFont = spriteFont;
             this.color = color;
         }
+
+        //public void Update(double gameTime)
+        //{
+        //    rotationAngle += (float)gameTime*0.5f;            
+        //}
+
         public void Update(double gameTime)
         {
-            rotationAngle += (float)gameTime*0.5f;            
+            rotationAngle += (float)gameTime * 0.5f;
+            Quaternion.CreateFromAxisAngle(new Vector3(1, 0, 0), rotationAngle);
+            Quaternion.CreateFromAxisAngle(new Vector3(1, 0, 0), rotationAngle);
         }
+
+        
         public void showData(Building selectedBuilding)
         {
-
-            
-
             //String buildingName = selectedBuilding.Lot.name;
             //String buildingAddress = selectedBuilding.Lot.saleDate;
             boxMaterial1.Texture = Data.txt2Txt(graphicsDevice,
@@ -142,8 +149,6 @@ namespace Manhattanville
                 "\n\nLot Area:   " + selectedBuilding.Lot.lotArea +
                 "\n\nZoning District:   " + selectedBuilding.Lot.zoningDistrict,
                 300, 300, spriteFont, color);
-            
-            
             
             boxMaterial2.Texture = Data.txt2Txt(graphicsDevice,
                  "\n\n\n\nActual Land:   " + selectedBuilding.Lot.actualLand +

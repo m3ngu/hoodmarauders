@@ -810,6 +810,9 @@ namespace Manhattanville
             if (AppStateMgr.handleGrabbed)
                 ModificationManager.processWandMovement();
 
+            if (dataRepresentation != null && gameTime != null)
+                dataRepresentation.Update(gameTime.ElapsedGameTime.TotalSeconds);
+
             base.Update(gameTime);
         }
 
