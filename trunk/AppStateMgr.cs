@@ -36,6 +36,7 @@ namespace Manhattanville
         private static List<PieMenuNode> menus;
         public static bool handlesEnabled = false;
         public static bool continousMode = true;
+        public static bool handleGrabbed = false;
 
         public static void initialize(Manhattanville m, GraphicsDeviceManager g)
         {
@@ -183,7 +184,7 @@ namespace Manhattanville
 
             menus[i].Add(new PieMenuNode("Grab",
                 app.Content.Load<Texture2D>("Icons\\footprint"),
-                null));
+                new SimpleDelegate(MenuAction)));
 
             menus[i].Add(new PieMenuNode("Accept",
                 app.Content.Load<Texture2D>("Icons\\height"),
@@ -229,7 +230,15 @@ namespace Manhattanville
 
             if (sndr.Text.Equals("Grab"))
             {
-                //TODO: Grab / ungrab
+                processGrab();
+                handleGrabbed = true;
+                sndr.Text = "Release";
+            }
+            else if (sndr.Text.Equals("Release"))
+            {
+                processRelease(); 
+                handleGrabbed = false;
+                sndr.Text = "Grab";
             }
             else if (sndr.Text.Equals("Accept"))
             {
@@ -256,5 +265,16 @@ namespace Manhattanville
         {
             return menus[(int)currentState];
         }
+
+        static void processGrab()
+        {
+            GoblinXNA.UI.Notifier.AddMessage("Grabbing " + app.selectedHandle.Name);
+        }
+
+        static void processRelease()
+        {
+            GoblinXNA.UI.Notifier.AddMessage("Releasing " + app.selectedHandle.Name);
+        }
+
     }
 }

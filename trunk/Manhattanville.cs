@@ -54,7 +54,7 @@ namespace Manhattanville
         Dictionary<Building, Lot> lots;
         List<Building> buildings;
         Dictionary<Building, Building> editableBuildings;
-        Building selectedBuilding;
+        internal Building selectedBuilding { get; set; }
         int closestIndex;
         Building selectedEditableBuilding;
         Lot selectedLot;
@@ -74,7 +74,7 @@ namespace Manhattanville
         iWearTracker iTracker;
 
         List<Handle> handles = new List<Handle>(Enum.GetNames(typeof(Handle.Location)).Length);
-        Handle selectedHandle;
+        internal Handle selectedHandle { get; set; }
 
         float y_shift = -62;
         float x_shift = -28.0f;
@@ -618,7 +618,7 @@ namespace Manhattanville
                 parentTransEditable = new TransformNode();
                 parentTransEditable.Translation = new Vector3(0f, 40f, 5f);
                 parentTransEditable.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, 119 * MathHelper.Pi / 180);
-                parentTransEditable.Scale = new Vector3(Settings.EditableScale);
+                //parentTransEditable.Scale = new Vector3(Settings.EditableScale);
 
                 handleTrans = new TransformNode();
                 handleTrans.Translation = new Vector3(0f, 40f, 5f);
@@ -701,7 +701,7 @@ namespace Manhattanville
                         editableBuildingTransformNode.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ,
                             (float)(zRot * Math.PI / 180)) * Quaternion.CreateFromAxisAngle(Vector3.UnitX,
                             MathHelper.PiOver2);
-                        editableBuildingTransformNode.Scale = Vector3.One * scale;
+                        editableBuildingTransformNode.Scale = Vector3.One * scale * Settings.EditableScale;
 
                         BuildingTransform realBuildingTransformNode = new BuildingTransform(building, Settings.RealScale);
                         realBuildingTransformNode.Translation = new Vector3(x, y, z * factor);
@@ -1079,9 +1079,7 @@ namespace Manhattanville
                 return;
             }
 
-            BuildingTransform editBldgTransformNode = new BuildingTransform();
-            editBldgTransformNode = (BuildingTransform)(selectedBuilding.EditBuildingTransform);
-            Vector3 scaleVector = editBldgTransformNode.Scale;
+            Vector3 scaleVector = selectedBuilding.EditBuildingTransform.Scale;
 
             if (currStories != 0)
             {
@@ -1096,14 +1094,12 @@ namespace Manhattanville
                 scaleVector.Z = heightRatio * scale;
             }
 
-            editBldgTransformNode.Scale = scaleVector;
-
-            editBldgTransformNode.broadcast();
-
+            selectedBuilding.EditBuildingTransform.Scale = scaleVector;
+            selectedBuilding.EditBuildingTransform.broadcast();
             selectedBuilding.Stories = newStories;
 
             Log.Write("editableBuildingTransformNode.Scale="
-                + editBldgTransformNode.Scale.ToString() + "\n");
+                + selectedBuilding.EditBuildingTransform.Scale.ToString() + "\n");
 
             GoblinXNA.UI.Notifier.AddMessage(
                 selectedBuilding.Name + " now has "
