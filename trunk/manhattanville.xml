@@ -28,15 +28,16 @@
   <var name="CameraID" value="0" />
 
   <!-- Settings for 640x480 -->
-<!--  <var name="CameraFx" value="638.052" />
+  <!--
+  <var name="CameraFx" value="638.052" />
   <var name="CameraFy" value="633.673" />
   <var name="Resolution" value="_640x480" />
--->
+  -->
   <!-- Settings for 320x240 -->
   <var name="CameraFx" value="319.026" />
   <var name="CameraFy" value="316.837" />
   <var name="Resolution" value="_320x240" />
-<!--
+  <!--
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Debug
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -67,6 +68,12 @@
   <var name="GraphY" value="-48" />
   <var name="GraphZ" value="8" />
   <var name="AdditionalAirRights" value="20000" />
+  <!--
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Interaction params
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  -->
+  <var name="WandMovementThreshold" value="3" />
   <!--
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Miscellaneous
