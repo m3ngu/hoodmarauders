@@ -277,7 +277,7 @@ namespace Manhattanville
 DataRepresentation(graphics.GraphicsDevice, font, color);
             //dataRepresentation.Model = new Box(1,20,20);
 
-            dataRepresentation.Translation = new Vector3(-10, 40, 0);
+            dataRepresentation.Translation = new Vector3(-10, 40, -20);
             //dataRepresentation.Rotation =
             Quaternion.CreateFromAxisAngle(Vector3.UnitZ, MathHelper.ToRadians(90));
             dataRepresentation.Scale = new Vector3(3, 3, 3);
@@ -858,6 +858,9 @@ DataRepresentation(graphics.GraphicsDevice, font, color);
                 && AppStateMgr.inState(AppState.Browse)
                 && !menu.Visible)
             {
+                if (selectedBuilding != null)
+                    if (selectedBuilding.EditBuildingTransform != null)
+                        selectedBuilding.EditBuildingTransform.Enabled = true;
                 dataRepresentation.Enabled = false;
                 getClosestBuilding(null);
             }
@@ -868,6 +871,9 @@ DataRepresentation(graphics.GraphicsDevice, font, color);
                 && !menu.Visible
                 && !AppStateMgr.handleGrabbed)
             {
+                if (selectedBuilding != null)
+                    if (selectedBuilding.EditBuildingTransform != null)
+                        selectedBuilding.EditBuildingTransform.Enabled = true;
                 dataRepresentation.Enabled = false;
                 getClosestHandle(null);
             }
@@ -878,6 +884,9 @@ DataRepresentation(graphics.GraphicsDevice, font, color);
             {
                 if (selectedBuilding != null)
                 {
+                    if (selectedBuilding != null)
+                        if (selectedBuilding.EditBuildingTransform != null)
+                            selectedBuilding.EditBuildingTransform.Enabled = false;
                     dataRepresentation.Enabled = true;
                     dataRepresentation.showData(selectedBuilding);
                 }
