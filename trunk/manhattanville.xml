@@ -25,18 +25,18 @@
   Camera
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   -->
-  <var name="CameraID" value="0" />
+  <var name="CameraID" value="2" />
 
   <!-- Settings for 640x480 -->
-  <!--
   <var name="CameraFx" value="638.052" />
   <var name="CameraFy" value="633.673" />
   <var name="Resolution" value="_640x480" />
-  -->
   <!-- Settings for 320x240 -->
+  <!-- 
   <var name="CameraFx" value="319.026" />
   <var name="CameraFy" value="316.837" />
   <var name="Resolution" value="_320x240" />
+  -->
   <!--
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Debug

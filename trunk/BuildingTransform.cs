@@ -42,6 +42,7 @@ namespace Manhattanville
         private List<IObservingTransform> observers = new List<IObservingTransform>();
         private float scaleRatioToEditable;
         public Building ModelBuilding { get; set; }
+        public bool real = false;
 
         public BuildingTransform() : base() {
         }
@@ -70,9 +71,9 @@ namespace Manhattanville
 
         public void broadcast()
         {
-            foreach (BuildingTransform bt in observers)
+            foreach (IObservingTransform ot in observers)
             {
-                bt.observe(this);
+                ot.observe(this);
             }
         }
 
@@ -81,7 +82,16 @@ namespace Manhattanville
             //what does this footprint do?
             this.Footprint = bt.Footprint * this.scaleRatioToEditable;
             this.Stories = bt.Stories;
-            this.Scale = bt.Scale * this.scaleRatioToEditable;// new Vector3(this.Scale.X, b.Scale.Y * this.scaleRatioToEditable, this.Scale.Z);//.Y * this.scaleRatioToEditable;
+            if (real)
+            {
+                Vector3 s = this.Scale;
+                s.X = s.X * (bt.Scale.Z/bt.Scale.Y);
+                this.Scale = s;
+            }
+            else
+            {
+                this.Scale = bt.Scale * this.scaleRatioToEditable;// new Vector3(this.Scale.X, b.Scale.Y * this.scaleRatioToEditable, this.Scale.Z);//.Y * this.scaleRatioToEditable;
+            }
         }
     }
 }
