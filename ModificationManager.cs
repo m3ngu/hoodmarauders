@@ -50,7 +50,10 @@ namespace Manhattanville
 
         public static void releaseHandle()
         {
-            GoblinXNA.UI.Notifier.AddMessage("Releasing " + app.selectedHandle.Name);
+            if (app.selectedHandle != null)
+            {
+                GoblinXNA.UI.Notifier.AddMessage("Releasing " + app.selectedHandle.Name);
+            }
         }
 
         public static Vector3 calcDelta()
