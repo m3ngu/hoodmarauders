@@ -46,7 +46,11 @@ namespace Manhattanville
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // Interaction Params
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        public static float WandMovementThreshold { get; set; }
+        public static float WandMovementThreshold            { get; set; }
+        public static float MinDistanceForGrab               { get; set; }
+        public static float VotesForChangingSelectedBuilding { get; set; }
+        public static float MinGestureDistance               { get; set; }
+        public static double MinTimeBetweenMenuSelections    { get; set; }
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // Miscellanous
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -84,6 +88,10 @@ namespace Manhattanville
             AdditionalAirRights = float.Parse(State.GetSettingVariable("AdditionalAirRights"));
 
             WandMovementThreshold = float.Parse(State.GetSettingVariable("WandMovementThreshold"));
+            MinDistanceForGrab = float.Parse(State.GetSettingVariable("MinDistanceForGrab"));
+            VotesForChangingSelectedBuilding = float.Parse(State.GetSettingVariable("VotesForChangingSelectedBuilding"));
+            MinGestureDistance = float.Parse(State.GetSettingVariable("MinGestureDistance"));
+            MinTimeBetweenMenuSelections = double.Parse(State.GetSettingVariable("MinTimeBetweenMenuSelections"));
 
             BuildingsDetailed = bool.Parse(State.GetSettingVariable("BuildingsDetailed"));
             BuildingsSubset = bool.Parse(State.GetSettingVariable("BuildingsSubset"));

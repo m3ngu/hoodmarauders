@@ -13,6 +13,9 @@ namespace Manhattanville
         private static GraphicsDeviceManager graphics;
         private static Vector3 startingLocation = Vector3.Zero;
         private static Vector3 initialScale;
+        private static float airRights;
+        private static float oldAirRights;
+        private static int stories;
 
         public static void initialize(Manhattanville m, GraphicsDeviceManager g)
         {
@@ -23,6 +26,9 @@ namespace Manhattanville
         public static void grabHandle()
         {
             initialScale = app.selectedBuilding.EditBuildingTransform.Scale;
+            airRights = app.selectedBuilding.EditBuildingTransform.ModelBuilding.Lot.airRights;
+            oldAirRights = app.selectedBuilding.EditBuildingTransform.ModelBuilding.Lot.previousAirRights;
+            stories = app.selectedBuilding.EditBuildingTransform.Stories;
             GoblinXNA.UI.Notifier.AddMessage("Grabbing " + app.selectedHandle.Name);
             startingLocation = app.getWandLocation();
         }
@@ -35,6 +41,9 @@ namespace Manhattanville
         public static void reject()
         {
             releaseHandle();
+            app.selectedBuilding.EditBuildingTransform.ModelBuilding.Lot.airRights = airRights;
+            app.selectedBuilding.EditBuildingTransform.ModelBuilding.Lot.previousAirRights = oldAirRights;
+            app.selectedBuilding.EditBuildingTransform.Stories = stories;
             app.selectedBuilding.EditBuildingTransform.Scale = initialScale;
             app.selectedBuilding.EditBuildingTransform.broadcast();
         }
@@ -80,6 +89,7 @@ namespace Manhattanville
         {
             // TODO: We should probably convert numeric data to numeric variables
             // at load time
+            app.pop.Play();
 
             int currStories = app.selectedBuilding.Stories;
             int newStories = currStories + floors;
