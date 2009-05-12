@@ -17,6 +17,7 @@ namespace Manhattanville
     {
 
         public MarkerNode Marker { get; set; }
+        private TransformNode tip;
 
         public Tool()
         {
@@ -28,13 +29,13 @@ namespace Manhattanville
             GeometryNode toolGeoNode0 = new GeometryNode("Tool0");
             toolGeoNode0.Model = new Box(5, 5, 0.1f);
             toolGeoNode0.Material = mat;
-            TransformNode toolTransNode0 = new TransformNode(
+            tip = new TransformNode(
                 new Vector3(-7.5f, 0, 0), // Translation
                 Quaternion.CreateFromAxisAngle(Vector3.UnitZ, MathHelper.ToRadians(45)) // Rotation
                 );
-            toolTransNode0.AddChild(toolGeoNode0);
+            tip.AddChild(toolGeoNode0);
 
-            base.AddChild(toolTransNode0);
+            base.AddChild(tip);
 
             GeometryNode toolGeoNode1 = new GeometryNode("Tool1");
             toolGeoNode1.Model = new Box(5, 5, 0.1f);
@@ -66,6 +67,11 @@ namespace Manhattanville
         public Matrix getWorldTransformation()
         {
             return Marker.WorldTransformation;
+        }
+
+        public Vector3 getTranslationFromOrigin()
+        {
+            return this.Marker.WorldTransformation.Translation + tip.Translation;
         }
     }
 }

@@ -86,13 +86,16 @@ namespace Manhattanville
         int centerX, centerY;
         SoundEffect hum;
         String humName = "hum";
-        SoundEffect pop;
+        internal SoundEffect pop;
         String popName = "pop";
         //SoundEffect whooshup;
         //String whooshupName = "whooshup";
         //SoundEffect whooshdown;
         //String whooshdownName = "whooshdown";
 
+        int votesForChangingSelectedBuilding = 0;
+        double cumulativeTime = 0;
+        double lastMenuSelectionTime = 0;
 
         public Manhattanville()
         {
@@ -259,7 +262,7 @@ namespace Manhattanville
 
             ModificationManager.initialize(this, graphics);
 
-            loadData();
+            //loadData();
             base.Initialize();
         }
 
@@ -861,13 +864,16 @@ namespace Manhattanville
                 && !AppStateMgr.handleGrabbed)
                 getClosestHandle(null);
 
-            if (AppStateMgr.handleGrabbed)
+            if (AppStateMgr.handleGrabbed && !menu.Visible)
                 ModificationManager.processWandMovement();
 
             //if (dataRepresentation != null && gameTime != null)
             //    dataRepresentation.Update(gameTime.ElapsedGameTime.TotalSeconds);
 
             //GoblinXNA.UI.Notifier.AddMessage(bigOne.MarkerFound.ToString());
+
+            cumulativeTime += gameTime.ElapsedGameTime.TotalMilliseconds;
+            //GoblinXNA.UI.Notifier.AddMessage("currentTime=" + cumulativeTime);
 
             base.Update(gameTime);
         }
@@ -898,7 +904,11 @@ namespace Manhattanville
         {
             //GoblinXNA.UI.Notifier.AddMessage("Mouse Update!");
 
-            menu.HandleInput(selectionVector);
+            if ((cumulativeTime - lastMenuSelectionTime) > Settings.MinTimeBetweenMenuSelections)
+            {
+                lastMenuSelectionTime = cumulativeTime;
+                menu.HandleInput(selectionVector);
+            }
             MouseCenter();
 
             //Console.WriteLine("x=" + Mouse.GetState().X + " y=" + Mouse.GetState().Y);
@@ -910,8 +920,7 @@ namespace Manhattanville
             int xDel = mouseLocation.X - centerX;
             int yDel = mouseLocation.Y - centerY;
 
-            if (new Vector2((float)xDel, (float)yDel).Length() > 100.0f)
-            {
+            if (new Vector2((float)xDel, (float)yDel).Length() > Settings.MinGestureDistance) {
                 UpdateMouse(new Vector2(xDel, yDel));
             }
         }
@@ -953,7 +962,6 @@ namespace Manhattanville
                 if ( (buildingSelected()) && (selectedEditableBuilding != null) )
                 {
                     ModificationManager.addFloor(1);
-                    pop.Play();
                 }
             }
 
@@ -962,7 +970,6 @@ namespace Manhattanville
                 if ((buildingSelected()) && (selectedEditableBuilding != null))
                 {
                     ModificationManager.addFloor(-1);
-                    pop.Play();
                 }
             }
 
@@ -1108,7 +1115,7 @@ namespace Manhattanville
             int i = 0;
             foreach (Building b in buildings)
             {
-                float dis = (b.getBaseWorld() - tool.Marker.WorldTransformation.Translation).Length();
+                float dis = (b.getBaseWorld() - tool.getTranslationFromOrigin()).Length();
 
                 if (dis < minDis)
                 {
@@ -1129,7 +1136,7 @@ namespace Manhattanville
 
             }
 
-            if (closestBuilding != null)
+            if (closestBuilding != null && minDis < Settings.MinDistanceForGrab)
             {
                 selectBuilding(closestBuilding);
             }
@@ -1178,7 +1185,7 @@ namespace Manhattanville
 
             //Log.Write("closestHandle.Name=" + closestHandle.Name);
 
-            if (closestHandle != null)
+            if (closestHandle != null && minDis < Settings.MinDistanceForGrab)
             {
                 selectHandle(closestHandle);
             }
@@ -1187,6 +1194,11 @@ namespace Manhattanville
 
         private void selectHandle(Handle h)
         {
+            if (selectedHandle == h)
+                return;
+            
+            hum.Play();
+
             if (selectedHandle != null)
             {
                 selectedHandle.GeoNode.Material.Diffuse = Color.DarkBlue.ToVector4();
@@ -1202,6 +1214,28 @@ namespace Manhattanville
 
         private void selectBuilding(Building b)
         {
+
+            if (selectedBuilding != b)
+            {
+
+                votesForChangingSelectedBuilding++;
+
+                if (votesForChangingSelectedBuilding < Settings.VotesForChangingSelectedBuilding)
+                {
+                    return;
+                }
+                else
+                {
+                    votesForChangingSelectedBuilding = 0;
+                }
+
+                hum.Play();
+            }
+            else // (selectedBuilding == b)
+            {
+                return;
+            }
+            
             if (buildingSelected())
             {
                 selectedBuilding.Material.Diffuse = Color.White.ToVector4();
@@ -1212,11 +1246,6 @@ namespace Manhattanville
                 //selectedBuilding.setEditableTransform(null);
             }
 
-            if (selectedBuilding != b)
-            {
-                hum.Play();
-            }
-            
             selectedBuilding = b;
             selectedEditableBuilding = editableBuildings[selectedBuilding];
             selectedLot = b.Lot;

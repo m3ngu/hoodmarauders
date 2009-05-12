@@ -53,7 +53,7 @@
   <var name="GroundMaxDropouts" value="-1" />
   <var name="ToolOptimize" value="false" />
   <var name="ToolMaxDropouts" value="-1" />
-  <var name="ToolSmoother" value="0.2" />
+  <var name="ToolSmoother" value="0.1" />
   <var name="ToolTagName" value="pointer3" />
   <var name="BigOneOptimize" value="false" />
   <var name="BigOneMaxDropouts" value="-1" />
@@ -76,6 +76,10 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   -->
   <var name="WandMovementThreshold" value="3" />
+  <var name="MinDistanceForGrab" value="20" />
+  <var name="VotesForChangingSelectedBuilding" value="30" />
+  <var name="MinGestureDistance" value="100" />
+  <var name="MinTimeBetweenMenuSelections" value="1000" />
   <!--
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Miscellaneous
