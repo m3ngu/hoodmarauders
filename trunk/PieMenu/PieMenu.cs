@@ -30,6 +30,12 @@ namespace Manhattanville.PieMenu
         private SimpleDelegate newMenuDelegate;
         private SpriteFont     spriteFont;
 
+        private SoundEffect whooshup;
+        private String whooshupName = "whooshup";
+        private SoundEffect whooshdown;
+        private String whooshdownName = "whooshdown";
+
+
         #region Constructor and Base Methods
 
         public PieMenu(Game game)
@@ -45,6 +51,10 @@ namespace Manhattanville.PieMenu
             t = new Transition(Direction.Ascending, TransitionCurve.Linear, 0.3f);
             hideDelegate = new SimpleDelegate(this.OnHide);
             newMenuDelegate = new SimpleDelegate(this.NewMenu);
+
+            ContentManager contentManager = new ContentManager(game.Services, @"Content\Sounds\");
+            whooshup = contentManager.Load<SoundEffect>(whooshupName);
+            whooshdown = contentManager.Load<SoundEffect>(whooshdownName);
         }
 
         /// <summary>
@@ -157,6 +167,7 @@ namespace Manhattanville.PieMenu
         
         private void OnHide(Object sender)
         {
+            //whooshdown.Play();
             this.Visible = false;
             this.Enabled = false;
             t.OnTransitionEnd = null;
@@ -164,6 +175,7 @@ namespace Manhattanville.PieMenu
         
         private void NewMenu(Object sender)
         {
+            whooshup.Play();
             rootNode = newMenuNode;
             this.selectionIndex = -1;
             t.Reset(Direction.Ascending);
@@ -174,11 +186,13 @@ namespace Manhattanville.PieMenu
         {
             if (newNode == null)
             {
+                whooshdown.Play();
                 t.OnTransitionEnd = hideDelegate;
                 t.Reset(Direction.Descending);
             }
             else
             {
+                whooshdown.Play();
                 t.OnTransitionEnd = newMenuDelegate;
                 newMenuNode = newNode;
                 t.Reset(Direction.Descending);
@@ -190,6 +204,7 @@ namespace Manhattanville.PieMenu
         {
             if (this.Visible) return;
 
+            whooshup.Play();
             t.Reset(Direction.Ascending);
             t.OnTransitionEnd = null;
             this.Visible = true;
