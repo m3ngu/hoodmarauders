@@ -97,6 +97,9 @@ namespace Manhattanville
         double cumulativeTime = 0;
         double lastMenuSelectionTime = 0;
 
+        bool flag=true;
+        float angle=0;
+
         public Manhattanville()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -262,30 +265,29 @@ namespace Manhattanville
 
             ModificationManager.initialize(this, graphics);
 
-            //loadData();
+            loadData();
             base.Initialize();
         }
 
         private void loadData()
         {
-            dataRepresentation =
-            new DataRepresentation(graphics.GraphicsDevice, font, color);
 
+
+            dataRepresentation = new
+DataRepresentation(graphics.GraphicsDevice, font, color);
             //dataRepresentation.Model = new Box(1,20,20);
 
-            dataRepresentation.Translation =
-            new Vector3(-30, 10, 0);
-
-            //dataRepresentation.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ,MathHelper.ToRadians(90));
-
-            dataRepresentation.Scale =
-            new Vector3(2, 2, 2);
-
+            dataRepresentation.Translation = new Vector3(-10, 40, 0);
+            //dataRepresentation.Rotation =
+            Quaternion.CreateFromAxisAngle(Vector3.UnitZ, MathHelper.ToRadians(90));
+            dataRepresentation.Scale = new Vector3(3, 3, 3);
             groundMarkerNode.AddChild(dataRepresentation);
+            dataRepresentation.Enabled = false;
 
-            dataRepresentation.Enabled=false; 
+            ((NewtonPhysics)scene.PhysicsEngine).ApplyAngularVelocity(dataRepresentation.boxNode1.Physics,
+                                     new Vector3(1, 0, 0));
+
         }
-
         //private void CreateAirRightsGraph()
         //{
         //    throw new NotImplementedException();
@@ -855,22 +857,34 @@ namespace Manhattanville
             if (AppStateMgr.continousMode
                 && AppStateMgr.inState(AppState.Browse)
                 && !menu.Visible)
+            {
+                dataRepresentation.Enabled = false;
                 getClosestBuilding(null);
+            }
 
             //UpdateMouse();
             if (AppStateMgr.continousMode
                 && AppStateMgr.inState(AppState.Edit)
                 && !menu.Visible
                 && !AppStateMgr.handleGrabbed)
+            {
+                dataRepresentation.Enabled = false;
                 getClosestHandle(null);
+            }
 
+            //UpdateMouse();
+            if (AppStateMgr.continousMode
+                && AppStateMgr.inState(AppState.Info)) //&& !menu.Visible
+            {
+                if (selectedBuilding != null)
+                {
+                    dataRepresentation.Enabled = true;
+                    dataRepresentation.showData(selectedBuilding);
+                }
+            }
+            
             if (AppStateMgr.handleGrabbed && !menu.Visible)
                 ModificationManager.processWandMovement();
-
-            //if (dataRepresentation != null && gameTime != null)
-            //    dataRepresentation.Update(gameTime.ElapsedGameTime.TotalSeconds);
-
-            //GoblinXNA.UI.Notifier.AddMessage(bigOne.MarkerFound.ToString());
 
             cumulativeTime += gameTime.ElapsedGameTime.TotalMilliseconds;
             //GoblinXNA.UI.Notifier.AddMessage("currentTime=" + cumulativeTime);
@@ -927,6 +941,11 @@ namespace Manhattanville
 
         private void KeyTypeHandler(Microsoft.Xna.Framework.Input.Keys key, KeyModifier modifier)
         {
+            if (key == Keys.R)
+            {
+                flag = !flag;
+            } 
+            
             if (key == Microsoft.Xna.Framework.Input.Keys.Q)
             {
                 this.Exit();
@@ -1076,7 +1095,7 @@ namespace Manhattanville
 
         //private void loadData()
         //{
-        //    dataRepresentation = new DataRepresentation(graphics.GraphicsDevice, font, color, selectedBuilding);
+        //    dataRepresentation = new DataRepresentation(graphics.GraphicsDevice, font, color);
         //    groundMarkerNode.AddChild(dataRepresentation);
         //}
 
