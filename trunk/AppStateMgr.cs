@@ -161,7 +161,10 @@ namespace Manhattanville
             /*********************************************************************/
             menus.Add(new PieMenuNode());
 
-            menus[i].Add(new PieMenuNode());  // Placeholder
+            menus[i].Add(new PieMenuNode("Browse",
+               app.Content.Load<Texture2D>("Icons\\blank"),
+               new SimpleDelegate(MenuAction),
+               AppState.Browse));  // Placeholder
 
             menus[i].Add(new PieMenuNode("Edit",
                app.Content.Load<Texture2D>("Icons\\edit"),
@@ -204,7 +207,10 @@ namespace Manhattanville
             /*********************************************************************/
             menus.Add(new PieMenuNode());
 
-            menus[i].Add(new PieMenuNode());  // Empty placeholder
+            menus[i].Add(new PieMenuNode("Browse",
+                app.Content.Load<Texture2D>("Icons\\browse"),
+                new SimpleDelegate(MenuAction),
+                AppState.Browse));
 
             menus[i].Add(new PieMenuNode("Edit",
                 app.Content.Load<Texture2D>("Icons\\edit"),
@@ -215,10 +221,10 @@ namespace Manhattanville
                 app.Content.Load<Texture2D>("Icons\\cancel"),
                 null));
 
-            menus[i].Add(new PieMenuNode("Browse",
-                app.Content.Load<Texture2D>("Icons\\browse"),
-                new SimpleDelegate(MenuAction),
-                AppState.Browse));
+            menus[i].Add(new PieMenuNode("Info",
+               app.Content.Load<Texture2D>("Icons\\blank"),
+               new SimpleDelegate(MenuAction),
+               AppState.Info));  // Placeholder
 
         }
 
@@ -236,18 +242,22 @@ namespace Manhattanville
             }
             else if (sndr.Text.Equals("Release"))
             {
-                ModificationManager.releaseHandle(); 
+                ModificationManager.releaseHandle();
                 handleGrabbed = false;
                 sndr.Text = "Grab";
             }
             else if (sndr.Text.Equals("Accept"))
             {
                 //TODO: Accept
+                ModificationManager.accept();
+                handleGrabbed = false;
                 enter(AppState.Browse);
             }
             else if (sndr.Text.Equals("Reject"))
             {
                 //TODO: Reject
+                ModificationManager.reject();
+                handleGrabbed = false;
                 enter(AppState.Browse);
             }
             else if ((sndr.State == AppState.Edit) && (!app.buildingSelected()))

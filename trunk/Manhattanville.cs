@@ -265,10 +265,22 @@ namespace Manhattanville
 
         private void loadData()
         {
-            dataRepresentation = new DataRepresentation(graphics.GraphicsDevice, font, color);
-            dataRepresentation.Translation = new Vector3(-30, 10, 0);
-            //dataRepresentation.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, rotationAngle);
+            dataRepresentation =
+            new DataRepresentation(graphics.GraphicsDevice, font, color);
+
+            //dataRepresentation.Model = new Box(1,20,20);
+
+            dataRepresentation.Translation =
+            new Vector3(-30, 10, 0);
+
+            //dataRepresentation.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ,MathHelper.ToRadians(90));
+
+            dataRepresentation.Scale =
+            new Vector3(2, 2, 2);
+
             groundMarkerNode.AddChild(dataRepresentation);
+
+            dataRepresentation.Enabled=false; 
         }
 
         //private void CreateAirRightsGraph()
@@ -1220,7 +1232,8 @@ namespace Manhattanville
 
             if (!AppStateMgr.continousMode) GoblinXNA.UI.Notifier.AddMessage(selectedBuilding.Name);
 
-            dataRepresentation.showData(b);
+            //dataRepresentation.Enabled = true;
+            //dataRepresentation.showData(b);
         }
 
         private void addToFootprint(BuildingTransform eb)

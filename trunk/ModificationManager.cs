@@ -9,10 +9,10 @@ namespace Manhattanville
 {
     class ModificationManager
     {
-
         private static Manhattanville app;
         private static GraphicsDeviceManager graphics;
         private static Vector3 startingLocation = Vector3.Zero;
+        private static Vector3 initialScale;
 
         public static void initialize(Manhattanville m, GraphicsDeviceManager g)
         {
@@ -22,8 +22,21 @@ namespace Manhattanville
 
         public static void grabHandle()
         {
+            initialScale = app.selectedBuilding.EditBuildingTransform.Scale;
             GoblinXNA.UI.Notifier.AddMessage("Grabbing " + app.selectedHandle.Name);
             startingLocation = app.getWandLocation();
+        }
+
+        public static void accept()
+        {
+            releaseHandle();
+        }
+
+        public static void reject()
+        {
+            releaseHandle();
+            app.selectedBuilding.EditBuildingTransform.Scale = initialScale;
+            app.selectedBuilding.EditBuildingTransform.broadcast();
         }
 
         public static void releaseHandle()
