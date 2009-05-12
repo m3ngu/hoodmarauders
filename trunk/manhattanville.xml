@@ -55,6 +55,8 @@
   <var name="ToolMaxDropouts" value="-1" />
   <var name="ToolSmoother" value="0.2" />
   <var name="ToolTagName" value="pointer3" />
+  <var name="BigOneOptimize" value="false" />
+  <var name="BigOneMaxDropouts" value="-1" />
   <!--
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Building Scales

@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework.Graphics;
+using GoblinXNA.SceneGraph;
+using GoblinXNA.Graphics;
+using GoblinXNA.Graphics.Geometry;
 
 namespace Manhattanville
 {
@@ -21,6 +24,23 @@ namespace Manhattanville
 
             backBufferTexture.Save(filename, ImageFileFormat.Jpg);
 
+        }
+
+        public static TransformNode debugSphere(float radius)
+        {
+            Material m = new Material();
+            m.Diffuse = Color.Red.ToVector4();
+            m.Specular = Color.White.ToVector4();
+            m.SpecularPower = 3f;
+
+            GeometryNode g = new GeometryNode();
+            g.Model = new Sphere(radius, 10, 10);
+            g.Material = m;
+            
+            TransformNode t = new TransformNode();
+            t.AddChild(g);
+
+            return t;
         }
     }
 }

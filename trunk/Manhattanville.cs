@@ -51,6 +51,7 @@ namespace Manhattanville
         //SGForm fs = null;
         Scene scene;
         MarkerNode groundMarkerNode;
+        MarkerNode bigOne;
         Dictionary<Building, Lot> lots;
         List<Building> buildings;
         Dictionary<Building, Building> editableBuildings;
@@ -61,6 +62,7 @@ namespace Manhattanville
         MarkerNode toolMarkerNode;
         Tool tool;
         TransformNode parentTrans, parentTransEditable, handleTrans;
+        TransformNode parentTransBigOne, bigOneRotations, bigOneTranslations;
         //AirRightsNode airRightsNode;
         //AirRightsTransform airRightsTransformNode;
         AirRightsGraph airRightsGraph;
@@ -344,8 +346,24 @@ namespace Manhattanville
             tool.Marker = toolMarkerNode;
             toolMarkerNode.AddChild(tool);
 
+            // Create a marker node to track the ground marker arrays
+            bigOne = new MarkerNode(scene.MarkerTracker, "bigone");
+            scene.RootNode.AddChild(bigOne);
+
+            bigOne.Optimize = Settings.BigOneOptimize;
+            bigOne.MaxDropouts = Settings.BigOneMaxDropouts;
+
+            //bigOne.AddChild(Utilities.debugSphere(3));
+
             // Display the camera image in the background
             scene.ShowCameraImage = true;
+
+            //scene.CameraNode.BoundingFrustum.Far = new Plane(-Vector3.UnitZ, -5000);
+            //Matrix proj = Matrix.CreatePerspectiveFieldOfView(scene.CameraNode.Camera.FieldOfViewY,
+            //            scene.CameraNode.Camera.AspectRatio, 1.0f, 10000.0f);
+            //scene.CameraNode.BoundingFrustum = new BoundingFrustum(scene.CameraNode.Camera.View * proj);
+            
+            scene.CameraNode.Camera.ZFarPlane = 100000000.0f;
         }
 
         private void SetupIWear()
@@ -631,6 +649,10 @@ namespace Manhattanville
                 parentTrans.Translation = new Vector3(-12.5f, -15.69f, 0);
                 parentTrans.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, 119 * MathHelper.Pi / 180);
 
+                parentTransBigOne = new TransformNode();
+                //parentTransBigOne.Translation = new Vector3(-12.5f, -15.69f, 0);
+                parentTransBigOne.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, 119 * MathHelper.Pi / 180);
+
                 parentTransEditable = new TransformNode();
                 parentTransEditable.Translation = new Vector3(0f, 40f, 5f);
                 parentTransEditable.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, 119 * MathHelper.Pi / 180);
@@ -647,6 +669,23 @@ namespace Manhattanville
                 groundMarkerNode.AddChild(parentTrans);
                 groundMarkerNode.AddChild(parentTransEditable);
                 groundMarkerNode.AddChild(handleTrans);
+
+                /*************************************/
+                /*****  BIG ONE TRANSFORMATIONS  *****/
+                /*************************************/
+
+                bigOneRotations = new TransformNode();
+                bigOneTranslations = new TransformNode();
+
+                bigOneRotations.AddChild(parentTransBigOne);   // marker <- translations <- rotations <- parent
+                bigOneTranslations.AddChild(bigOneRotations);
+                bigOne.AddChild(bigOneTranslations);
+
+                //bigOneTranslations.Translation = new Vector3(-13156, 93713, -58921);
+                bigOneTranslations.Scale = new Vector3(200, 200, 200);
+
+                bigOneRotations.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitY, MathHelper.ToRadians(90))
+                    * Quaternion.CreateFromAxisAngle(Vector3.UnitZ, MathHelper.ToRadians(90));
 
                 while (!sr.EndOfStream)
                 {
@@ -680,7 +719,7 @@ namespace Manhattanville
                         realBuilding.Model = (Model)loader.Load("", "Plain/" + address);
                         realBuilding.AddToPhysicsEngine = true;
                         realBuilding.Physics.Shape = ShapeType.Box;
-                        realBuilding.Model.OffsetToOrigin = true;
+                        //realBuilding.Model.OffsetToOrigin = true;
 
                         AirRightsNode airRightsNode = new AirRightsNode(address + "_air_rights", building);
                             
@@ -724,7 +763,7 @@ namespace Manhattanville
                         realBuildingTransformNode.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ,
                             (float)(zRot * Math.PI / 180)) * Quaternion.CreateFromAxisAngle(Vector3.UnitX,
                             MathHelper.PiOver2);
-                        realBuildingTransformNode.Scale = Vector3.One * scale * new Vector3(Settings.RealScale);
+                        realBuildingTransformNode.Scale = Vector3.One * scale;// *new Vector3(Settings.RealScale);
 
                         AirRightsTransform airRightsTransformNode = new AirRightsTransform(building);
                         airRightsTransformNode.Translation = new Vector3(graphNodeXOffset, graphNodeYOffset, 0);
@@ -764,6 +803,9 @@ namespace Manhattanville
                         parentTrans.AddChild(transNode);
                         //parentTrans.AddChild(editableBuildingTransformNode);
                         lot.transformNode = transNode;
+
+                        parentTransBigOne.AddChild(realBuildingTransformNode);
+                        realBuildingTransformNode.AddChild(realBuilding);
 
                         transNode.AddChild(building);
 
@@ -810,8 +852,10 @@ namespace Manhattanville
             if (AppStateMgr.handleGrabbed)
                 ModificationManager.processWandMovement();
 
-            if (dataRepresentation != null && gameTime != null)
-                dataRepresentation.Update(gameTime.ElapsedGameTime.TotalSeconds);
+            //if (dataRepresentation != null && gameTime != null)
+            //    dataRepresentation.Update(gameTime.ElapsedGameTime.TotalSeconds);
+
+            //GoblinXNA.UI.Notifier.AddMessage(bigOne.MarkerFound.ToString());
 
             base.Update(gameTime);
         }
@@ -924,6 +968,91 @@ namespace Manhattanville
                 
                 selectBuilding(b);
             }
+
+            if (key == Microsoft.Xna.Framework.Input.Keys.X)
+            {
+
+                float scale = 10.0f;
+
+                if (Microsoft.Xna.Framework.Input.Keyboard.GetState().IsKeyDown(Keys.LeftAlt))
+                {
+                    scale = 1000f;
+                }
+
+                if (Microsoft.Xna.Framework.Input.Keyboard.GetState().IsKeyDown(Keys.LeftShift)) {
+                    bigOneTranslations.Translation = bigOneTranslations.Translation - (Vector3.UnitX * scale);
+                } else {
+                    bigOneTranslations.Translation = bigOneTranslations.Translation + (Vector3.UnitX * scale);
+                }
+            }
+
+            if (key == Microsoft.Xna.Framework.Input.Keys.Y)
+            {
+
+                float scale = 10.0f;
+
+                if (Microsoft.Xna.Framework.Input.Keyboard.GetState().IsKeyDown(Keys.LeftAlt))
+                {
+                    scale = 1000f;
+                }
+
+                if (Microsoft.Xna.Framework.Input.Keyboard.GetState().IsKeyDown(Keys.LeftShift))
+                {
+                    bigOneTranslations.Translation = bigOneTranslations.Translation - (Vector3.UnitY * scale);
+                }
+                else
+                {
+                    bigOneTranslations.Translation = bigOneTranslations.Translation + (Vector3.UnitY * scale);
+                }
+            }
+
+            if (key == Microsoft.Xna.Framework.Input.Keys.Z)
+            {
+
+                float scale = 10.0f;
+
+                if (Microsoft.Xna.Framework.Input.Keyboard.GetState().IsKeyDown(Keys.LeftAlt))
+                {
+                    scale = 1000f;
+                }
+
+                if (Microsoft.Xna.Framework.Input.Keyboard.GetState().IsKeyDown(Keys.LeftShift))
+                {
+                    bigOneTranslations.Translation = bigOneTranslations.Translation - (Vector3.UnitZ * scale);
+                }
+                else
+                {
+                    bigOneTranslations.Translation = bigOneTranslations.Translation + (Vector3.UnitZ * scale);
+                }
+            }
+            
+            if (key == Microsoft.Xna.Framework.Input.Keys.B)
+            {
+                float scale = 10.0f;
+
+                if (Microsoft.Xna.Framework.Input.Keyboard.GetState().IsKeyDown(Keys.LeftAlt))
+                {
+                    scale = 1000f;
+                }
+
+                if (Microsoft.Xna.Framework.Input.Keyboard.GetState().IsKeyDown(Keys.LeftShift))
+                {
+                    bigOneTranslations.Scale = bigOneTranslations.Scale - (new Vector3(1, 1, 1) * scale);
+                }
+                else
+                {
+                    bigOneTranslations.Scale = bigOneTranslations.Scale + (new Vector3(1, 1, 1) * scale);
+                }
+            }
+
+            if (key == Microsoft.Xna.Framework.Input.Keys.L)
+            {
+                Log.Write("Scale=" + bigOneTranslations.Scale.ToString()
+                    + " Translation=" + bigOneTranslations.Translation.ToString());
+
+                Log.Write("BoundingFrustum" + this.scene.CameraNode.BoundingFrustum.Matrix.ToString());
+            }
+
         }
 
         //private void loadData()
