@@ -5,10 +5,11 @@ using System.Text;
 using GoblinXNA.SceneGraph;
 using GoblinXNA.Graphics;
 using GoblinXNA.Graphics.Geometry;
+using Microsoft.Xna.Framework;
 
 namespace Manhattanville
 {
-    class Handle : TransformNode
+    class Handle : TransformNode, IObservingTransform
     {
 
         public GeometryNode GeoNode { get; set; }
@@ -45,6 +46,29 @@ namespace Manhattanville
 
             GeoNode.Enabled = true;
 
+        }
+
+        public virtual void observe(BuildingTransform bt)
+        {
+            switch (Loc)
+            {
+                case Handle.Location.Top:
+                    Translation = bt.ModelBuilding.CenterOfCeilWithOffset;
+                    break;
+                case Handle.Location.BottomSW:
+                    Translation = bt.ModelBuilding.MinPointWithOffset;
+                    break;
+                case Handle.Location.BottomSE:
+                    Translation = new Vector3(bt.ModelBuilding.MaxPointWithOffset.X, bt.ModelBuilding.MinPointWithOffset.Y, bt.ModelBuilding.MinPointWithOffset.Z);
+                    break;
+                case Handle.Location.BottomNE:
+                    Translation = new Vector3(bt.ModelBuilding.MaxPointWithOffset.X, bt.ModelBuilding.MaxPointWithOffset.Y, bt.ModelBuilding.MinPointWithOffset.Z);
+                    break;
+                case Handle.Location.BottomNW:
+                    Translation = new Vector3(bt.ModelBuilding.MinPointWithOffset.X, bt.ModelBuilding.MaxPointWithOffset.Y, bt.ModelBuilding.MinPointWithOffset.Z);
+                    break;
+            }
+            
         }
     }
 }

@@ -34,7 +34,7 @@ namespace Manhattanville
             m.SpecularPower = 3f;
 
             GeometryNode g = new GeometryNode();
-            g.Model = new Sphere(radius, 10, 10);
+            g.Model = new Box(radius);
             g.Material = m;
             
             TransformNode t = new TransformNode();

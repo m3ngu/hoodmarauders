@@ -236,15 +236,19 @@ namespace Manhattanville
 
             if (sndr.Text.Equals("Grab"))
             {
-                ModificationManager.grabHandle();
-                handleGrabbed = true;
-                sndr.Text = "Release";
+                if (ModificationManager.grabHandle())
+                {
+                    handleGrabbed = true;
+                    sndr.Text = "Release";
+                }
             }
             else if (sndr.Text.Equals("Release"))
             {
-                ModificationManager.releaseHandle();
-                handleGrabbed = false;
-                sndr.Text = "Grab";
+                if (ModificationManager.releaseHandle())
+                {
+                    handleGrabbed = false;
+                    sndr.Text = "Grab";
+                }
             }
             else if (sndr.Text.Equals("Accept"))
             {

@@ -36,8 +36,10 @@ namespace Manhattanville
         public Lot                  Lot                    { get; set; }
         public TransformNode        TransformNode          { get; set; }
         public BuildingTransform    EditBuildingTransform  { get; set; }
+        public BuildingTransform    RealBuildingTransform  { get; set; }
         public AirRightsTransform   AirRightsTransformNode { get; set; }
         public Vector3              CenterOfCeilWithOffset    { get; set; }
+        public Vector3              CenterOfCeilWithOffsetOrig { get; set; }
         public Vector3              CenterOfCeilWithoutOffset { get; set; }
         public Vector3              CenterOfBaseWithOffset    { get; set; }
         public Vector3              CenterOfBaseWithoutOffset { get; set; }
@@ -152,6 +154,7 @@ namespace Manhattanville
             MaxPointWithOffset = max;
             CenterOfCeilWithOffset = centerCeil;
             CenterOfBaseWithOffset = centerBase;
+            CenterOfCeilWithOffsetOrig = centerCeil;
 
             calcModelCoordinatesHelper(false, out store, out min, out max, out centerCeil, out centerBase);
 
@@ -170,11 +173,11 @@ namespace Manhattanville
             Vector3 t = CenterOfBaseWithoutOffset;// CenterOfCeilWithoutOffset;
             Vector3 result = Vector3.Transform(t, this.MarkerTransform);
 
-            Log.Write("------------------------------------");
-            Log.Write("t =" + t.ToString());
-            Log.Write("CenterOfBaseWithOffset =" + CenterOfBaseWithOffset.ToString());
-            Log.Write("result =" + result.ToString());
-            Log.Write("------------------------------------");
+            //Log.Write("------------------------------------");
+            //Log.Write("t =" + t.ToString());
+            //Log.Write("CenterOfBaseWithOffset =" + CenterOfBaseWithOffset.ToString());
+            //Log.Write("result =" + result.ToString());
+            //Log.Write("------------------------------------");
             // Applies the combined matrix to CenterOfBase to get the true world
             // location of CenterOfBase
             return result;

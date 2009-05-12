@@ -16,6 +16,7 @@ namespace Manhattanville
         private static float airRights;
         private static float oldAirRights;
         private static int stories;
+        private static Vector3 centerOfCeilWithOffset; 
 
         public static void initialize(Manhattanville m, GraphicsDeviceManager g)
         {
@@ -23,14 +24,19 @@ namespace Manhattanville
             graphics = g;
         }
 
-        public static void grabHandle()
+        public static bool grabHandle()
         {
+            if (app.selectedHandle == null) return false;
+ 
             initialScale = app.selectedBuilding.EditBuildingTransform.Scale;
             airRights = app.selectedBuilding.EditBuildingTransform.ModelBuilding.Lot.airRights;
             oldAirRights = app.selectedBuilding.EditBuildingTransform.ModelBuilding.Lot.previousAirRights;
             stories = app.selectedBuilding.EditBuildingTransform.Stories;
+            centerOfCeilWithOffset = app.selectedBuilding.CenterOfCeilWithOffset;
             GoblinXNA.UI.Notifier.AddMessage("Grabbing " + app.selectedHandle.Name);
             startingLocation = app.getWandLocation();
+
+            return true;
         }
 
         public static void accept()
@@ -44,16 +50,19 @@ namespace Manhattanville
             app.selectedBuilding.EditBuildingTransform.ModelBuilding.Lot.airRights = airRights;
             app.selectedBuilding.EditBuildingTransform.ModelBuilding.Lot.previousAirRights = oldAirRights;
             app.selectedBuilding.EditBuildingTransform.Stories = stories;
+            app.selectedBuilding.CenterOfCeilWithOffset = centerOfCeilWithOffset;
             app.selectedBuilding.EditBuildingTransform.Scale = initialScale;
             app.selectedBuilding.EditBuildingTransform.broadcast();
         }
 
-        public static void releaseHandle()
+        public static bool releaseHandle()
         {
-            if (app.selectedHandle != null)
-            {
+            if (app.selectedHandle == null)
+                return false;
+            else
                 GoblinXNA.UI.Notifier.AddMessage("Releasing " + app.selectedHandle.Name);
-            }
+
+            return true;
         }
 
         public static Vector3 calcDelta()
@@ -105,23 +114,32 @@ namespace Manhattanville
             }
 
             Vector3 scaleVector = app.selectedBuilding.EditBuildingTransform.Scale;
+            Vector3 ceilVector = app.selectedBuilding.CenterOfCeilWithOffset;
 
             if (currStories != 0)
             {
                 heightRatio = (float)newStories / (float)currStories;
 
                 scaleVector.Z = scaleVector.Z * heightRatio;
+                ceilVector.Z = ceilVector.Z * heightRatio;
+                Log.Write("ceilVector.Z=" + ceilVector.Z + " heightRatio=" + heightRatio);
             }
             else
             {
                 heightRatio = (float)newStories / (float)app.selectedBuilding.Lot.stories;
-
                 scaleVector.Z = heightRatio * app.scale;
+                ceilVector = app.selectedBuilding.CenterOfCeilWithOffsetOrig;
             }
 
             app.selectedBuilding.Lot.airRights -= (floors * app.selectedBuilding.Lot.footprint);
 
             app.selectedBuilding.EditBuildingTransform.Scale = scaleVector;
+
+            //Log.Write("CenterOfCeilWithOffset="+Vector3.Transform(app.selectedBuilding.CenterOfCeilWithOffset, app.selectedBuilding.EditBuildingTransform.WorldTransformation).ToString());
+            
+            //app.selectedBuilding.EditBuildingTransform.Translation = new Vector3(0f, 40f, 5f) + 
+            
+            app.selectedBuilding.CenterOfCeilWithOffset = ceilVector;
             app.selectedBuilding.EditBuildingTransform.broadcast();
             app.selectedBuilding.Stories = newStories;
 

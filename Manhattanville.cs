@@ -61,7 +61,7 @@ namespace Manhattanville
         Lot selectedLot;
         MarkerNode toolMarkerNode;
         Tool tool;
-        TransformNode parentTrans, parentTransEditable, handleTrans;
+        TransformNode parentTrans, parentTransEditable, handleTrans, editTrans;
         TransformNode parentTransBigOne, bigOneRotations, bigOneTranslations;
         //AirRightsNode airRightsNode;
         //AirRightsTransform airRightsTransformNode;
@@ -200,7 +200,7 @@ namespace Manhattanville
             editMaterial.SpecularPower = 3f;
             editArea.Material = editMaterial;
 
-            TransformNode editTrans = new TransformNode(new Vector3(0f, 40f, 5f));
+            editTrans = new TransformNode(new Vector3(0f, 40f, 5f));
             editTrans.AddChild(editArea);
             groundMarkerNode.AddChild(editTrans);
 
@@ -264,6 +264,9 @@ namespace Manhattanville
             AppStateMgr.enter(AppState.Browse);
 
             ModificationManager.initialize(this, graphics);
+
+            bigOneTranslations.AddChild(buildings[3].RealBuildingTransform);
+            //bigOneTranslations.Translation = Vector3.UnitZ * -50;
 
             loadData();
             base.Initialize();
@@ -367,10 +370,10 @@ DataRepresentation(graphics.GraphicsDevice, font, color);
             bigOne = new MarkerNode(scene.MarkerTracker, "bigone");
             scene.RootNode.AddChild(bigOne);
 
-            bigOne.Optimize = Settings.BigOneOptimize;
+            bigOne.Optimize = true; // Settings.BigOneOptimize;
             bigOne.MaxDropouts = Settings.BigOneMaxDropouts;
 
-            //bigOne.AddChild(Utilities.debugSphere(3));
+            //bigOne.AddChild(Utilities.debugSphere(1000));
 
             // Display the camera image in the background
             scene.ShowCameraImage = true;
@@ -691,18 +694,18 @@ DataRepresentation(graphics.GraphicsDevice, font, color);
                 /*****  BIG ONE TRANSFORMATIONS  *****/
                 /*************************************/
 
-                bigOneRotations = new TransformNode();
+                //bigOneRotations = new TransformNode();
                 bigOneTranslations = new TransformNode();
 
-                bigOneRotations.AddChild(parentTransBigOne);   // marker <- translations <- rotations <- parent
-                bigOneTranslations.AddChild(bigOneRotations);
+                //bigOneRotations.AddChild(parentTransBigOne);   // marker <- translations <- rotations <- parent
+                //bigOneTranslations.AddChild(bigOneRotations);
                 bigOne.AddChild(bigOneTranslations);
 
                 //bigOneTranslations.Translation = new Vector3(-13156, 93713, -58921);
-                bigOneTranslations.Scale = new Vector3(200, 200, 200);
+                //bigOneTranslations.Scale = new Vector3(200, 200, 200);
 
-                bigOneRotations.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitY, MathHelper.ToRadians(90))
-                    * Quaternion.CreateFromAxisAngle(Vector3.UnitZ, MathHelper.ToRadians(90));
+                //bigOneRotations.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitY, MathHelper.ToRadians(90))
+                //    * Quaternion.CreateFromAxisAngle(Vector3.UnitZ, MathHelper.ToRadians(90));
 
                 while (!sr.EndOfStream)
                 {
@@ -721,7 +724,7 @@ DataRepresentation(graphics.GraphicsDevice, font, color);
                         Lot lot = new Lot(chunks);
                         Building building = new Building( address );
                         Building editableBuilding = new Building( address + "_edit" );
-                        Building realBuilding = new Building( address + "_real" );
+                        Building realBuilding = new Building( "Real_" + address);
                         lot.addBuilding(building);
                         building.Lot = lot;
                         building.Model = (Model)loader.Load("", "Plain/" + address);
@@ -733,9 +736,10 @@ DataRepresentation(graphics.GraphicsDevice, font, color);
                         editableBuilding.Physics.Shape = ShapeType.Box;
 						editableBuilding.Model.OffsetToOrigin = true;
 
-                        realBuilding.Model = (Model)loader.Load("", "Plain/" + address);
-                        realBuilding.AddToPhysicsEngine = true;
-                        realBuilding.Physics.Shape = ShapeType.Box;
+                        //realBuilding.Model = (Model)loader.Load("", "Plain/" + address);
+                        realBuilding.Model = new Box(100);
+                        //realBuilding.AddToPhysicsEngine = true;
+                        //realBuilding.Physics.Shape = ShapeType.Box;
                         //realBuilding.Model.OffsetToOrigin = true;
 
                         AirRightsNode airRightsNode = new AirRightsNode(address + "_air_rights", building);
@@ -769,18 +773,22 @@ DataRepresentation(graphics.GraphicsDevice, font, color);
                         transNode.Scale = Vector3.One * scale;
 
                         BuildingTransform editableBuildingTransformNode = new BuildingTransform(building, Settings.EditableScale);
-                        editableBuildingTransformNode.Translation = new Vector3(x, y, z * factor);
+                        //editableBuildingTransformNode.Translation = new Vector3(x, y, z * factor);
                         editableBuildingTransformNode.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ,
                             (float)(zRot * Math.PI / 180)) * Quaternion.CreateFromAxisAngle(Vector3.UnitX,
                             MathHelper.PiOver2);
                         editableBuildingTransformNode.Scale = Vector3.One * scale * Settings.EditableScale;
 
-                        BuildingTransform realBuildingTransformNode = new BuildingTransform(building, Settings.RealScale);
+                        BuildingTransform realBuildingTransformNode = new BuildingTransform(building, 1);
+                        realBuildingTransformNode.Translation = Vector3.UnitZ * -50;
+                        /*
                         realBuildingTransformNode.Translation = new Vector3(x, y, z * factor);
                         realBuildingTransformNode.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ,
                             (float)(zRot * Math.PI / 180)) * Quaternion.CreateFromAxisAngle(Vector3.UnitX,
                             MathHelper.PiOver2);
                         realBuildingTransformNode.Scale = Vector3.One * scale;// *new Vector3(Settings.RealScale);
+                        */
+                        realBuildingTransformNode.real = true;
 
                         AirRightsTransform airRightsTransformNode = new AirRightsTransform(building);
                         airRightsTransformNode.Translation = new Vector3(graphNodeXOffset, graphNodeYOffset, 0);
@@ -788,6 +796,7 @@ DataRepresentation(graphics.GraphicsDevice, font, color);
                         editableBuildingTransformNode.addObserver(transNode);
                         editableBuildingTransformNode.addObserver(realBuildingTransformNode);
                         editableBuildingTransformNode.addObserver(airRightsTransformNode);
+                        editableBuildingTransformNode.addObserver(realBuildingTransformNode);
 
                         Material buildingMaterial = new Material();
                         buildingMaterial.Diffuse = Color.White.ToVector4();
@@ -814,6 +823,7 @@ DataRepresentation(graphics.GraphicsDevice, font, color);
                         building.EditBuildingTransform = editableBuildingTransformNode;
                         editableBuilding.TransformNode = editableBuildingTransformNode;
                         building.AirRightsTransformNode = airRightsTransformNode;
+                        building.RealBuildingTransform = realBuildingTransformNode;
 
                         ///////////// ADD CHILDREN TO PARENT NODES, WHICH WERE ALREADY ADDED TO GROUND
 
@@ -821,13 +831,15 @@ DataRepresentation(graphics.GraphicsDevice, font, color);
                         //parentTrans.AddChild(editableBuildingTransformNode);
                         lot.transformNode = transNode;
 
-                        parentTransBigOne.AddChild(realBuildingTransformNode);
-                        realBuildingTransformNode.AddChild(realBuilding);
+                        //parentTransBigOne.AddChild(realBuildingTransformNode);
+                        //realBuildingTransformNode.AddChild(realBuilding);
 
                         transNode.AddChild(building);
 
                         editableBuildingTransformNode.ModelBuilding = building;
                         editableBuildingTransformNode.AddChild(editableBuilding);
+
+                        realBuildingTransformNode.AddChild(realBuilding);
 
                         airRightsGraph.AddChild(airRightsTransformNode);
                         //Log.Write(airRightsNode.Name + " airRightsNode was loaded.");
@@ -1313,11 +1325,17 @@ DataRepresentation(graphics.GraphicsDevice, font, color);
                 Handle h = new Handle(locationItem, "Handle" + (int)locationItem, handleMaterial);
                 handles.Add(h);
                 handleTrans.AddChild(h);
-                h.Enabled = AppStateMgr.handlesEnabled;
+                h.Enabled = (AppStateMgr.handlesEnabled && (h.Loc == Handle.Location.Top));
             }
-
+            
             foreach (Building b in buildings)
             {
+                foreach (Handle h in handles)
+                {
+                    b.EditBuildingTransform.addObserver(h);
+                }
+                
+                /*
                 Material handleMaterial = new Material();
                 handleMaterial.Specular = Color.White.ToVector4();
                 handleMaterial.Diffuse = Color.DarkBlue.ToVector4();
@@ -1328,15 +1346,16 @@ DataRepresentation(graphics.GraphicsDevice, font, color);
                 h.Translation = b.CenterOfCeilWithoutOffset;// +new Vector3(-3.326081f, 19.7829f, 0f);
                 groundMarkerNode.AddChild(h);
                 GoblinXNA.UI.Notifier.AddMessage(b.CenterOfBaseWithoutOffset.ToString());
+                 */
             }
-
+            
         }
 
         public void toggleHandles()
         {
             foreach (Handle h in handles)
             {
-                h.Enabled = AppStateMgr.handlesEnabled;
+                h.Enabled = (AppStateMgr.handlesEnabled && (h.Loc == Handle.Location.Top));
             }
             
         }
