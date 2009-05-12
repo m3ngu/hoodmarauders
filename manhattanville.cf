@@ -726,3 +726,118 @@ min_points=4
 //    /marker
 
 // /coordframe
+
+
+coordframe
+name="bigone"
+min_points=4
+
+	marker
+	id=540
+	//-list of corners cw from top left
+		vtx=-19.14286,-13.64286,0	//upper left
+		vtx=-19.14286,-6.5,0	//upper right
+		vtx=-12,-6.5,0	//lower right
+		vtx=-12,-13.64286,0	//lower left
+	/marker
+
+	marker
+	id=929
+	//-list of corners cw from top left
+		vtx=-19.14286,-3.642857,0	//upper left
+		vtx=-19.14286,3.5,0	//upper right
+		vtx=-12,3.5,0	//lower right
+		vtx=-12,-3.642857,0	//lower left
+	/marker
+
+	marker
+	id=26
+	//-list of corners cw from top left
+		vtx=-19.14286,6.357143,0	//upper left
+		vtx=-19.14286,13.5,0	//upper right
+		vtx=-12,13.5,0	//lower right
+		vtx=-12,6.357143,0	//lower left
+	/marker
+
+	marker
+	id=30
+	//-list of corners cw from top left
+		vtx=-9.142858,-13.64286,0	//upper left
+		vtx=-9.142858,-6.5,0	//upper right
+		vtx=-2,-6.5,0	//lower right
+		vtx=-2,-13.64286,0	//lower left
+	/marker
+
+	marker
+	id=148
+	//-list of corners cw from top left
+		vtx=-9.142858,-3.642857,0	//upper left
+		vtx=-9.142858,3.5,0	//upper right
+		vtx=-2,3.5,0	//lower right
+		vtx=-2,-3.642857,0	//lower left
+	/marker
+
+	marker
+	id=158
+	//-list of corners cw from top left
+		vtx=-9.142858,6.357143,0	//upper left
+		vtx=-9.142858,13.5,0	//upper right
+		vtx=-2,13.5,0	//lower right
+		vtx=-2,6.357143,0	//lower left
+	/marker
+
+	marker
+	id=252
+	//-list of corners cw from top left
+		vtx=0.8571429,-13.64286,0	//upper left
+		vtx=0.8571429,-6.5,0	//upper right
+		vtx=8,-6.5,0	//lower right
+		vtx=8,-13.64286,0	//lower left
+	/marker
+
+	marker
+	id=268
+	//-list of corners cw from top left
+		vtx=0.8571429,-3.642857,0	//upper left
+		vtx=0.8571429,3.5,0	//upper right
+		vtx=8,3.5,0	//lower right
+		vtx=8,-3.642857,0	//lower left
+	/marker
+
+	marker
+	id=673
+	//-list of corners cw from top left
+		vtx=0.8571429,6.357143,0	//upper left
+		vtx=0.8571429,13.5,0	//upper right
+		vtx=8,13.5,0	//lower right
+		vtx=8,6.357143,0	//lower left
+	/marker
+
+	marker
+	id=740
+	//-list of corners cw from top left
+		vtx=10.85714,-13.64286,0	//upper left
+		vtx=10.85714,-6.5,0	//upper right
+		vtx=18,-6.5,0	//lower right
+		vtx=18,-13.64286,0	//lower left
+	/marker
+
+	marker
+	id=838
+	//-list of corners cw from top left
+		vtx=10.85714,-3.642857,0	//upper left
+		vtx=10.85714,3.5,0	//upper right
+		vtx=18,3.5,0	//lower right
+		vtx=18,-3.642857,0	//lower left
+	/marker
+
+	marker
+	id=954
+	//-list of corners cw from top left
+		vtx=10.85714,6.357143,0	//upper left
+		vtx=10.85714,13.5,0	//upper right
+		vtx=18,13.5,0	//lower right
+		vtx=18,6.357143,0	//lower left
+	/marker
+
+/coordframe

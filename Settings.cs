@@ -30,6 +30,8 @@ namespace Manhattanville
         public static int           ToolMaxDropouts     { get; set; }
         public static float         ToolSmoother        { get; set; }
         public static String        ToolTagName         { get; set; }
+        public static bool          BigOneOptimize      { get; set; }
+        public static int           BigOneMaxDropouts   { get; set; }
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // Building Scales
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -69,6 +71,8 @@ namespace Manhattanville
             ToolOptimize = bool.Parse(State.GetSettingVariable("ToolOptimize"));
             ToolSmoother = float.Parse(State.GetSettingVariable("ToolSmoother"));
             ToolTagName = State.GetSettingVariable("ToolTagName");
+            BigOneOptimize = bool.Parse(State.GetSettingVariable("BigOneOptimize"));
+            BigOneMaxDropouts = int.Parse(State.GetSettingVariable("BigOneMaxDropouts"));
 
             EditableScale = float.Parse(State.GetSettingVariable("EditableScale"));
             RealScale = float.Parse(State.GetSettingVariable("RealScale"));
