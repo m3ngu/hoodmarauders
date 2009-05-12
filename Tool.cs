@@ -22,14 +22,14 @@ namespace Manhattanville
         {
             Material mat = new Material();
             mat.Specular = Color.White.ToVector4();
-            mat.Diffuse = Color.Red.ToVector4();
+            mat.Diffuse = Color.Purple.ToVector4();
             mat.SpecularPower = 10;
 
             GeometryNode toolGeoNode0 = new GeometryNode("Tool0");
             toolGeoNode0.Model = new Box(5, 5, 0.1f);
             toolGeoNode0.Material = mat;
             TransformNode toolTransNode0 = new TransformNode(
-                new Vector3(0, 0, 0), // Translation
+                new Vector3(-7.5f, 0, 0), // Translation
                 Quaternion.CreateFromAxisAngle(Vector3.UnitZ, MathHelper.ToRadians(45)) // Rotation
                 );
             toolTransNode0.AddChild(toolGeoNode0);

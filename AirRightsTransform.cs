@@ -44,9 +44,6 @@ namespace Manhattanville
             this.initialModelFootprint = this.ModelBuilding.Lot.footprint * Settings.AirAdjustment;
             this.Footprint = this.initialModelFootprint;
             this.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitX, MathHelper.ToRadians(90));
-            //this.Rotation = new Quaternion(MathHelper.ToRadians(90), 0, 0, 1);
-            //this.Rotation = Quaternion.CreateFromAxisAngle(new Vector3(1,0,0),(float)MathHelper.ToRadians(90));
-            //Console.WriteLine("airrights column = "+this.Rotation.ToString());
 
             redmat = new Material();
             redmat.Diffuse = new Vector4(.5f * 255, .5f * 0, .5f * 0, 0.5f);
@@ -107,5 +104,4 @@ namespace Manhattanville
             //this.Scale = bt.Scale * this.scaleRatioToEditable;// new Vector3(this.Scale.X, b.Scale.Y * this.scaleRatioToEditable, this.Scale.Z);//.Y * this.scaleRatioToEditable;
         }
     }
-
 }
