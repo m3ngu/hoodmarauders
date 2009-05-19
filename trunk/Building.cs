@@ -77,11 +77,11 @@ namespace Manhattanville
             Matrix transformation, finalRotation;
             transformation = finalRotation = Matrix.Identity;
 
-            transformation = 
-                  Matrix.CreateFromQuaternion(this.TransformNode.Rotation)  // This flips the Y and Z axes
-                * Matrix.CreateScale(this.TransformNode.Scale);   // This scaled the model from 1000s to 10s of pixels
+            transformation =
+                  Matrix.CreateFromQuaternion(Quaternion.CreateFromAxisAngle(Vector3.UnitX, MathHelper.PiOver2))  // This flips the Y and Z axes
+                * Matrix.CreateScale(Vector3.One * 0.00728f);   // This scaled the model from 1000s to 10s of pixels
 
-            transformation.Translation = this.TransformNode.Translation;  // This is the small adjustment in the Z direction
+            //transformation.Translation = this.TransformNode.Translation;  // This is the small adjustment in the Z direction
 
             finalRotation = Matrix.CreateFromQuaternion(
                 Quaternion.CreateFromAxisAngle(Vector3.UnitZ, 119 * MathHelper.Pi / 180));  // This rotates around the Z axis
@@ -149,12 +149,16 @@ namespace Manhattanville
 
             calcModelCoordinatesHelper(true, out store, out min, out max, out centerCeil, out centerBase);
 
+            // Bring the bottom of model to 0,0,0
+            Vector3 minAdj = Vector3.Zero;
+            minAdj.Z = min.Z;
+
             CompTransWithOffset = store;
-            MinPointWithOffset = min;
-            MaxPointWithOffset = max;
-            CenterOfCeilWithOffset = centerCeil;
-            CenterOfBaseWithOffset = centerBase;
-            CenterOfCeilWithOffsetOrig = centerCeil;
+            MinPointWithOffset = min - minAdj;
+            MaxPointWithOffset = max - minAdj;
+            CenterOfCeilWithOffset = centerCeil - minAdj;
+            CenterOfBaseWithOffset = centerBase - minAdj;
+            CenterOfCeilWithOffsetOrig = CenterOfCeilWithOffset;
 
             calcModelCoordinatesHelper(false, out store, out min, out max, out centerCeil, out centerBase);
 

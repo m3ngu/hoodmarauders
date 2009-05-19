@@ -70,5 +70,11 @@ namespace Manhattanville
             }
             
         }
+
+        public Vector3 getLocation()
+        {
+            Matrix t = this.GeoNode.WorldTransformation * this.GeoNode.MarkerTransform;
+            return t.Translation;
+        }
     }
 }

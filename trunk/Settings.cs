@@ -51,6 +51,7 @@ namespace Manhattanville
         public static float VotesForChangingSelectedBuilding { get; set; }
         public static float MinGestureDistance               { get; set; }
         public static double MinTimeBetweenMenuSelections    { get; set; }
+        public static int    UpdateFreq                      { get; set; }
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // Miscellanous
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -92,6 +93,7 @@ namespace Manhattanville
             VotesForChangingSelectedBuilding = float.Parse(State.GetSettingVariable("VotesForChangingSelectedBuilding"));
             MinGestureDistance = float.Parse(State.GetSettingVariable("MinGestureDistance"));
             MinTimeBetweenMenuSelections = double.Parse(State.GetSettingVariable("MinTimeBetweenMenuSelections"));
+            UpdateFreq = int.Parse(State.GetSettingVariable("UpdateFreq"));
 
             BuildingsDetailed = bool.Parse(State.GetSettingVariable("BuildingsDetailed"));
             BuildingsSubset = bool.Parse(State.GetSettingVariable("BuildingsSubset"));
