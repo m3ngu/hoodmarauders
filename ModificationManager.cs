@@ -12,11 +12,16 @@ namespace Manhattanville
         private static Manhattanville app;
         private static GraphicsDeviceManager graphics;
         private static Vector3 startingLocation = Vector3.Zero;
+        private static Vector3 currentLocation = Vector3.Zero;
+        private static Vector3 previousLocation = Vector3.Zero;
+        private static double distanceCovered = 0.0;
         private static Vector3 initialScale;
         private static float airRights;
         private static float oldAirRights;
         private static int stories;
-        private static Vector3 centerOfCeilWithOffset; 
+        private static Vector3 centerOfCeilWithOffset;
+        private static bool lastUp = true;
+        private static int directionChangeCounter = 0;
 
         public static void initialize(Manhattanville m, GraphicsDeviceManager g)
         {
@@ -34,7 +39,7 @@ namespace Manhattanville
             stories = app.selectedBuilding.EditBuildingTransform.Stories;
             centerOfCeilWithOffset = app.selectedBuilding.CenterOfCeilWithOffset;
             GoblinXNA.UI.Notifier.AddMessage("Grabbing " + app.selectedHandle.Name);
-            startingLocation = app.getWandLocation();
+            startingLocation = currentLocation = previousLocation = app.getWandLocation();
 
             return true;
         }
@@ -72,9 +77,67 @@ namespace Manhattanville
 
         public static void processWandMovement()
         {
+            previousLocation = currentLocation;
+            currentLocation = app.getWandLocation();
+
             switch (app.selectedHandle.Loc)
             {
                 case Handle.Location.Top:
+                    
+                    bool up = (currentLocation.Z - app.selectedHandle.getLocation().Z) > 3;
+
+                    if (up != lastUp)
+                    {
+                        directionChangeCounter++;
+
+                        if (directionChangeCounter < 5) return;
+
+                        directionChangeCounter = 0;
+                        distanceCovered = 0;
+                        lastUp = up;
+
+                        if (up)
+                        {
+                            GoblinXNA.UI.Notifier.AddMessage("Keep waving wand UPWARD ABOVE the handle to ADD a floor");
+                        }
+                        else
+                        {
+                            GoblinXNA.UI.Notifier.AddMessage("Keep waving wand DOWNWARD BELOW the handle to REMOVE a floor");
+                        }
+                    }
+
+                    double d = currentLocation.Z - previousLocation.Z;
+
+                    if (up)
+                    {
+                        // Up
+                        if (d > 0)
+                        {
+                            distanceCovered += d;
+                            if (distanceCovered > Settings.WandMovementThreshold)
+                            {
+                                addFloor(1);
+                                distanceCovered = 0;
+                            }
+                            //GoblinXNA.UI.Notifier.AddMessage("UP, distanceCovered=" + distanceCovered);
+                        }
+                    }
+                    else
+                    {
+                        // Down
+                        if (d < 0)
+                        {
+                            distanceCovered += (-d);
+                            if (distanceCovered > Settings.WandMovementThreshold)
+                            {
+                                addFloor(-1);
+                                distanceCovered = 0;
+                            }
+                            //GoblinXNA.UI.Notifier.AddMessage("DOWN, distanceCovered=" + distanceCovered);
+                        }
+                    }
+                    
+                    /*
                     if (calcDelta().Z > Settings.WandMovementThreshold)
                     {
                         addFloor(1);
@@ -85,6 +148,7 @@ namespace Manhattanville
                         addFloor(-1);
                         startingLocation = app.getWandLocation();
                     }
+                    */
                     break;
                 case Handle.Location.BottomNE:
                     break;
@@ -127,8 +191,8 @@ namespace Manhattanville
             else
             {
                 heightRatio = (float)newStories / (float)app.selectedBuilding.Lot.stories;
-                scaleVector.Z = heightRatio * app.scale;
-                ceilVector = app.selectedBuilding.CenterOfCeilWithOffsetOrig;
+                scaleVector.Z = heightRatio;// *app.scale;
+                ceilVector = app.selectedBuilding.CenterOfCeilWithOffsetOrig * heightRatio;
             }
 
             app.selectedBuilding.Lot.airRights -= (floors * app.selectedBuilding.Lot.footprint);

@@ -39,7 +39,7 @@ namespace Manhattanville
         private Material greenmat;
         private Material redmat;
 
-        public AirRightsTransform( Building b ) : base() {
+        public AirRightsTransform( Building b ) : base(b.Name + "_AirRightsTransform") {
             this.ModelBuilding = b;
             this.initialModelFootprint = this.ModelBuilding.Lot.footprint * Settings.AirAdjustment;
             this.Footprint = this.initialModelFootprint;

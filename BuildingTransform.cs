@@ -39,21 +39,26 @@ namespace Manhattanville
         //public Vector3 OriginalScale { get; set; }
         public float MaxXScale { get; set; }
         public float MaxYScale { get; set; }
+        public Vector3 origScale { get; set; }
         private List<IObservingTransform> observers = new List<IObservingTransform>();
         private float scaleRatioToEditable;
         public Building ModelBuilding { get; set; }
         public bool real = false;
 
-        public BuildingTransform() : base() {
+        public BuildingTransform(String name)
+            : base(name)
+        {
+            origScale = Vector3.One;
         }
-        
-        public BuildingTransform(Building modelbuilding, float multiplierRatio)
-            : base()
+
+        public BuildingTransform(String name, Building modelbuilding, float multiplierRatio)
+            : base(name)
         {
             this.ModelBuilding = modelbuilding;
             this.scaleRatioToEditable = multiplierRatio;
             this.MaxXScale = this.Scale.X;
             this.MaxYScale = this.Scale.Y;
+            origScale = Vector3.One;
         }
 
         public BuildingTransform(String name, Vector3 translation, Quaternion rotation, Vector3 scaling, float multiplierRatio)
@@ -62,6 +67,7 @@ namespace Manhattanville
             this.scaleRatioToEditable = multiplierRatio;
             this.MaxXScale = this.Scale.X;
             this.MaxYScale = this.Scale.Y;
+            origScale = scaling;
         }
 
         public void addObserver(IObservingTransform b)
@@ -90,7 +96,12 @@ namespace Manhattanville
             }
             else
             {
-                this.Scale = bt.Scale * this.scaleRatioToEditable;// new Vector3(this.Scale.X, b.Scale.Y * this.scaleRatioToEditable, this.Scale.Z);//.Y * this.scaleRatioToEditable;
+                //this.Scale = bt.Scale * this.scaleRatioToEditable;// new Vector3(this.Scale.X, b.Scale.Y * this.scaleRatioToEditable, this.Scale.Z);//.Y * this.scaleRatioToEditable;
+                this.Scale = new Vector3(
+                    this.origScale.X * bt.Scale.X,
+                    this.origScale.Y * bt.Scale.Y,
+                    this.origScale.Z * bt.Scale.Z
+                    );
             }
         }
     }

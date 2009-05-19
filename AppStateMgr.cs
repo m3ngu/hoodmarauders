@@ -15,7 +15,8 @@ namespace Manhattanville
     {
         Browse = 0,
         Edit = 1,
-        Info = 2
+        Handle = 2,
+        Info = 3
     }
 
     class AppStateMgr
@@ -46,6 +47,7 @@ namespace Manhattanville
             icons = new List<Texture2D>(Enum.GetNames(typeof(AppState)).Length);
             icons.Insert((int)AppState.Browse, app.Content.Load<Texture2D>("Icons\\browse"));
             icons.Insert((int)AppState.Edit, app.Content.Load<Texture2D>("Icons\\edit"));
+            icons.Insert((int)AppState.Handle, app.Content.Load<Texture2D>("Icons\\grab"));
             icons.Insert((int)AppState.Info, app.Content.Load<Texture2D>("Icons\\info"));
 
             iconPlaceHolder = new Rectangle(
@@ -92,6 +94,15 @@ namespace Manhattanville
                     app.toggleHandles();
                    
                     break;
+                case AppState.Handle:
+                    /* -----------HANDLE----------*/
+                    showIcon = true;
+                    handlesEnabled = true;
+
+                    ModificationManager.grabHandle();
+                    handleGrabbed = true;
+
+                    break;
                 case AppState.Info:
                     /* -----------INFO----------*/
                     showIcon = true;
@@ -124,6 +135,13 @@ namespace Manhattanville
                     /* -----------EDIT----------*/
 
 
+
+
+                    break;
+                case AppState.Handle:
+                    /* ----------HANDLE----------*/
+
+                    handleGrabbed = false;
 
 
                     break;
@@ -163,8 +181,7 @@ namespace Manhattanville
 
             menus[i].Add(new PieMenuNode("Browse",
                app.Content.Load<Texture2D>("Icons\\blank"),
-               new SimpleDelegate(MenuAction),
-               AppState.Browse));  // Placeholder
+               null));  // Placeholder
 
             menus[i].Add(new PieMenuNode("Edit",
                app.Content.Load<Texture2D>("Icons\\edit"),
@@ -185,14 +202,38 @@ namespace Manhattanville
             /*********************************************************************/
             menus.Add(new PieMenuNode());
 
+            menus[i].Add(new PieMenuNode("Browse",
+                app.Content.Load<Texture2D>("Icons\\browse"),
+                new SimpleDelegate(MenuAction),
+                AppState.Browse));
+
             menus[i].Add(new PieMenuNode("Grab",
                 app.Content.Load<Texture2D>("Icons\\grab"),
-                new SimpleDelegate(MenuAction)));
+                new SimpleDelegate(MenuAction),
+                AppState.Handle));
+
+            menus[i].Add(new PieMenuNode("Cancel",
+                app.Content.Load<Texture2D>("Icons\\cancel"),
+                null));
+
+            menus[i].Add(new PieMenuNode("Info",
+                app.Content.Load<Texture2D>("Icons\\info"),
+                new SimpleDelegate(MenuAction),
+                AppState.Info));
+            
+            /*********************************************************************/
+            i = (int)AppState.Handle;
+            /*********************************************************************/
+            menus.Add(new PieMenuNode());
+
+            menus[i].Add(new PieMenuNode("Grab",
+                app.Content.Load<Texture2D>("Icons\\blank"),
+                null));
 
             menus[i].Add(new PieMenuNode("Accept",
                 app.Content.Load<Texture2D>("Icons\\accept"),
                 new SimpleDelegate(MenuAction),
-                AppState.Browse));
+                AppState.Edit));
 
             menus[i].Add(new PieMenuNode("Cancel",
                 app.Content.Load<Texture2D>("Icons\\cancel"),
@@ -201,7 +242,7 @@ namespace Manhattanville
             menus[i].Add(new PieMenuNode("Reject",
                 app.Content.Load<Texture2D>("Icons\\reject"),
                 new SimpleDelegate(MenuAction),
-                AppState.Browse));
+                AppState.Edit));
             /*********************************************************************/
             i = (int)AppState.Info;
             /*********************************************************************/
@@ -234,42 +275,20 @@ namespace Manhattanville
 
             GoblinXNA.UI.Notifier.AddMessage(sndr.Text + " Selected!");
 
-            if (sndr.Text.Equals("Grab"))
-            {
-                if (ModificationManager.grabHandle())
-                {
-                    handleGrabbed = true;
-                    sndr.Text = "Release";
-                }
-            }
-            else if (sndr.Text.Equals("Release"))
-            {
-                if (ModificationManager.releaseHandle())
-                {
-                    handleGrabbed = false;
-                    sndr.Text = "Grab";
-                }
-            }
-            else if (sndr.Text.Equals("Accept"))
-            {
-                //TODO: Accept
-                ModificationManager.accept();
-                handleGrabbed = false;
-                enter(AppState.Browse);
-            }
-            else if (sndr.Text.Equals("Reject"))
-            {
-                //TODO: Reject
-                ModificationManager.reject();
-                handleGrabbed = false;
-                enter(AppState.Browse);
-            }
-            else if ((sndr.State == AppState.Edit) && (!app.buildingSelected()))
+            if ((sndr.State == AppState.Edit) && (!app.buildingSelected()))
             {
                 GoblinXNA.UI.Notifier.AddMessage("ERROR: Please select a building before selecting the edit menu!");
             }
             else
             {
+                if (sndr.Text.Equals("Accept"))
+                {
+                    ModificationManager.accept();
+                }
+                else if (sndr.Text.Equals("Reject"))
+                {
+                    ModificationManager.reject();
+                }
                 enter(sndr.State);
             }
             

@@ -12,6 +12,9 @@ using Microsoft.Xna.Framework.Net;
 using Microsoft.Xna.Framework.Storage;
 
 
+// Adapted to be compatible with GoblinXNA from an XNA pie menu implementation
+// by Catalin Zima  http://www.catalinzima.com/?page_id=15
+
 namespace Manhattanville.PieMenu
 {
     /// <summary>
