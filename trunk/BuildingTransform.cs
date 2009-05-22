@@ -44,6 +44,7 @@ namespace Manhattanville
         private float scaleRatioToEditable;
         public Building ModelBuilding { get; set; }
         public bool real = false;
+        public float zOffset { get; set; }
 
         public BuildingTransform(String name)
             : base(name)
@@ -102,6 +103,15 @@ namespace Manhattanville
                     this.origScale.Y * bt.Scale.Y,
                     this.origScale.Z * bt.Scale.Z
                     );
+
+                if (Settings.BuildingsDetailed)
+                {
+                    this.Translation = new Vector3(
+                        this.Translation.X * bt.Scale.X,
+                        this.Translation.Y * bt.Scale.Y,
+                        -(zOffset * (bt.Scale.Z - 1))
+                        );
+                }
             }
         }
     }

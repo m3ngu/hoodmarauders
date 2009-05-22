@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
 using GoblinXNA.Helpers;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Manhattanville
 {
@@ -207,12 +208,27 @@ namespace Manhattanville
             app.selectedBuilding.EditBuildingTransform.broadcast();
             app.selectedBuilding.Stories = newStories;
 
+            app.selectedBuilding.DataChanged = true;
+            if (AppStateMgr.inState(AppState.Info)) app.dataRepresentation.renderData(app.selectedBuilding);
+
             Log.Write("editableBuildingTransformNode.Scale="
                 + app.selectedBuilding.EditBuildingTransform.Scale.ToString() + "\n");
 
             GoblinXNA.UI.Notifier.AddMessage(
                 app.selectedBuilding.Name + " now has "
                 + app.selectedBuilding.Stories + " stories.");
+
+            Texture2D old = app.selectedBuilding.RenderedAirRights;
+
+            app.selectedBuilding.RenderedAirRights = Data.txt2Txt(
+                           app.GraphicsDevice,
+                           "   Available Air Rights: " + app.selectedBuilding.Lot.airRights.ToString("#,###"),
+                           240, 26, Manhattanville.infoFont, Manhattanville.infoColor);
+
+            app.airRightLabelGeo.Material.Texture = app.selectedBuilding.RenderedAirRights;
+
+            old.Dispose();
+        
         }
     }
 }

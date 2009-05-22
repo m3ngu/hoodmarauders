@@ -58,16 +58,18 @@ namespace Manhattanville
         MarkerNode toolMarkerNode;
         Tool tool;
         TransformNode parentTrans, parentTransEditable, handleTrans, editTrans;
+        TransformNode labelTrans, airRightLabelTrans;
         TransformNode parentTransBigOne, bigOneRotations, bigOneTranslations;
+        internal GeometryNode labelGeo, airRightLabelGeo;
         //AirRightsNode airRightsNode;
         //AirRightsTransform airRightsTransformNode;
         AirRightsGraph airRightsGraph;
-        DataRepresentation dataRepresentation;
-        Color color;
+        internal DataRepresentation dataRepresentation;
+        internal static Color infoColor;
+        internal static SpriteFont infoFont;
+        internal static Texture2D airTex;
 
         PieMenu.PieMenu menu;
-        
-        SpriteFont font;
 
         iWearTracker iTracker;
 
@@ -77,7 +79,6 @@ namespace Manhattanville
         float y_shift = -62;
         float x_shift = -28.0f;
         float factor = 135.0f / 1353;
-        internal float scale = 0.00728f;
 
         int centerX, centerY;
         SoundEffect hum;
@@ -92,10 +93,15 @@ namespace Manhattanville
         int votesForChangingSelectedBuilding = 0;
         double cumulativeTime = 0;
         double lastMenuSelectionTime = 0;
-        int updateFreq = 0;
 
         bool flag=true;
         float angle=0;
+
+        LightSource lightSource;
+
+        static internal Material editMaterial, terrainMaterial, buildingMaterial, selectedBuildingMaterial,
+            editableBuildingMaterial, realBuildingMaterial, airRightOver, airRightUnder,
+            airRightOverSelected, airRightUnderSelected;
 
         public Manhattanville()
         {
@@ -105,7 +111,10 @@ namespace Manhattanville
             //graphics.SynchronizeWithVerticalRetrace = false;
 
             // Use multi-sampling to smooth corners of objects  
-            //graphics.PreferMultiSampling = true;
+            graphics.PreferMultiSampling = true;
+            graphics.PreparingDeviceSettings += 
+                new EventHandler<PreparingDeviceSettingsEventArgs>(graphics_PreparingDeviceSettings);
+
 
             // Set the update to run as fast as it can go or  
             // with a target elapsed time between updates  
@@ -120,7 +129,7 @@ namespace Manhattanville
             //graphics.PreferredBackBufferHeight = 720;
 
             // Make full screen  
-            //graphics.ToggleFullScreen(); 
+            graphics.ToggleFullScreen(); 
 
             menu = new PieMenu.PieMenu(this);
 
@@ -149,6 +158,92 @@ namespace Manhattanville
             fs.Visible = true;
         }
 
+        private void initMaterials()
+        {
+            // Since there are not many curvy surfaces in the scene
+            // (i.e. all the buildings, markers, etc are flat surfaces)
+            // I'm commenting out the specular component of all the
+            // materials, because all they do is to make the entire surface
+            // super bright/shiny when looked at from a certain angle
+            // and not do anything else at other times.
+
+            editMaterial = new Material();
+
+            editMaterial.Diffuse = Color.White.ToVector4();
+            //editMaterial.Specular = Color.White.ToVector4();
+            //editMaterial.SpecularPower = 10;
+            editMaterial.Texture = Content.Load<Texture2D>("Textures//wood1_lbl");
+            
+            airTex = Content.Load<Texture2D>("Textures//sky3_lbl");
+
+            terrainMaterial = new Material();
+            terrainMaterial.Diffuse = Color.White.ToVector4();
+            //terrainMaterial.Specular = Color.White.ToVector4();
+            //terrainMaterial.SpecularPower = 10;
+            terrainMaterial.Texture = Content.Load<Texture2D>("Textures//Manhattanville");
+
+            buildingMaterial = new Material();
+            Color c = Color.White;
+            c.A = 128;
+            buildingMaterial.Diffuse = c.ToVector4();
+            //buildingMaterial.Specular = Color.White.ToVector4();
+            //buildingMaterial.SpecularPower = 3f;
+
+            selectedBuildingMaterial = new Material();
+            selectedBuildingMaterial.Diffuse = new Vector4(0.36f, 0.62f, 0.62f, 1);
+            //selectedBuildingMaterial.Diffuse = Color.SlateGray.ToVector4();
+            //selectedBuildingMaterial.Specular = Color.White.ToVector4();
+            //selectedBuildingMaterial.SpecularPower = 3f;
+
+            editableBuildingMaterial = new Material();
+            //Color d = Color.DarkSlateGray;
+            //d.A = 224;
+            //editableBuildingMaterial.Diffuse = d.ToVector4();
+            //editableBuildingMaterial.Diffuse = new Vector4(153, 153, 153, .7f);
+            editableBuildingMaterial.Diffuse = new Vector4(0.36f, 0.62f, 0.62f, 1);
+            //editableBuildingMaterial.Specular = Color.White.ToVector4();
+            //editableBuildingMaterial.SpecularPower = 3f;
+
+            realBuildingMaterial = new Material();
+            realBuildingMaterial.Diffuse = new Vector4(153, 153, 153, 1);
+            //realBuildingMaterial.Specular = Color.White.ToVector4();
+            //realBuildingMaterial.SpecularPower = 3f;
+
+            Color red = Color.Red;
+            Vector4 transparentRed = red.ToVector4();// *0.9f;
+            transparentRed.W = 0.5f;
+            //Log.Write("Color.Red.ToVector4()=" + Color.Red.ToVector4().ToString());
+            //Log.Write("red.ToVector4()=" + red.ToVector4().ToString());
+            //Log.Write("transparentRed=" + transparentRed.ToString());
+
+            airRightOver = new Material();
+            airRightOver.Diffuse = transparentRed;
+            airRightOver.Specular = Color.White.ToVector4();
+            airRightOver.SpecularPower = 10;
+
+            Color green = Color.Green;
+            Vector4 transparentGreen = green.ToVector4();// *0.9f;
+            transparentGreen.W = 0.5f;
+            //Log.Write("Color.Green.ToVector4()=" + Color.Green.ToVector4().ToString());
+            //Log.Write("green.ToVector4()=" + green.ToVector4().ToString());
+            //Log.Write("transparentGreen=" + transparentGreen.ToString());
+
+            airRightUnder = new Material();
+            airRightUnder.Diffuse = transparentGreen;
+            airRightUnder.Specular = Color.White.ToVector4();
+            airRightUnder.SpecularPower = 10;
+
+            airRightOverSelected = new Material();
+            airRightOverSelected.Diffuse = red.ToVector4();
+            airRightOverSelected.Specular = Color.White.ToVector4();
+            airRightOverSelected.SpecularPower = 10;
+
+            airRightUnderSelected = new Material();
+            airRightUnderSelected.Diffuse = new Vector4(0, 1, 0, 1);
+            airRightUnderSelected.Specular = Color.White.ToVector4();
+            airRightUnderSelected.SpecularPower = 10;
+        }
+
         protected override void Initialize()
         {
             // Initialize the GoblinXNA framework
@@ -170,44 +265,81 @@ namespace Manhattanville
             // Set up the lights used in the scene
             CreateLights();
 
+            initMaterials();
+
             // Create 3D terrain on top of the map layout
             CreateTerrain(factor);
 
             // EditArea
             GeometryNode editArea = new GeometryNode("EditArea");
+            /*
             editArea.Model = new Box(80f, 80f, 1f);
-
+            
             Material editMaterial = new Material();
             editMaterial.Diffuse = Color.DarkSlateBlue.ToVector4();//new Vector4(72, 61, 139, 1f);//
             editMaterial.Specular = Color.White.ToVector4();
             editMaterial.SpecularPower = 3f;
             editArea.Material = editMaterial;
+            */
+            TransformNode editBlockTrans = new TransformNode();
+
+            editBlockTrans.Name = "editBlockTrans";
+            editBlockTrans.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, (float)Math.PI / 2f);
 
             editTrans = new TransformNode(new Vector3(0f, 40f, 5f));
             editTrans.Name = "editTrans";
-            editTrans.AddChild(editArea);
+            editBlockTrans.AddChild(editArea);
+            editTrans.AddChild(editBlockTrans);
             groundMarkerNode.AddChild(editTrans);
 
-            //THE CHESSBOARD IDEA
-            //editArea.Model = new Model((new TexturedBox(80f,80f,4f)).Mesh);
-
-            //Material editMaterial = new Material();
-
-            //editMaterial.Diffuse = Color.White.ToVector4();
-            //editMaterial.Specular = Color.White.ToVector4();
-            //editMaterial.SpecularPower = 10;
-            //editMaterial.Texture = Content.Load<Texture2D>("Textures//Chessboard_wood");
-            //editArea.Material = editMaterial;
-
+            //WITH TEXTURE
+            editArea.Model = new Model((new TexturedBox(80f,80f,1f)).Mesh);
+            editArea.Material = editMaterial;
+            
             //TransformNode editTrans = new TransformNode(new Vector3(0f,40f,3f));
             //editTrans.AddChild(editArea);
             //groundMarkerNode.AddChild(editTrans);
 
+            // Geometry for Labels
+
+            labelTrans = new TransformNode("labelTrans");
+            labelTrans.Translation = new Vector3(30,-1.0f,1);
+            labelTrans.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, (float)Math.PI / 2);
+
+            labelGeo = new GeometryNode("labelGeo");
+            labelGeo.Model = new Model((new TexturedBox(28f,3.5f,0.1f)).Mesh);
+
+            labelTrans.AddChild(labelGeo);
+            editTrans.AddChild(labelTrans);
+
+            airRightLabelTrans = new TransformNode("airRightLabelTrans");
+            airRightLabelTrans.Translation = new Vector3(35, -1.0f, 1);
+            airRightLabelTrans.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, (float)Math.PI / 2);
+
+            airRightLabelGeo = new GeometryNode("airRightLabelGeo");
+            airRightLabelGeo.Model = new Model((new TexturedBox(32f, 3.5f, 0.1f)).Mesh);
+
+            airRightLabelTrans.AddChild(airRightLabelGeo);
+            editTrans.AddChild(airRightLabelTrans);
+
+            Material m1 = new Material();
+            m1.Diffuse = Color.White.ToVector4();
+
+            Material m2 = new Material();
+            m2.Diffuse = Color.White.ToVector4();
+
+            labelGeo.Material = m1;
+            airRightLabelGeo.Material = m2;
+
+            labelGeo.Enabled = false;
+            airRightLabelGeo.Enabled = false;
+
+            infoFont = Content.Load<SpriteFont>("Fonts//InfoFont"); //UIFont
+
+            infoColor = Color.Yellow; 
+
             // Load buildings
-            //if (Settings.BuildingsDetailed)
-            //    LoadDetailedBuildings(factor);
-            //else
-                LoadPlainBuildings(factor);
+            LoadBuildings(factor);
 
             initializeHandles();
 
@@ -228,9 +360,6 @@ namespace Manhattanville
             centerY = Window.ClientBounds.Height / 2;
             MouseCenter();
 
-            font = Content.Load<SpriteFont>("Fonts//UIFont");
-
-            color = new Color(255, 255, 0, 50000); 
             /*
             Material mat = new Material();
             mat.Specular = Color.White.ToVector4();
@@ -256,6 +385,7 @@ namespace Manhattanville
             AppStateMgr.enter(AppState.Browse);
 
             ModificationManager.initialize(this, graphics);
+            //Data.initialize(graphics.GraphicsDevice, DataRepresentation.width, DataRepresentation.height);
 
             bigOneTranslations.AddChild(buildings[3].RealBuildingTransform);
             //bigOneTranslations.Translation = Vector3.UnitZ * -50;
@@ -267,20 +397,18 @@ namespace Manhattanville
         private void loadData()
         {
 
-
-            dataRepresentation = new
-DataRepresentation(graphics.GraphicsDevice, font, color);
+            dataRepresentation = new DataRepresentation(graphics.GraphicsDevice, infoFont, infoColor);
             //dataRepresentation.Model = new Box(1,20,20);
 
-            dataRepresentation.Translation = new Vector3(-10, 40, -20);
-            //dataRepresentation.Rotation =
-            Quaternion.CreateFromAxisAngle(Vector3.UnitZ, MathHelper.ToRadians(90));
+            dataRepresentation.Translation = new Vector3(0, 0, 3);
+            dataRepresentation.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, MathHelper.ToRadians(90));
             dataRepresentation.Scale = new Vector3(3, 3, 3);
-            groundMarkerNode.AddChild(dataRepresentation);
+            editTrans.AddChild(dataRepresentation);
             dataRepresentation.Enabled = false;
-
+            /*
             ((NewtonPhysics)scene.PhysicsEngine).ApplyAngularVelocity(dataRepresentation.boxNode1.Physics,
                                      new Vector3(1, 0, 0));
+            */
 
         }
         //private void CreateAirRightsGraph()
@@ -293,8 +421,8 @@ DataRepresentation(graphics.GraphicsDevice, font, color);
         private void CreateLights()
         {
             // Create a directional light source
-            LightSource lightSource = new LightSource();
-            lightSource.Direction = new Vector3(-1, -1, -1);
+            lightSource = new LightSource();
+            lightSource.Direction = new Vector3(-0.25f, -0.5f, -1.0f); // left/right, up/down, in/out
             lightSource.Diffuse = Color.White.ToVector4();
             lightSource.Specular = new Vector4(0.6f, 0.6f, 0.6f, 1);
 
@@ -497,13 +625,6 @@ DataRepresentation(graphics.GraphicsDevice, font, color);
 
             GeometryNode terrainNode = new GeometryNode("terrainNode");
             terrainNode.Model = terrainModel;
-
-            Material terrainMaterial = new Material();
-            terrainMaterial.Diffuse = Color.White.ToVector4();
-            terrainMaterial.Specular = Color.White.ToVector4();
-            terrainMaterial.SpecularPower = 10;
-            terrainMaterial.Texture = Content.Load<Texture2D>("Textures//Manhattanville");
-
             terrainNode.Material = terrainMaterial;
 
             TransformNode terrainTransNode = new TransformNode("terrainTransNode");
@@ -623,11 +744,9 @@ DataRepresentation(graphics.GraphicsDevice, font, color);
             transNode.AddChild(skirfNode);
         }
 
-        private void LoadPlainBuildings(float factor)
+        private void LoadBuildings(float factor)
         {
-            String filename = "buildings_plain.csv";
-            if (Settings.BuildingsSubset)
-                filename = "buildings_plain_subset.csv";
+            String filename = "buildings_plain_subset.csv";
 
             FileStream file = new FileStream(filename, FileMode.Open, FileAccess.Read);
             StreamReader sr = new StreamReader(file);
@@ -653,16 +772,16 @@ DataRepresentation(graphics.GraphicsDevice, font, color);
                 //BuildingTransform realBuildingTransformNode;
 
                 parentTrans = new TransformNode("parentTrans");
-                parentTrans.Translation = new Vector3(-12.5f, -15.69f, 0);
-                parentTrans.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, 119 * MathHelper.Pi / 180);
+                parentTrans.Translation = Settings.ModelBaseTrans;
+                parentTrans.Rotation = Settings.ModelBaseRot;
 
                 parentTransBigOne = new TransformNode("parentTransBigOne");
                 //parentTransBigOne.Translation = new Vector3(-12.5f, -15.69f, 0);
-                parentTransBigOne.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, 119 * MathHelper.Pi / 180);
+                parentTransBigOne.Rotation = Settings.ModelBaseRot;
 
                 parentTransEditable = new TransformNode("parentTransEditable");
                 //parentTransEditable.Translation = new Vector3(0f, 40f, 5f);
-                parentTransEditable.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, 119 * MathHelper.Pi / 180);
+                parentTransEditable.Rotation = Settings.ModelBaseRot;
                 parentTransEditable.Scale = new Vector3(Settings.EditableScale);
 
                 handleTrans = new TransformNode("handleTrans");
@@ -714,12 +833,26 @@ DataRepresentation(graphics.GraphicsDevice, font, color);
                         Building realBuilding = new Building( address + "_r");
                         lot.addBuilding(building);
                         building.Lot = lot;
-                        building.Model = (Model)loader.Load("", "Plain/" + address);
+                        building.Model = (Model)loader.Load("", Settings.ModelDir + address);
                         building.AddToPhysicsEngine = true;
                         building.Physics.Shape = ShapeType.Box;
                         building.calcModelCoordinates();
 
-                        editableBuilding.Model = (Model)loader.Load("", "Plain/" + address);
+                        String lbl = "    " + lot.knownAs;
+                        if (lot.knownAs.Length < 20)
+                            lbl = "         " + lbl;
+
+                        building.RenderedLabel = Data.txt2Txt(
+                            graphics.GraphicsDevice,
+                            lbl,
+                            210, 26, infoFont, infoColor);
+                        
+                        building.RenderedAirRights = Data.txt2Txt(
+                            graphics.GraphicsDevice,
+                            "   Available Air Rights: " + lot.airRights.ToString("#,###"),
+                            240, 26, infoFont, infoColor);
+
+                        editableBuilding.Model = (Model)loader.Load("", Settings.ModelDir + address);
                         editableBuilding.AddToPhysicsEngine = true;
                         editableBuilding.Physics.Shape = ShapeType.Box;
 						editableBuilding.Model.OffsetToOrigin = true;
@@ -744,7 +877,6 @@ DataRepresentation(graphics.GraphicsDevice, font, color);
                         zRot = (float)Double.Parse(chunks[1]);
                         x = (float)Double.Parse(chunks[2]);
                         y = (float)Double.Parse(chunks[3]);
-                        z = (float)Double.Parse(chunks[4]);
 
                         float graphNodeXOffset = (float)Double.Parse(chunks[29]);
                         float graphNodeYOffset = (float)Double.Parse(chunks[30]);
@@ -754,11 +886,23 @@ DataRepresentation(graphics.GraphicsDevice, font, color);
                         ///////////// BUILD TRANSFORM NODES
 
                         BuildingTransform transNode = new BuildingTransform(building.Name + "_tn", building, (1.0f / Settings.EditableScale));
-                        transNode.Translation = new Vector3(x, y, z * factor);
+
+                        if (Settings.BuildingsDetailed)
+                        {
+                            z = 0;
+                            transNode.zOffset = (float)Double.Parse(chunks[4]) * factor;
+                        }
+                        else
+                        {
+                            z = (float)Double.Parse(chunks[4]) * factor;
+                            transNode.zOffset = 0;
+                        }
+
+                        transNode.Translation = new Vector3(x, y, z);
                         transNode.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ,
                             (float)(zRot * Math.PI / 180)) * Quaternion.CreateFromAxisAngle(Vector3.UnitX,
                             MathHelper.PiOver2);
-                        transNode.Scale = Vector3.One * scale;
+                        transNode.Scale = Vector3.One * Settings.ModelScale;
                         transNode.origScale = transNode.Scale;
 
                         BuildingTransform editableBuildingTransformNode = new BuildingTransform(editableBuilding.Name + "_tn", editableBuilding, Settings.EditableScale);
@@ -774,7 +918,7 @@ DataRepresentation(graphics.GraphicsDevice, font, color);
                                     Vector3.UnitX,
                                     MathHelper.PiOver2
                                 ),
-                            Vector3.One * scale);
+                            Vector3.One * Settings.ModelScale);
                         
                         TransformNode editableBuildingTransformNode2 = new TransformNode(new Vector3(0, 0, building.ModelHeight / 2));
                         editableBuildingTransformNode2.Name = editableBuilding.Name + "_tn2";
@@ -798,25 +942,8 @@ DataRepresentation(graphics.GraphicsDevice, font, color);
                         editableBuildingTransformNode.addObserver(airRightsTransformNode);
                         editableBuildingTransformNode.addObserver(realBuildingTransformNode);
 
-                        Material buildingMaterial = new Material();
-                        buildingMaterial.Diffuse = Color.White.ToVector4();
-                        buildingMaterial.Specular = Color.White.ToVector4();
-                        buildingMaterial.SpecularPower = 3f;
-
                         building.Material = buildingMaterial;
-
-                        Material editableBuildingMaterial = new Material();
-                        editableBuildingMaterial.Diffuse = new Vector4(153,153,153,.7f);
-                        editableBuildingMaterial.Specular = Color.White.ToVector4();
-                        editableBuildingMaterial.SpecularPower = 3f;
-
                         editableBuilding.Material = editableBuildingMaterial;
-
-                        Material realBuildingMaterial = new Material();
-                        realBuildingMaterial.Diffuse = new Vector4(153, 153, 153, 1);
-                        realBuildingMaterial.Specular = Color.White.ToVector4();
-                        realBuildingMaterial.SpecularPower = 3f;
-
                         realBuilding.Material = editableBuildingMaterial;
 
                         building.TransformNode = transNode;
@@ -847,6 +974,7 @@ DataRepresentation(graphics.GraphicsDevice, font, color);
                         airRightsGraph.AddChild(airRightsTransformNode);
                         //Log.Write(airRightsNode.Name + " airRightsNode was loaded.");
                         airRightsTransformNode.AddChild(airRightsNode);
+                        airRightsTransformNode.airRightsNode = airRightsNode;
                     }
                 }
             }
@@ -876,14 +1004,14 @@ DataRepresentation(graphics.GraphicsDevice, font, color);
             */
                 //UpdateMouse();
                 if (AppStateMgr.continousMode
-                    && AppStateMgr.inState(AppState.Browse)
+                    && (AppStateMgr.inState(AppState.Browse) || (AppStateMgr.inState(AppState.Info)))
                     && !menu.Visible)
                 {
+                    getClosestBuilding(null);
+                    
                     if (selectedBuilding != null)
                         if (selectedBuilding.EditBuildingTransform != null)
-                            selectedBuilding.EditBuildingTransform.Enabled = true;
-                    dataRepresentation.Enabled = false;
-                    getClosestBuilding(null);
+                            selectedBuilding.EditBuildingTransform.Enabled = !AppStateMgr.inState(AppState.Info);
                 }
 
                 //UpdateMouse();
@@ -895,22 +1023,7 @@ DataRepresentation(graphics.GraphicsDevice, font, color);
                     if (selectedBuilding != null)
                         if (selectedBuilding.EditBuildingTransform != null)
                             selectedBuilding.EditBuildingTransform.Enabled = true;
-                    dataRepresentation.Enabled = false;
                     getClosestHandle(null);
-                }
-
-                //UpdateMouse();
-                if (AppStateMgr.continousMode
-                    && AppStateMgr.inState(AppState.Info)) //&& !menu.Visible
-                {
-                    if (selectedBuilding != null)
-                    {
-                        if (selectedBuilding != null)
-                            if (selectedBuilding.EditBuildingTransform != null)
-                                selectedBuilding.EditBuildingTransform.Enabled = false;
-                        dataRepresentation.Enabled = true;
-                        dataRepresentation.showData(selectedBuilding);
-                    }
                 }
 
                 if (AppStateMgr.handleGrabbed && !menu.Visible && toolMarkerNode.MarkerFound)
@@ -1038,7 +1151,7 @@ DataRepresentation(graphics.GraphicsDevice, font, color);
                     b = buildings[0];
                 }
                 
-                selectBuilding(b);
+                selectBuilding(b, true);
             }
 
             if (key == Microsoft.Xna.Framework.Input.Keys.X)
@@ -1051,11 +1164,21 @@ DataRepresentation(graphics.GraphicsDevice, font, color);
                     scale = 1000f;
                 }
 
-                if (Microsoft.Xna.Framework.Input.Keyboard.GetState().IsKeyDown(Keys.LeftShift)) {
+                if (Microsoft.Xna.Framework.Input.Keyboard.GetState().IsKeyDown(Keys.RightAlt))
+                {
+                    Vector3 dir = lightSource.Direction;
+                    dir.X += 1;
+                    if (dir.X > 1) dir.X = -1;
+                    lightSource.Direction = dir;
+                    GoblinXNA.UI.Notifier.AddMessage("Light=" + lightSource.Direction.ToString());
+                }
+                else if (Microsoft.Xna.Framework.Input.Keyboard.GetState().IsKeyDown(Keys.LeftShift)) {
                     bigOneTranslations.Translation = bigOneTranslations.Translation - (Vector3.UnitX * scale);
                 } else {
                     bigOneTranslations.Translation = bigOneTranslations.Translation + (Vector3.UnitX * scale);
                 }
+
+                
             }
 
             if (key == Microsoft.Xna.Framework.Input.Keys.Y)
@@ -1068,7 +1191,15 @@ DataRepresentation(graphics.GraphicsDevice, font, color);
                     scale = 1000f;
                 }
 
-                if (Microsoft.Xna.Framework.Input.Keyboard.GetState().IsKeyDown(Keys.LeftShift))
+                if (Microsoft.Xna.Framework.Input.Keyboard.GetState().IsKeyDown(Keys.RightAlt))
+                {
+                    Vector3 dir = lightSource.Direction;
+                    dir.Y += 1;
+                    if (dir.Y > 1) dir.Y = -1;
+                    lightSource.Direction = dir;
+                    GoblinXNA.UI.Notifier.AddMessage("Light=" + lightSource.Direction.ToString());
+                }
+                else if (Microsoft.Xna.Framework.Input.Keyboard.GetState().IsKeyDown(Keys.LeftShift))
                 {
                     bigOneTranslations.Translation = bigOneTranslations.Translation - (Vector3.UnitY * scale);
                 }
@@ -1088,7 +1219,15 @@ DataRepresentation(graphics.GraphicsDevice, font, color);
                     scale = 1000f;
                 }
 
-                if (Microsoft.Xna.Framework.Input.Keyboard.GetState().IsKeyDown(Keys.LeftShift))
+                if (Microsoft.Xna.Framework.Input.Keyboard.GetState().IsKeyDown(Keys.RightAlt))
+                {
+                    Vector3 dir = lightSource.Direction;
+                    dir.Z += 1;
+                    if (dir.Z > 1) dir.Z = -1;
+                    lightSource.Direction = dir;
+                    GoblinXNA.UI.Notifier.AddMessage("Light=" + lightSource.Direction.ToString());
+                }
+                else if (Microsoft.Xna.Framework.Input.Keyboard.GetState().IsKeyDown(Keys.LeftShift))
                 {
                     bigOneTranslations.Translation = bigOneTranslations.Translation - (Vector3.UnitZ * scale);
                 }
@@ -1161,7 +1300,7 @@ DataRepresentation(graphics.GraphicsDevice, font, color);
         {
             if (!tool.Marker.MarkerFound) {
                 if (!AppStateMgr.continousMode) GoblinXNA.UI.Notifier.AddMessage("Tool not found!");
-                return;
+                goto deselect;
             }
 
             //GoblinXNA.UI.Notifier.AddMessage("tool=" + tool.Marker.WorldTransformation.Translation.ToString());
@@ -1194,10 +1333,18 @@ DataRepresentation(graphics.GraphicsDevice, font, color);
 
             }
 
-            if (closestBuilding != null && minDis < Settings.MinDistanceForGrab)
+            if (closestBuilding == null) return;
+            
+            if (minDis < Settings.MinDistanceForGrab)
             {
                 selectBuilding(closestBuilding);
+                if (AppStateMgr.inState(AppState.Info)) dataRepresentation.showData(selectedBuilding);
+                return;
             }
+            
+deselect:
+            if (selectedBuilding != null)
+                selectBuilding(null);
 
         }
 
@@ -1282,44 +1429,77 @@ DataRepresentation(graphics.GraphicsDevice, font, color);
 
         private void selectBuilding(Building b)
         {
+            selectBuilding(b, false);
+        }
+
+        private void selectBuilding(Building b, bool force)
+        {
+
 
             if (selectedBuilding != b)
             {
 
-                votesForChangingSelectedBuilding++;
+                if (!force)
+                {
+                    votesForChangingSelectedBuilding++;
 
-                if (votesForChangingSelectedBuilding < Settings.VotesForChangingSelectedBuilding)
-                {
-                    return;
-                }
-                else
-                {
-                    votesForChangingSelectedBuilding = 0;
+                    if (votesForChangingSelectedBuilding < Settings.VotesForChangingSelectedBuilding)
+                    {
+                        return;
+                    }
+                    else
+                    {
+                        votesForChangingSelectedBuilding = 0;
+                    }
                 }
 
                 hum.Play();
+                if (AppStateMgr.inState(AppState.Info) && dataRepresentation != null) dataRepresentation.renderData(b);
             }
             else // (selectedBuilding == b)
             {
                 return;
             }
-            
+
             if (buildingSelected())
             {
-                selectedBuilding.Material.Diffuse = Color.White.ToVector4();
+                selectedBuilding.Material = buildingMaterial;
                 //if (selectedEditableBuilding != null)
                 //{
                 parentTransEditable.RemoveChild(selectedBuilding.EditBuildingTransform);
                 //}
                 //selectedBuilding.setEditableTransform(null);
+                if (selectedBuilding.Lot.airRights < 0)
+                    selectedBuilding.AirRightsTransformNode.airRightsNode.Material = airRightOver;
+                else
+                    selectedBuilding.AirRightsTransformNode.airRightsNode.Material = airRightUnder;
             }
 
             selectedBuilding = b;
+
+            if (selectedBuilding == null)
+            {
+                labelGeo.Enabled = false;
+                airRightLabelGeo.Enabled = false;
+                return;
+            }
+
             selectedEditableBuilding = editableBuildings[selectedBuilding];
             selectedLot = b.Lot;
 
-            selectedBuilding.Material.Diffuse = Color.DarkSlateGray.ToVector4();
+            selectedBuilding.Material = selectedBuildingMaterial;
             parentTransEditable.AddChild(selectedBuilding.EditBuildingTransform);
+
+            if (selectedBuilding.Lot.airRights < 0)
+                selectedBuilding.AirRightsTransformNode.airRightsNode.Material = airRightOverSelected;
+            else
+                selectedBuilding.AirRightsTransformNode.airRightsNode.Material = airRightUnderSelected;
+
+            labelGeo.Material.Texture = selectedBuilding.RenderedLabel;
+            airRightLabelGeo.Material.Texture = selectedBuilding.RenderedAirRights;
+
+            labelGeo.Enabled = true;
+            airRightLabelGeo.Enabled = true;
 
             handles[(int)Handle.Location.Top].Translation = b.CenterOfCeilWithOffset;
             handles[(int)Handle.Location.BottomSW].Translation = b.MinPointWithOffset;
@@ -1397,5 +1577,35 @@ DataRepresentation(graphics.GraphicsDevice, font, color);
         {
             return toolMarkerNode.WorldTransformation.Translation;
         }
+
+        void graphics_PreparingDeviceSettings(object sender, PreparingDeviceSettingsEventArgs e)
+        {
+            // Xbox 360 and most PCs support FourSamples/1 (4x) and TwoSamples/1 (2x)
+            // antialiasing.
+
+            int quality = 0;
+            GraphicsAdapter adapter = e.GraphicsDeviceInformation.Adapter;
+            SurfaceFormat format = adapter.CurrentDisplayMode.Format;
+            // Check for 4xAA
+            if (adapter.CheckDeviceMultiSampleType(DeviceType.Hardware, format,
+                false, MultiSampleType.FourSamples, out quality))
+            {
+                // even if a greater quality is returned, we only want quality 1
+                e.GraphicsDeviceInformation.PresentationParameters.MultiSampleQuality = 1;
+                e.GraphicsDeviceInformation.PresentationParameters.MultiSampleType =
+                    MultiSampleType.FourSamples;
+            }
+            // Check for 2xAA
+            else if (adapter.CheckDeviceMultiSampleType(DeviceType.Hardware, format,
+                false, MultiSampleType.TwoSamples, out quality))
+            {
+                // even if a greater quality is returned, we only want quality 1
+                e.GraphicsDeviceInformation.PresentationParameters.MultiSampleQuality = 1;
+                e.GraphicsDeviceInformation.PresentationParameters.MultiSampleType =
+                    MultiSampleType.TwoSamples;
+            }
+            return;
+        }
+
     }
 }

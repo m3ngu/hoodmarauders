@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using GoblinXNA;
 using GoblinXNA.Device.Capture;
+using Microsoft.Xna.Framework;
 
 namespace Manhattanville
 {
@@ -56,7 +57,10 @@ namespace Manhattanville
         // Miscellanous
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         public static bool          BuildingsDetailed   { get; set; }
-        public static bool          BuildingsSubset     { get; set; }
+        public static float         ModelScale          { get; set; }
+        public static String        ModelDir            { get; set; }
+        public static Vector3       ModelBaseTrans      { get; set; }
+        public static Quaternion    ModelBaseRot        { get; set; }
 
 
         public static void loadFromSettingsFile()
@@ -96,7 +100,21 @@ namespace Manhattanville
             UpdateFreq = int.Parse(State.GetSettingVariable("UpdateFreq"));
 
             BuildingsDetailed = bool.Parse(State.GetSettingVariable("BuildingsDetailed"));
-            BuildingsSubset = bool.Parse(State.GetSettingVariable("BuildingsSubset"));
+
+            if (BuildingsDetailed)
+            {
+                ModelScale = 0.0073f;
+                ModelDir = "Detailed/";
+                ModelBaseTrans = new Vector3(-33.5f, -54.25f, 0);
+                ModelBaseRot = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, MathHelper.PiOver2);
+            }
+            else
+            {
+                ModelScale = 0.00728f;
+                ModelDir = "Plain/";
+                ModelBaseTrans = new Vector3(-12.5f, -15.69f, 0);
+                ModelBaseRot = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, 119 * MathHelper.Pi / 180);
+            }
         }
 
     }

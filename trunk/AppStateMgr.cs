@@ -108,7 +108,8 @@ namespace Manhattanville
                     showIcon = true;
                     handlesEnabled = false;
                     app.toggleHandles();
-                    
+                    app.dataRepresentation.renderData(app.selectedBuilding);
+                    app.dataRepresentation.showData(app.selectedBuilding);
                     break;
             }
 
@@ -147,7 +148,7 @@ namespace Manhattanville
                     break;
                 case AppState.Info:
                     /* -----------INFO----------*/
-
+                    app.dataRepresentation.Enabled = false;
 
 
 

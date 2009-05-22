@@ -41,12 +41,13 @@ namespace Manhattanville
             transNode.Translation = new Vector3(0, 0, -1);
 
             GeometryNode displayShelf = new GeometryNode();
-            displayShelf.Model = new Box(80,20,1);
+            displayShelf.Model = new Model((new TexturedBox(80,20,1)).Mesh);
             
             Material mat = new Material();
-            mat.Diffuse = Color.DarkSlateBlue.ToVector4();
-            mat.Specular = Color.White.ToVector4();
-            mat.SpecularPower = 3f;
+            mat.Diffuse = Color.White.ToVector4(); //Color.DarkSlateBlue.ToVector4();
+            //mat.Specular = Color.White.ToVector4();
+            //mat.SpecularPower = 10;
+            mat.Texture = Manhattanville.airTex;
 
             displayShelf.Material = mat;
 

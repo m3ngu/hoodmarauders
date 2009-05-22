@@ -36,24 +36,13 @@ namespace Manhattanville
         private float scaleRatioToEditable;
         private float airRightsSum;
         private float initialModelFootprint;
-        private Material greenmat;
-        private Material redmat;
+        internal AirRightsNode airRightsNode;
 
         public AirRightsTransform( Building b ) : base(b.Name + "_AirRightsTransform") {
             this.ModelBuilding = b;
             this.initialModelFootprint = this.ModelBuilding.Lot.footprint * Settings.AirAdjustment;
             this.Footprint = this.initialModelFootprint;
             this.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitX, MathHelper.ToRadians(90));
-
-            redmat = new Material();
-            redmat.Diffuse = new Vector4(.5f * 255, .5f * 0, .5f * 0, 0.5f);
-            redmat.Specular = Color.White.ToVector4(); //new Vector4(.5f * 255, .5f * 0, .5f * 0, 1f);
-            redmat.SpecularPower = 3f;
-
-            greenmat = new Material();
-            greenmat.Diffuse = new Vector4(.5f * 0, .5f * 255, .5f * 0, 0.5f);
-            greenmat.Specular = Color.White.ToVector4(); //new Vector4(.5f * 255, .5f * 0, .5f * 0, 1f);
-            greenmat.SpecularPower = 3f;
         }
 
         public override void observe(BuildingTransform bt)
@@ -90,11 +79,11 @@ namespace Manhattanville
             //System.Console.WriteLine("bt.ModelBuilding.Lot.airRights = " + bt.ModelBuilding.Lot.airRights);
             if (newAirRights < 0)
             {
-                ((AirRightsNode)this.Children[0]).Material = redmat;
+                airRightsNode.Material = Manhattanville.airRightOverSelected;
             }
             else
             {
-                ((AirRightsNode)this.Children[0]).Material = greenmat;
+                airRightsNode.Material = Manhattanville.airRightUnderSelected;
             }
                 //airRightsSum += ((Lot)b.Lot).airRights;
                 //System.Console.WriteLine("can't seem to access airrights value for this lot.");//AirRightsTransform sum = " + airRightsSum);

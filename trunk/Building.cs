@@ -52,12 +52,18 @@ namespace Manhattanville
         public int                  Stories                { get; set; }
         public Matrix               CompTransWithOffset    { get; set; }
         public Matrix               CompTransWithoutOffset { get; set; }
+        public Texture2D            RenderedDataText       { get; set; }
+        public bool                 DataChanged            { get; set; }
+        public Texture2D            RenderedLabel          { get; set; }
+        public Texture2D            RenderedAirRights      { get; set; }
+
         //private List<Building> observers;
         //private float           scaleRatioToEditable;
 
         public Building(string address)
             : base(address)
         {
+            DataChanged = true;
         }
 
         public void calcModelCoordinatesHelper(
@@ -79,17 +85,16 @@ namespace Manhattanville
 
             transformation =
                   Matrix.CreateFromQuaternion(Quaternion.CreateFromAxisAngle(Vector3.UnitX, MathHelper.PiOver2))  // This flips the Y and Z axes
-                * Matrix.CreateScale(Vector3.One * 0.00728f);   // This scaled the model from 1000s to 10s of pixels
+                * Matrix.CreateScale(Vector3.One * Settings.ModelScale);   // This scaled the model from 1000s to 10s of pixels
 
             //transformation.Translation = this.TransformNode.Translation;  // This is the small adjustment in the Z direction
 
-            finalRotation = Matrix.CreateFromQuaternion(
-                Quaternion.CreateFromAxisAngle(Vector3.UnitZ, 119 * MathHelper.Pi / 180));  // This rotates around the Z axis
+            finalRotation = Matrix.CreateFromQuaternion(Settings.ModelBaseRot);  // This rotates around the Z axis
 
             if (withOffset)
                 transformation = Matrix.Multiply(this.Model.OffsetTransform, transformation);  // This brings the model to the origin
             else
-                finalRotation.Translation = new Vector3(-12.5f, -15.69f, 0);
+                finalRotation.Translation = Settings.ModelBaseTrans;
 
             store = Matrix.Multiply(transformation, finalRotation);
 
