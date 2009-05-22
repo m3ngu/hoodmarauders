@@ -75,9 +75,9 @@
   Interaction params
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   -->
-  <var name="WandMovementThreshold" value="5" />
+  <var name="WandMovementThreshold" value="6" />
   <var name="MinDistanceForGrab" value="20" />
-  <var name="VotesForChangingSelectedBuilding" value="30" />
+  <var name="VotesForChangingSelectedBuilding" value="40" />
   <var name="MinGestureDistance" value="100" />
   <var name="MinTimeBetweenMenuSelections" value="1000" />
   <var name="UpdateFreq" value="10" />
@@ -86,7 +86,6 @@
   Miscellaneous
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   -->
-  <var name="BuildingsDetailed" value="false" />
-  <var name="BuildingsSubset" value="true" /><!-- This is only in effect when BuildingsDetailed = false-->
+  <var name="BuildingsDetailed" value="true" />
   
 </GoblinXNASettings>

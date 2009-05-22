@@ -51,19 +51,13 @@ namespace Manhattanville
             float radius = (float)Math.Sqrt(surfaceArea) * Settings.GroundToFootRatio * Settings.AirAdjustment;
             this.Model = new Cylinder(radius,radius, height, 20);//3,3,height,20);//
 
-            Material airRightsMaterial = new Material();
             if (lot.airRights < 0) {
-                airRightsMaterial.Diffuse = new Vector4(.5f * 255, .5f * 0, .5f * 0, 0.5f);
+                this.Material = Manhattanville.airRightOver;
             } else {
-                airRightsMaterial.Diffuse = new Vector4(.5f * 0, .5f * 255, .5f * 0, 0.5f);
+                this.Material = Manhattanville.airRightUnder;
             }
-            airRightsMaterial.Specular = Color.White.ToVector4(); //new Vector4(.5f * 255, .5f * 0, .5f * 0, 1f);
-            airRightsMaterial.SpecularPower = 3f;
-            //airRightsMaterial.Emissive = Color.White.ToVector4();
             
-            this.Material = airRightsMaterial;
-            
-            this.Physics.Shape = GoblinXNA.Physics.ShapeType.Box;
+            this.Physics.Shape = GoblinXNA.Physics.ShapeType.Cylinder;
             this.Physics.Pickable = true;
             this.AddToPhysicsEngine = true;
 

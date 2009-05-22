@@ -44,37 +44,39 @@ namespace Manhattanville
         SpriteFont spriteFont;
         Color color;
         Material boxMaterial1,boxMaterial2,boxMaterial3,boxMaterial4;
+        internal static int height = 540;
+        internal static int width = 400;
         
         //Scene scene;
 
-        public DataRepresentation(GraphicsDevice graphicsDevice,SpriteFont spriteFont,Color color): base()
+        public DataRepresentation(GraphicsDevice graphicsDevice, SpriteFont spriteFont, Color color): base()
         {
 
             //scene = new Scene();
            // boxNode1 = new GeometryNode("Box1");
-            tb = new TexturedBox(1, 20, 14);
+            tb = new TexturedBox(width/30, height/30, 0.1f);
             boxNode1 = new GeometryNode("Box1");
             boxNode1.Model = new Model(tb.Mesh);
             //boxNode1.Physics.Interactable = true;
             //boxNode1.Physics.Collidable = true;
             //boxNode1.Physics.MomentOfInertia =new Vector3(3,3,3) ;
             boxNode1.AddToPhysicsEngine = true;
-            Vector3 vector;
+            //Vector3 vector;
                       
             boxTransNode1 = new TransformNode();
-            boxTransNode1.Translation = new Vector3(6, 0, 10);
-            boxTransNode1.Rotation = Quaternion.CreateFromAxisAngle(new Vector3(0, 1, 0),
-              MathHelper.ToRadians(90));
+            //boxTransNode1.Translation = new Vector3(6, 0, 10);
+            //boxTransNode1.Rotation = Quaternion.CreateFromAxisAngle(new Vector3(0, 1, 0),
+            //  MathHelper.ToRadians(90));
             //boxTransNode1.Translation = new Vector3(0, -10, 0);
             //boxTransNode1.Rotation = Quaternion.CreateFromAxisAngle(new Vector3(0, 1, 0),
             //MathHelper.ToRadians(60));
 
             boxMaterial1 = new Material();
-            boxMaterial1.Diffuse = new Vector4(255, 255, 255, 0.5f);
-            boxMaterial1.Specular = Color.White.ToVector4();
-            boxMaterial1.SpecularPower = 10;
+            boxMaterial1.Diffuse = new Vector4(255, 255, 255, 1.0f);
+            //boxMaterial1.Specular = new Vector4(255, 255, 255, 0.0f);
+            //boxMaterial1.SpecularPower = 1000;
             boxNode1.Material = boxMaterial1;
-            vector = boxTransNode1.Translation;
+            //vector = boxTransNode1.Translation;
             //Console.WriteLine("vectorrrrrrrrrrrrrrrrr" + vector);
 
             //String[] str = { buildingName};
@@ -94,7 +96,7 @@ namespace Manhattanville
 
             //boxNode1.Material = textTransNode;
             //boxNode1.Material = boxMaterial1;
-
+            /*
             tb1 = new TexturedBox(1, 20, 20);
             boxNode2 = new GeometryNode("Box2");
             //boxNode2.Model = new Box(1, 20, 20);
@@ -116,7 +118,7 @@ namespace Manhattanville
             boxMaterial2.Specular = Color.White.ToVector4();
             boxMaterial2.SpecularPower = 10;
             boxNode2.Material = boxMaterial2;
-
+            */
             //boxNode3
 
             /*tb2 = new TexturedBox(1, 10, 10);
@@ -162,7 +164,7 @@ namespace Manhattanville
 
             boxTransNode1.AddChild(boxNode1);
             //groundMarkerNode.AddChild(boxTransNode2);
-            boxTransNode2.AddChild(boxNode2);
+            //boxTransNode2.AddChild(boxNode2);
             //boxTransNode3.AddChild(boxNode3);
             //boxTransNode4.AddChild(boxNode4);
             this.AddChild(boxTransNode1);
@@ -179,42 +181,71 @@ namespace Manhattanville
             this.spriteFont = spriteFont;
             this.color = color;
         }
+
         public void Update(double gameTime)
         {
             rotationAngle += (float)gameTime*0.5f;
             //boxTransNode1.Rotation = Quaternion.CreateFromAxisAngle(new Vector3(0, 1, 0), rotationAngle);
             //boxTransNode2.Rotation = Quaternion.CreateFromAxisAngle(new Vector3(1, 0, 0), rotationAngle);        
         }
+
         public void showData(Building selectedBuilding)
         {
+            this.enabled = (selectedBuilding != null);
+        }
 
+        public void renderData(Building selectedBuilding)
+        {
 
-            boxMaterial1.Texture = Data.txt2Txt(graphicsDevice,
-                "\nAddress:   " + selectedBuilding.Lot.name +
-                "\nSale Date:   " + selectedBuilding.Lot.saleDate +
-                "\nSale Price:   " + selectedBuilding.Lot.salePrice +
-                "\nYear Built:   " + selectedBuilding.Lot.yearBuilt +
-                "\nMaximum Floor Area:   " + selectedBuilding.Lot.maxFlrAreaRatio +
-                "\nLot Area:   " + selectedBuilding.Lot.lotArea +
-                "\nZoning District:   " + selectedBuilding.Lot.zoningDistrict +
-                "\nCensus Tract:   " + selectedBuilding.Lot.censusTract +
-                "\nCommercial Units:   " + selectedBuilding.Lot.commercialUnits +
-                "\nMaximum FloorArea:   " + selectedBuilding.Lot.maxFlrAreaRatio +
-                "\nZoning District:   " + selectedBuilding.Lot.zoningDistrict +
-                "\nStories:   " + selectedBuilding.Lot.stories +
-                "\nActual Land:   " + selectedBuilding.Lot.actualLand +
-                 "\nActual Total:   " + selectedBuilding.Lot.actualTotal +
-                 "\nAir Rights:   " + selectedBuilding.Lot.airRights +
-                 "\nBuilding Gross Area:   " + selectedBuilding.Lot.bldgGrossArea +
-                 "\nBlock And Lot:   " + selectedBuilding.Lot.blockAndLot +
-                 "\nBuilding Class:   " + selectedBuilding.Lot.buildingClass +
-                 "\nBuilding:   " + selectedBuilding.Lot.building +
-                 "\nLot Depth:   " + selectedBuilding.Lot.lotDepth +
-                 "\nFloors:   " + selectedBuilding.Lot.floors+
-                 "\nLot Frontage:   " + selectedBuilding.Lot.lotFrontage +
-                 "\nResidential Units:   " + selectedBuilding.Lot.residentialUnits +
-                 "\nToxic Sites:   " + selectedBuilding.Lot.toxicSites,
-                200, 400, spriteFont, color);
+            if (selectedBuilding == null) return;
+
+            if (selectedBuilding.DataChanged)
+            {
+                String price = "N/A";
+
+                if (selectedBuilding.Lot.salePrice > 0)
+                    price = "$ " + selectedBuilding.Lot.salePrice.ToString("#,###");
+
+                selectedBuilding.RenderedDataText = Data.txt2Txt(graphicsDevice,
+                    "\n   ___BUILDING______________________________\n" +
+                    "\n   Address:   " + selectedBuilding.Lot.knownAs +
+                    //"\n   Building:   " + selectedBuilding.Lot.building +
+                    "\n   Building Class:   " + selectedBuilding.Lot.buildingClass +
+                    "\n   Year Built:   " + selectedBuilding.Lot.yearBuilt +
+                    "\n" +
+                    "\n   ___LOT___________________________________\n" +
+                    "\n   Block And Lot:   " + selectedBuilding.Lot.blockAndLot +
+                    "\n   Lot Area:   " + selectedBuilding.Lot.lotArea.ToString("#,###") +
+                    "\n   Lot Depth:   " + selectedBuilding.Lot.lotDepth.ToString("#,###") +
+                    "\n   Lot Frontage:   " + selectedBuilding.Lot.lotFrontage.ToString("#,###") +
+                    "\n" +
+                    "\n   ___AIR_RIGHTS____________________________\n" +
+                    "\n   Zoning District:   " + selectedBuilding.Lot.zoningDistrict +
+                    "\n   Stories:   " + selectedBuilding.Stories +
+                    //"\n   Floors:   " + selectedBuilding.Lot.floors +
+                    "\n   Available Air Rights:   " + selectedBuilding.Lot.airRights.ToString("#,###") +
+                    //"\n   Maximum Floor Area:   " + selectedBuilding.Lot.maxFlrAreaRatio +
+                    //"\n   Building Gross Area:   " + selectedBuilding.Lot.bldgGrossArea +
+                    "\n" +
+                    "\n   ___COMMERCIAL___________________________\n" +
+                    "\n   Sale Price:  " + price +
+                    "\n   Sale Date:   " + selectedBuilding.Lot.saleDate
+                    
+                    /*
+                    "\nCensus Tract:   " + selectedBuilding.Lot.censusTract +
+                    "\nActual Land:   " + selectedBuilding.Lot.actualLand +
+                    "\nActual Total:   " + selectedBuilding.Lot.actualTotal +
+                    "\nResidential Units:   " + selectedBuilding.Lot.residentialUnits +
+                    "\nCommercial Units:   " + selectedBuilding.Lot.commercialUnits +
+                    "\nToxic Sites:   " + selectedBuilding.Lot.toxicSites
+                    */
+                    ,
+                    width, height, spriteFont, color);
+                
+                selectedBuilding.DataChanged = false;
+            }
+
+            boxMaterial1.Texture = selectedBuilding.RenderedDataText;
 
             //String buildingName = selectedBuilding.Lot.name;
             //String buildingAddress = selectedBuilding.Lot.saleDate;

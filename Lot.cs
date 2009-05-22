@@ -53,7 +53,7 @@ namespace Manhattanville
         public String yearBuilt;
         public String buildingClass;
         public String toxicSites;
-        public String salePrice;
+        public float salePrice;
         public String saleDate;
         public float airRights;
         public String zoningMapNum;
@@ -97,7 +97,7 @@ namespace Manhattanville
             this.yearBuilt = chunks[14];
             this.buildingClass = chunks[15];
             this.toxicSites = chunks[16];
-            this.salePrice = chunks[17];
+            this.salePrice = float.Parse(chunks[17]);
             this.saleDate = chunks[18];
             this.airRights = float.Parse(chunks[19]) + Settings.AdditionalAirRights;
             this.zoningMapNum = chunks[20];
