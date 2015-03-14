@@ -1,0 +1,1 @@
+Shows data about Manhattanville using the ARTag system and a webcam. Discussions at <a href='http://groups.google.com/group/hoodmarauders'><a href='http://groups.google.com/group/hoodmarauders'>http://groups.google.com/group/hoodmarauders</a></a>.
